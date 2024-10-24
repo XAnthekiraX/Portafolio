@@ -1,38 +1,27 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import './App.css';
+import { Routes, Route } from "react-router-dom";
+import PageInitial from './Components/PageInitial';
+import LoginDeveloper from './Components/LoginDeveloper';
+// import AddNewSkill from './Common/AddSkills/AddNewSkill';
+import SkillAndProject from './Components/SkillAndProject';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const login = true;
 
   return (
-    <>
-      <div>
-        <h1 className='border-red-500 bg-inherit from-inherit'>Hola</h1>
-        <div className='flex items-center justify-center '>
-          <a href="https://vitejs.dev" target="_blank">
-            <img src={viteLogo} className="logo" alt="Vite logo" />
-          </a>
-          <a href="https://react.dev" target="_blank">
-            <img src={reactLogo} className="logo react" alt="React logo" />
-          </a>
-        </div>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Routes>
+      {/* Ruta raíz (inicio) */}
+      <Route path="/" element={<PageInitial />} />
+      {/* Ruta para el login */}
+      {
+        login
+          ?
+          <Route path="/login" element={<SkillAndProject />} />
+          :
+          <Route path="/login" element={<LoginDeveloper />} />
+      }
+    </Routes>
+  );
 }
 
-export default App
+export default App;
