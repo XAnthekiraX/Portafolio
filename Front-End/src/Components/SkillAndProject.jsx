@@ -11,9 +11,10 @@ export default function SkillAndProject() {
     }
 
     return (
-        <div className="relative w-screen h-screen overflow-y-auto ">
+        <div className="relative flex w-screen h-screen overflow-y-auto">
             <AddNewProject OnClickF={changeCardTech} bool={visibleTech} />
             <AddNewSkill visibleTech={visibleTech} OnCLickF={changeCardTech} />
+            
         </div>
 
     )

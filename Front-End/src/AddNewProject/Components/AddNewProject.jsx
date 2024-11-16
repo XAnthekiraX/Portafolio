@@ -13,7 +13,8 @@ export default function AddNewProject({ OnClickF }) {
     const [projectTitle, setProjectTitle] = useState('');
     const [projectTitleEng, setProjectTitleEng] = useState('');
     const [description, setDescription] = useState('');
-    const [technologies, setTechnologies] = useState('');
+    const [descriptionEng, setDescriptionEng] = useState('');
+    const [technologies, setTechnologies] = useState(0);
     const [imagePreview, setImagePreview] = useState(null);
     const [githubLink, setGithubLink] = useState('');
     const [demoLink, setDemoLink] = useState('');
@@ -30,18 +31,34 @@ export default function AddNewProject({ OnClickF }) {
         }
     };
 
+    const clearFormProject =()=>{
+        setProjectTitle("");
+        setProjectTitleEng("");
+        setDescription("");
+        setDescriptionEng("");
+        setTechnologies([]);
+        setImagePreview(null);
+        setGithubLink("");
+        setDemoLink("");
+
+    }
+
     const handleSubmit = (e) => {
         e.preventDefault(); // Evita la recarga de página
 
         // Imprime en la consola los datos del proyecto que se van a enviar o guardar
         console.log("New project submitted:", {
             projectTitle,
+            projectTitleEng,
             description,
+            descriptionEng,
             technologies,
             imagePreview,
             githubLink,
             demoLink,
         });
+
+        clearFormProject();
 
         // Aquí es donde se debería manejar el envío de datos, 
         // como guardarlos en una base de datos o enviarlos a un servidor
@@ -56,9 +73,13 @@ export default function AddNewProject({ OnClickF }) {
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className='grid grid-cols-1 gap-2 lg:grid-cols-2'>
                         <ProjectTitleInput value={projectTitle} onChange={(e) => setProjectTitle(e.target.value)} labelText={"Titulo del Proyecto"} placeHolder={"Ingrese el titulo del proyecto"} />
-                        <ProjectTitleInput value={projectTitleEng} onChange={(e) => setProjectTitleEng(e.target.value)} labelText={"Titulo en Ingles"} placeHolder={"Titulo en Ingles"}/>
+                        <ProjectTitleInput value={projectTitleEng} onChange={(e) => setProjectTitleEng(e.target.value)} labelText={"Titulo en Ingles"} placeHolder={"Titulo en Ingles"} />
                     </div>
-                    <DescriptionTextarea value={description} onChange={(e) => setDescription(e.target.value)} />
+                    <div className='grid grid-cols-1 gap-2 lg:grid-cols-2'>
+                        <DescriptionTextarea value={description} onChange={(e) => setDescription(e.target.value)} descripcion={"Descripcion"}/>
+                        <DescriptionTextarea value={descriptionEng} onChange={(e) => setDescriptionEng(e.target.value)} descripcion={"Descripcion en Ingles"} />
+
+                    </div>
                     <TechnologiesSelect value={technologies} onChange={(e) => setTechnologies(e.target.value)} onAddClick={OnClickF} />
                     <ImageUploader onImageChange={handleImageChange} imagePreview={imagePreview} />
                     <LinkInput id="githubLink" label="GitHub Repository Link" value={githubLink} onChange={(e) => setGithubLink(e.target.value)} placeholder="https://github.com/yourusername/your-repo" />

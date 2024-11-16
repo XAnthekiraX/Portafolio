@@ -21,7 +21,7 @@ export function TechnologiesSelect({ value, onChange, onAddClick }) {
                         <option value={skill.name} key={index}>{skill.name}</option>
                     ))}
                 </select>
-                <button type="button" className="flex items-center justify-center w-10 h-10 text-gray-300 bg-gray-700 rounded hover:border" onClick={onAddClick}>
+                <button type="button" className="flex items-center justify-center w-10 h-10 text-gray-300 bg-gray-700 border-purple-500 rounded hover:border" onClick={onAddClick}>
                     <Plus />
                 </button>
             </div>
@@ -30,7 +30,7 @@ export function TechnologiesSelect({ value, onChange, onAddClick }) {
 }
 
 TechnologiesSelect.propTypes = {
-    value: PropTypes.string.isRequired,
+    value: PropTypes.number.isRequired,
     onChange: PropTypes.func.isRequired,
     onAddClick: PropTypes.func.isRequired,
 };
