@@ -32,7 +32,7 @@ Este documento define la funcionalidad completa del panel administrativo de Anth
 | **SaaS Projects** | `/admin/saas` | CRUD de proyectos SaaS (nombre, descripción, imagen, URL, estado, etc.) |
 | **Profile** | `/admin/profile` | Información personal, CV, skills, redes sociales |
 | **Education** | `/admin/education` | CRUD de formación académica (institución, título, descripción) |
-| **Settings** | `/admin/settings` | Configuración del sitio, media, mensajes, tecnologías, servicios, education |
+| **Settings** | `/admin/settings` | Configuración del sitio, tecnologías, servicios, media, mensajes |
 
 ---
 
