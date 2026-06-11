@@ -1,0 +1,311 @@
+Bloque 1 — Negocio y Visión General
+
+1. ¿Cuál es el objetivo principal del proyecto? ¿Qué sistema estamos construyendo?
+
+Construir un portafolio personal para presentarte como desarrollador de software, con una landing page pública y un CMS integrado para administrar el contenido sin modificar código.
+
+2. ¿Cuál es el público objetivo? ¿Quiénes serán los usuarios finales?
+
+Potenciales clientes.
+Reclutadores.
+Empresas que buscan desarrolladores.
+Posibles socios o colaboradores.
+
+3. ¿Qué problema específico resuelve este proyecto?
+
+Centralizar tu presencia profesional en una plataforma propia.
+Mostrar tus proyectos, habilidades y experiencia.
+Facilitar que clientes o empleadores conozcan tu trabajo.
+Reducir la dependencia de plataformas externas para mostrar tu perfil profesional.
+
+4. ¿Tienes un nombre definido para el proyecto?
+
+Sí. El proyecto utilizará la marca personal Anthekira.dev.
+Inicialmente funcionará como portafolio profesional y punto central de presencia online.
+Actualmente no está planteado como producto, empresa o SaaS independiente, aunque la marca podría evolucionar en el futuro si surgen nuevas necesidades.
+
+5. ¿Hay algún plazo o fecha límite para el proyecto?
+
+Sí. El objetivo es completar una primera versión funcional en aproximadamente 8 días o menos.
+El plazo se basa en experiencias previas desarrollando proyectos similares mediante AI Native Development.
+La velocidad de desarrollo no debe comprometer la calidad, mantenibilidad ni el rendimiento de la aplicación.
+Se prioriza la entrega rápida de un producto profesional listo para ser publicado y utilizado como presencia online.
+
+6. ¿Este proyecto es para un cliente, para tu propia empresa, o es un proyecto personal/portfolio?
+
+Proyecto personal y portafolio profesional.
+Bloque 2 — Frontend (Landing Page)
+
+1. ¿Qué propósito tiene la Landing Page pública?
+
+Portafolio personal de desarrollador.
+Presentación profesional.
+Exhibición de proyectos y habilidades.
+
+2. ¿Qué secciones o contenido debe mostrar la Landing Page?
+
+Hero (presentación profesional principal).
+Sobre mí.
+Habilidades técnicas.
+Tecnologías y herramientas utilizadas.
+Proyectos destacados.
+Formación académica.
+Servicios ofrecidos.
+Metodología de trabajo y desarrollo, incluyendo el uso de AI Native Development en el proceso de diseño, arquitectura e implementación de software.
+Enlaces profesionales (GitHub y otras plataformas relevantes).
+Contacto.
+Currículum vitae (CV) descargable.
+
+3. ¿Requiere múltiples idiomas (i18n)?
+
+Sí.
+La arquitectura debe diseñarse desde el inicio para soportar múltiples idiomas de forma escalable.
+La primera versión incluirá:
+Español.
+Inglés.
+Portugués.
+Todo el contenido público de la Landing Page deberá ser traducible.
+El CMS no requiere internacionalización en esta etapa, ya que será utilizado únicamente por el propietario del sitio.
+El panel administrativo estará disponible únicamente en español.
+La solución debe permitir agregar nuevos idiomas en el futuro sin cambios significativos en la arquitectura.
+
+4. ¿Necesita SEO? ¿Hay estrategia de palabras clave o contenido indexable planeado?
+
+Sí, el proyecto requiere una estrategia SEO desde el inicio.
+El objetivo es mejorar la visibilidad profesional y facilitar la captación de oportunidades laborales y clientes freelance.
+El contenido indexable estará enfocado en:
+Desarrollo web.
+Desarrollo backend.
+Desarrollo full stack.
+Arquitectura de software.
+AI Native Development.
+Automatización de procesos.
+Desarrollo de SaaS.
+La Landing Page será principalmente estática, por lo que el SEO se centrará en páginas optimizadas, metadatos, contenido profesional y estructura semántica.
+Debe implementarse SEO técnico, Open Graph, Twitter Cards, sitemap y metadatos específicos para cada sección pública del sitio.
+
+5. ¿Debe ser responsive / mobile-first?
+
+Sí, la aplicación debe ser responsive.
+La experiencia debe adaptarse correctamente a dispositivos móviles, tabletas y escritorio.
+No se requiere una estrategia estricta mobile-first.
+El diseño debe reorganizar y distribuir adecuadamente los elementos según el tamaño de pantalla, evitando simplemente reducir el contenido o escalar componentes.
+La experiencia principal estará optimizada para escritorio, manteniendo una presentación profesional y cómoda en dispositivos móviles.
+
+6. ¿Hay requisitos de accesibilidad (WCAG)?
+
+Sí.
+La aplicación deberá implementar buenas prácticas básicas de accesibilidad desde su primera versión.
+Esto incluye:
+Uso correcto de HTML semántico.
+Estructura adecuada de encabezados.
+Contraste de colores legible.
+Navegación funcional mediante teclado.
+Etiquetado correcto de formularios.
+Textos alternativos para imágenes relevantes.
+Identificación clara de enlaces y botones.
+No se requiere cumplimiento formal de WCAG 2.1 AA en la primera versión.
+La arquitectura y los componentes deberán diseñarse de forma que permitan evolucionar hacia un cumplimiento más estricto de estándares WCAG en futuras iteraciones sin necesidad de una reestructuración importante.
+
+Bloque 3 — CMS y Panel Administrativo
+
+1. ¿Qué tipo de contenido se gestionará desde el CMS?
+
+Información personal y profesional.
+Biografía y descripción profesional.
+Habilidades técnicas.
+Tecnologías y herramientas utilizadas.
+Proyectos destacados.
+Experiencia laboral.
+Formación académica.
+Servicios ofrecidos.
+Información de contacto.
+Redes sociales y enlaces profesionales.
+Metadatos SEO.
+Contenido multilingüe de la Landing Page.
+Currículum vitae (CV) descargable.
+Archivos multimedia asociados al portafolio.
+Imágenes de perfil.
+Imágenes y capturas de proyectos.
+Recursos visuales utilizados en las distintas secciones públicas del sitio.
+
+2. ¿Quién usará el CMS?
+
+Solo por mi
+
+3. ¿El panel administrativo (/admin) es solo para gestionar contenido del CMS o incluye otras funciones?
+
+El panel administrativo incluirá funcionalidades adicionales además de la gestión de contenido.
+Permitirá la gestión de archivos e imágenes utilizados en el sitio.
+Permitirá la configuración general del sitio.
+Incluirá analíticas básicas relacionadas con visitas y uso de la Landing Page.
+Permitirá visualizar y gestionar los mensajes recibidos desde los formularios de contacto.
+Permitirá gestionar el currículum vitae (CV) disponible para descarga.
+Permitirá administrar enlaces a redes sociales y perfiles profesionales.
+Permitirá administrar otros datos de configuración necesarios para el funcionamiento del portafolio.
+No incluirá gestión de SEO desde el panel administrativo en la primera versión.
+No incluirá gestión de traducciones desde el panel administrativo en la primera versión.
+
+4. ¿Se requiere sistema de borradores, versionado y publicación programada?
+
+No 
+
+5. ¿El CMS debe permitir edición de contenido visual (WYSIWYG) o solo Markdown/campos de texto?
+
+El CMS utilizará principalmente formularios y campos estructurados.
+La información será administrada mediante campos específicos para cada tipo de contenido.
+Se permitirá la carga y gestión de imágenes asociadas a proyectos y contenido visual del sitio.
+No se requiere un editor visual tipo WYSIWYG.
+No se requiere soporte para Markdown en la primera versión.
+El objetivo es mantener una interfaz administrativa simple, rápida y enfocada en la gestión de contenido estructurado.
+
+Bloque 4 — Backend y API
+
+1. ¿Qué recursos/entidades manejará el sistema?
+
+Usuario administrador.
+Credenciales de acceso.
+Información personal y profesional.
+Nombre.
+Título profesional.
+Descripción profesional.
+Estado o situación profesional actual.
+URL del currículum vitae.
+Información de contacto.
+Redes sociales.
+Proyecto.
+Información general del proyecto.
+Descripción.
+Tecnologías utilizadas.
+Imágenes asociadas.
+Enlaces relevantes.
+Estado del proyecto.
+Tecnología.
+Nombre.
+Descripción opcional.
+Relación con uno o varios proyectos.
+Servicio.
+Servicios profesionales ofrecidos.
+Información sobre futuros productos o SaaS.
+Descripción.
+Estado de disponibilidad.
+Archivo multimedia.
+Imágenes.
+Recursos visuales utilizados en la Landing Page.
+Archivos asociados a proyectos.
+Mensaje de contacto.
+Información enviada desde el formulario de contacto.
+Datos del remitente.
+Mensaje.
+Fecha de envío.
+Estadísticas de visitas.
+Visitas totales.
+Visitas por página.
+Métricas básicas de navegación.
+Información agregada para conocer el tráfico del sitio.
+
+2. ¿La API pública (Landing Page) y la API privada (CMS) son el mismo backend con distintos niveles de acceso, o servicios separados?
+
+La API pública y la API privada compartirán un único backend.
+El acceso a los recursos se controlará mediante distintos niveles de autorización.
+Los endpoints públicos estarán destinados exclusivamente a la consulta de información mostrada en la Landing Page.
+Los endpoints privados estarán protegidos y serán utilizados por el panel administrativo para operaciones de gestión y mantenimiento del contenido.
+Se prioriza la simplicidad arquitectónica, facilidad de despliegue y menor costo operativo al tratarse de un portafolio personal.
+
+3. ¿Se requiere autenticación? ¿Qué tipo?
+
+Sí.
+El sistema utilizará autenticación mediante usuario y contraseña.
+La autorización se gestionará mediante JWT (JSON Web Tokens).
+Se implementará un mecanismo de refresh tokens para renovar sesiones sin requerir un nuevo inicio de sesión frecuente.
+La autenticación estará restringida al panel administrativo y a los endpoints privados del sistema.
+Los endpoints públicos de la Landing Page no requerirán autenticación.
+El sistema está diseñado para un único administrador en la primera versión.
+
+4. ¿Habrá roles y permisos?
+
+No 
+
+Bloque 5 — Infraestructura y Tecnología
+
+1. ¿Tienes preferencia por algún stack tecnológico?
+
+Frontend:
+React
+JavaScript
+TypeScript
+Tailwind CSS
+
+Backend:
+Node
+Java
+Spring Boot
+Base de datos:
+PostgreSQL
+Supabase
+
+Estas tecnologías coinciden con las que has mencionado utilizar habitualmente.
+
+2. ¿Dónde se desplegará el proyecto? (Vercel, Netlify, AWS, DigitalOcean, propio)
+
+El frontend se desplegará en Vercel.
+El backend se desplegará en Vercel.
+La base de datos se alojará en Supabase.
+La infraestructura prioriza simplicidad operativa, bajo costo y facilidad de despliegue.
+La arquitectura deberá ser compatible con despliegues automatizados y actualizaciones continuas.
+
+3. ¿Base de datos relacional o NoSQL? ¿Tienes preferencia?
+
+PostgreSQL.
+Base de datos relacional.
+
+4. ¿Requiere almacenamiento de archivos? (Imágenes, documentos, etc.) ¿Dónde?
+
+Sí.
+El sistema requerirá almacenamiento de archivos para recursos utilizados en la Landing Page y el CMS.
+Se almacenarán:
+Imágenes de perfil.
+Imágenes y capturas de proyectos.
+Recursos visuales del sitio.
+Currículum vitae (CV).
+El almacenamiento se realizará mediante Supabase Storage.
+Los archivos serán gestionados desde el panel administrativo y consumidos por la Landing Page a través de URLs públicas o controladas según corresponda.
+
+Bloque 6 — AI Native Development
+
+1. ¿Qué herramientas de IA planeas usar en el flujo de desarrollo?
+
+OpenCode será la herramienta principal utilizada para la implementación y generación de código.
+ChatGPT será utilizado para revisar, validar y mejorar la documentación del proyecto.
+Freebuff será utilizado para generar la documentación técnica y los archivos Markdown que servirán como base para el desarrollo.
+El proyecto seguirá un enfoque AI Native Development, donde la documentación actúa como fuente principal de contexto para los agentes de IA involucrados en el proceso de construcción.
+
+2. ¿Hay convenciones o guías de estilo que los agentes de IA deben seguir?
+
+Los agentes deben seguir una arquitectura limpia, modular y mantenible, adecuada para proyectos profesionales que sirvan como demostración de buenas prácticas de desarrollo.
+La estructura del proyecto debe favorecer la separación de responsabilidades, escalabilidad y facilidad de mantenimiento.
+El código, documentación técnica, nombres de variables, funciones, componentes, clases y archivos deben escribirse en inglés.
+Los agentes deben respetar principios de diseño como SOLID, KISS y DRY cuando sean aplicables.
+Los agentes deben utilizar la documentación del proyecto como única fuente de verdad para la implementación.
+Está prohibido asumir requisitos, funcionalidades o comportamientos que no estén documentados explícitamente.
+Está prohibido inventar entidades, endpoints, componentes, reglas de negocio o flujos de usuario.
+Los agentes no deben realizar tareas que no hayan sido solicitadas explícitamente.
+Los agentes deben trabajar únicamente sobre la tarea actual asignada.
+Antes de implementar funcionalidades complejas, los agentes deben dividir el trabajo en tareas pequeñas, concretas y verificables.
+Los agentes no deben generar múltiples funcionalidades simultáneamente.
+Cada tarea debe completarse, validarse y aprobarse antes de continuar con la siguiente.
+Los agentes deben solicitar aclaraciones cuando exista información ambigua o incompleta.
+La implementación debe mantenerse alineada en todo momento con la documentación aprobada del proyecto.
+Cualquier desviación de la documentación debe ser consultada y aprobada previamente.
+
+3. ¿Hay restricciones sobre qué bibliotecas o patrones usar?
+
+Sí.
+Se debe priorizar una cantidad mínima de dependencias externas.
+Las bibliotecas incorporadas al proyecto deben aportar valor real y resolver problemas específicos.
+Se deben evitar dependencias innecesarias o redundantes.
+Se deben evitar bibliotecas excesivamente pesadas que afecten negativamente el rendimiento, mantenimiento o tamaño final de la aplicación.
+Se deben priorizar soluciones compatibles con la arquitectura definida, Vercel, Supabase y el enfoque AI Native Development.
+Los patrones de diseño utilizados deben ser apropiados para la complejidad real del proyecto.
+Se debe evitar la sobreingeniería y la incorporación de arquitecturas o patrones complejos que no aporten beneficios claros al portafolio.
+La simplicidad, mantenibilidad y rendimiento tendrán prioridad sobre la complejidad técnica innecesaria.
