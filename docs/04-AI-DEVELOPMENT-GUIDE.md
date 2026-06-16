@@ -76,23 +76,37 @@ anthekira.dev/
 ├── .env.local
 ├── .env.production
 ├── next.config.ts
-├── tailwind.config.ts
 ├── tsconfig.json
+├── package.json
+│
+├── frontend/                       # ← Código del frontend
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── [locale]/           #   Landing Page (público, con i18n)
+│   │   │   ├── admin/              #   Panel Admin (privado, sin i18n)
+│   │   │   └── api/                #   API Routes (public/ + private/)
+│   │   ├── components/             #   Componentes React (ui/, landing/, admin/, shared/)
+│   │   ├── lib/                    #   Utilidades (supabase server/client, i18n.ts)
+│   │   └── middleware.ts           #   Next.js Middleware
+│   └── docs/                       #   Documentación del frontend
+│
+├── backend/                        # ← Código del backend
+│   ├── src/
+│   │   ├── services/               #   Lógica de negocio
+│   │   └── lib/                    #   Utilidades (supabase admin, auth, errors, upload)
+│   └── docs/                       #   Documentación del backend
+│
+├── shared/                         # ← Código compartido
+│   └── src/
+│       ├── types/                  #   Interfaces TypeScript
+│       ├── validators/             #   Schemas Zod
+│       └── utils/                  #   Utilidades generales
+│
 ├── public/
-│   ├── locales/          # Traducciones next-intl (es.json, en.json, pt.json)
-│   ├── images/           # Imágenes estáticas
-│   └── fonts/            # Fuentes auto-hospedadas (opcional)
-├── src/
-│   ├── app/
-│   │   ├── [locale]/     # Landing Page (público, con i18n)
-│   │   ├── admin/        # Panel Admin (privado, sin i18n)
-│   │   └── api/          # API Routes (public/ + private/)
-│   ├── components/       # Componentes React (ui/, landing/, admin/, shared/)
-│   ├── lib/              # Utilidades (supabase/, auth/, i18n.ts, utils.ts)
-│   ├── services/         # Lógica de negocio
-│   ├── types/            # Tipos TypeScript
-│   └── middleware.ts     # Next.js Middleware
-└── docs/                 # Documentación del proyecto
+│   ├── locales/                    # Traducciones next-intl
+│   └── images/                     # Imágenes estáticas
+│
+└── docs/                           # Documentación general del proyecto
 ```
 
 > Para la estructura completa y detallada, consultar `01-ARCHITECTURE.md` sección 2.
@@ -194,8 +208,8 @@ Cuando dos documentos entren en conflicto, el orden de precedencia es:
 | 2 | `00-REQUIREMENTS.md` | Requisitos del proyecto |
 | 3 | `01-ARCHITECTURE.md` | Arquitectura del sistema |
 | 4 | `03-USER-FLOWS.md` | Flujos de usuario |
-| 5 | `frontend/*.md` | Documentación del frontend |
-| 6 | `backend/*.md` | Documentación del backend |
+| 5 | `frontend/docs/*.md` | Documentación del frontend |
+| 6 | `backend/docs/*.md` | Documentación del backend |
 | 7 (mínima) | `04-AI-DEVELOPMENT-GUIDE.md` | Esta guía (reglas de desarrollo) |
 
 ### 7.2 Qué Hacer ante Ambigüedad

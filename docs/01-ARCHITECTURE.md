@@ -2,7 +2,7 @@
 
 ## 1. Visión General de la Arquitectura
 
-Anthekira.dev es un monorepo de Next.js que unifica frontend (Landing Page + Panel Admin) y backend (API Routes) en un solo proyecto desplegado en Vercel. La base de datos y el almacenamiento de archivos están alojados en Supabase.
+Anthekira.dev es un proyecto organizado en tres dominios claramente separados: **frontend** (Next.js App Router), **backend** (lógica de negocio y acceso a datos) y **shared** (tipos y utilidades compartidas). Todo se despliega en Vercel, con base de datos y almacenamiento en Supabase.
 
 ### 1.1 Diagrama Conceptual
 
@@ -10,7 +10,7 @@ Anthekira.dev es un monorepo de Next.js que unifica frontend (Landing Page + Pan
 [Browser]
     │
     ├── Landing Page (/{lang}/)
-    │       └── Server Components → consulta directa → Supabase (DB)
+    │       └── frontend Server Components → consulta directa → Supabase (DB)
     │
     └── Panel Admin (/admin)
             │
@@ -18,7 +18,11 @@ Anthekira.dev es un monorepo de Next.js que unifica frontend (Landing Page + Pan
             │                                           │
             └── Login → Supabase Auth → JWT ────────────┘
                                                         │
-                                              [Next.js API Routes]
+                                              [frontend/src/app/api/*]
+                                              (Route Handlers de Next.js)
+                                                        │
+                                              backend/src/services/*
+                                              backend/src/lib/*
                                                         │
                                               Supabase (service_role)
                                                         │
@@ -33,7 +37,7 @@ Anthekira.dev es un monorepo de Next.js que unifica frontend (Landing Page + Pan
 
 | Principio | Aplicación |
 |---|---|
-| **Simplicidad** | Monorepo único. Evitar microservicios o backends separados innecesarios |
+| **Simplicidad** | Proyecto único con separación lógica de dominios. Evitar microservicios o proyectos separados innecesarios |
 | **Bajo costo** | Todo en Vercel (plan Hobby/Pro) + Supabase (plan Free) |
 | **Mantenibilidad** | Separación clara de responsabilidades por carpeta y naming |
 | **Performance** | Server Components para datos públicos, Client Components solo cuando sea necesario |
@@ -41,112 +45,118 @@ Anthekira.dev es un monorepo de Next.js que unifica frontend (Landing Page + Pan
 
 ---
 
-## 2. Estructura del Proyecto (Monorepo Next.js)
+## 2. Estructura del Proyecto
 
 ```
 anthekira.dev/
-├── .env.local                  # Variables de entorno (local)
-├── .env.production             # Variables de entorno (producción)
-├── next.config.ts              # Configuración de Next.js
-├── tsconfig.json               # Configuración de TypeScript
+├── .env.local                    # Variables de entorno (local)
+├── .env.production               # Variables de entorno (producción)
+├── next.config.ts                # Configuración de Next.js
+├── tsconfig.json                 # Configuración de TypeScript
+├── package.json
 │
-├── public/
-│   ├── locales/                # Archivos de traducción (next-intl)
+├── frontend/                     # ← FRONTEND: Next.js App Router
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── [locale]/         #   Landing Page (público, con i18n)
+│   │   │   │   ├── layout.tsx    #     Landing Layout (header + footer)
+│   │   │   │   ├── page.tsx      #     Landing Page principal
+│   │   │   │   ├── projects/
+│   │   │   │   ├── about/
+│   │   │   │   ├── contact/
+│   │   │   │   └── not-found.tsx
+│   │   │   ├── admin/            #   Panel Admin (privado, sin i18n)
+│   │   │   │   ├── login/
+│   │   │   │   ├── layout.tsx    #     Admin Layout (sidebar + navbar)
+│   │   │   │   ├── page.tsx      #     Dashboard
+│   │   │   │   ├── projects/
+│   │   │   │   ├── saas/
+│   │   │   │   ├── profile/
+│   │   │   │   ├── education/
+│   │   │   │   ├── technologies/
+│   │   │   │   ├── services/
+│   │   │   │   └── skills/
+│   │   │   └── api/              #   API Routes (Next.js)
+│   │   │       ├── public/       #     Endpoints públicos (sin auth)
+│   │   │       │   ├── personal-info/
+│   │   │       │   ├── projects/
+│   │   │       │   ├── skills/
+│   │   │       │   ├── services/
+│   │   │       │   ├── technologies/
+│   │   │       │   ├── saas/
+│   │   │       │   └── contact/
+│   │   │       └── private/      #     Endpoints privados (con auth JWT)
+│   │   │           ├── admin/login/
+│   │   │           ├── personal-info/
+│   │   │           ├── projects/
+│   │   │           ├── saas/
+│   │   │           ├── skills/
+│   │   │           ├── technologies/
+│   │   │           ├── services/
+│   │   │           └── stats/count/
+│   │   ├── components/           #   Componentes React
+│   │   │   ├── ui/               #     Atómicos (Button, Card, Input, etc.)
+│   │   │   ├── landing/          #     Landing Page (Hero, About, Skills...)
+│   │   │   ├── admin/            #     Panel Admin (Sidebar, DataTable...)
+│   │   │   └── shared/           #     Compartidos (LanguageSwitcher, AuthGuard)
+│   │   ├── lib/                  #   Utilidades del frontend
+│   │   │   ├── supabase/         #     Clientes (server.ts, client.ts)
+│   │   │   ├── i18n.ts           #     Configuración de next-intl
+│   │   │   └── routing.ts        #     Configuración de routing i18n
+│   │   └── middleware.ts         #   Middleware (protección rutas + i18n)
+│   └── docs/                     #   Documentación del frontend
+│       └── (documentos .md del frontend)
+│
+├── backend/                      # ← BACKEND: Lógica de negocio
+│   ├── src/
+│   │   ├── services/             #   Capa de servicios (business logic)
+│   │   │   ├── personal-info.ts
+│   │   │   ├── projects.ts
+│   │   │   ├── skills.ts
+│   │   │   ├── technologies.ts
+│   │   │   ├── services.ts
+│   │   │   ├── contact.ts
+│   │   │   ├── auth.ts
+│   │   │   ├── translations.ts
+│   │   │   ├── dashboard.ts
+│   │   │   └── ...
+│   │   └── lib/                  #   Utilidades del backend
+│   │       ├── supabase/
+│   │       │   └── admin.ts      #     Cliente service_role (bypass RLS)
+│   │       ├── auth/
+│   │       │   └── verify.ts     #     Verificación de tokens JWT
+│   │       ├── errors.ts         #     Clases de error personalizadas
+│   │       ├── upload.ts         #     Validación y subida de archivos
+│   │       └── i18n.ts           #     Helpers de locale para API
+│   └── docs/                     #   Documentación del backend
+│       └── (documentos .md del backend)
+│
+├── shared/                       # ← SHARED: Código compartido
+│   └── src/
+│       ├── types/                #   Interfaces TypeScript
+│       │   ├── entities.ts       #     Entidades del sistema
+│       │   ├── api.ts            #     Envelope API (ApiResponse, etc.)
+│       │   └── i18n.d.ts         #     Tipos para traducciones
+│       ├── validators/           #   Schemas Zod de validación
+│       │   └── index.ts          #     Schemas de todas las entidades
+│       └── utils/                #   Utilidades generales
+│           ├── slug.ts           #     generateSlug, generateUniqueSlug
+│           └── format.ts         #     formatZodErrors, etc.
+│
+├── public/                       # Archivos estáticos
+│   ├── locales/                  # Traducciones next-intl
 │   │   ├── es.json
 │   │   ├── en.json
 │   │   └── pt.json
-│   ├── images/                 # Imágenes estáticas (favicon, og-default, etc.)
-│   └── fonts/                  # Fuentes auto-hospedadas (opcional)
+│   └── images/                   # Imágenes estáticas (favicon, OG, etc.)
 │
-├── src/
-│   ├── app/                    # App Router (rutas y páginas)
-│   │   ├── [locale]/           # Rutas localizadas (/{lang}/)
-│   │   │   ├── layout.tsx      # Landing Layout (header + footer)
-│   │   │   ├── page.tsx        # Landing Page principal (/)
-│   │   │   ├── projects/
-│   │   │   ├── about/
-│   │   │   ├── contact/
-│   │   │   └── not-found.tsx
-│   │   ├── admin/              # Panel administrativo (sin i18n)
-│   │   │   ├── login/
-│   │   │   ├── layout.tsx      # Admin Layout (sidebar + navbar)
-│   │   │   ├── page.tsx        # Dashboard
-│   │   │   ├── projects/       # CRUD de proyectos (con modal de skills)
-│   │   │   ├── saas/           # CRUD de proyectos SaaS
-│   │   │   ├── profile/        # Info personal, CV, skills, redes
-│   │   │   └── settings/       # General, tecnologías, servicios, media, mensajes
-│   │   └── api/                # API Routes
-│   │       ├── public/         # Endpoints públicos (sin auth)
-│   │       │   ├── personal-info/
-│   │       │   ├── projects/
-│   │       │   ├── skills/
-│   │       │   ├── services/
-│   │       │   ├── technologies/
-│   │       │   ├── saas/
-│   │       │   └── contact/    # POST - formulario de contacto
-│   │       └── private/        # Endpoints privados (con auth JWT)
-│   │           ├── admin/login/
-│   │           ├── personal-info/
-│   │           ├── cv/
-│   │           ├── projects/
-│   │           ├── saas/
-│   │           ├── skills/
-│   │           ├── technologies/
-│   │           ├── services/
-│   │           ├── media/
-│   │           ├── messages/
-│   │           ├── settings/
-│   │           └── active/count/
-│   │
-│   ├── components/             # Componentes React reutilizables
-│   │   ├── ui/                 # Componentes atómicos (Button, Card, Input, etc.)
-│   │   ├── landing/            # Componentes específicos de la Landing Page
-│   │   │   ├── Hero/
-│   │   │   ├── About/
-│   │   │   ├── Skills/
-│   │   │   ├── Technologies/
-│   │   │   ├── Projects/
-│   │   │   ├── Services/
-│   │   │   ├── Contact/
-│   │   │   └── Footer/
-│   │   ├── admin/              # Componentes específicos del Panel Admin
-│   │   │   ├── Sidebar/
-│   │   │   ├── Navbar/
-│   │   │   ├── DataTable/
-│   │   │   ├── FormBuilder/
-│   │   │   └── Analytics/
-│   │   └── shared/             # Componentes compartidos (Header, LanguageSwitcher, etc.)
-│   │
-│   ├── lib/                    # Lógica compartida (utilidades, helpers)
-│   │   ├── supabase/
-│   │   │   ├── client.ts       # Cliente Supabase para Client Components (browser)
-│   │   │   ├── server.ts       # Cliente Supabase para Server Components (SSR)
-│   │   │   └── admin.ts        # Cliente Supabase con service_role (solo server)
-│   │   ├── auth/
-│   │   │   ├── jwt.ts          # Utilidades JWT
-│   │   │   └── verify.ts       # Middleware de autenticación para API
-│   │   ├── i18n.ts             # Configuración de next-intl
-│   │   └── utils.ts            # Utilidades generales
-│   │
-│   ├── services/               # Capa de servicios (lógica de negocio)
-│   │   ├── personal-info.ts
-│   │   ├── projects.ts
-│   │   ├── skills.ts
-│   │   ├── technologies.ts
-│   │   ├── services.ts
-│   │   ├── contact.ts
-│   │   └── auth.ts
-│   │
-│   ├── types/                  # Tipos de TypeScript compartidos
-│   │   ├── index.ts            # Tipos globales
-│   │   ├── entities.ts         # Interfaces de entidades (DB)
-│   │   ├── api.ts              # Tipos de request/response de API
-│   │   └── i18n.d.ts           # Tipos para traducciones
-│   │
-│   └── middleware.ts           # Next.js Middleware (protección de rutas, i18n routing)
+├── docs/                         # Documentación general del proyecto
+│   ├── 00-REQUIREMENTS.md
+│   ├── 01-ARCHITECTURE.md
+│   ├── 02-DECISIONS.md
+│   ├── 03-USER-FLOWS.md
+│   └── 04-AI-DEVELOPMENT-GUIDE.md
 │
-├── docs/                       # Documentación del proyecto
-├── package.json
 └── README.md
 ```
 
@@ -154,13 +164,17 @@ anthekira.dev/
 
 | Carpeta | Propósito |
 |---|---|
-| `src/app/[locale]` | Páginas públicas de la Landing Page con i18n |
-| `src/app/admin` | Panel administrativo (sin prefijo de idioma) |
-| `src/app/api` | API Routes públicas y privadas |
-| `src/components` | Componentes React organizados por dominio |
-| `src/lib` | Utilidades compartidas (Supabase clients, auth, i18n) |
-| `src/services` | Lógica de negocio (capa de servicios) |
-| `src/types` | Definiciones de tipos TypeScript |
+| `frontend/src/app/[locale]` | Páginas públicas de la Landing Page con i18n |
+| `frontend/src/app/admin` | Panel administrativo (sin prefijo de idioma) |
+| `frontend/src/app/api` | API Routes (Next.js) públicas y privadas |
+| `frontend/src/components` | Componentes React organizados por dominio |
+| `frontend/src/lib` | Utilidades del frontend (Supabase clients, i18n) |
+| `frontend/src/middleware.ts` | Middleware de Next.js (auth + i18n routing) |
+| `backend/src/services` | Lógica de negocio (capa de servicios) |
+| `backend/src/lib` | Utilidades del backend (auth, errors, upload) |
+| `shared/src/types` | Interfaces TypeScript compartidas |
+| `shared/src/validators` | Schemas Zod de validación |
+| `shared/src/utils` | Utilidades generales compartidas |
 | `public/locales` | Archivos de traducción JSON |
 
 ---
@@ -169,15 +183,15 @@ anthekira.dev/
 
 ### 3.1 Organización por Rutas
 
-| Ruta | Tipo | Descripción |
-|---|---|---|
-| `/{lang}/` | Server Component | Landing Page principal |
-| `/{lang}/projects` | Server Component | Página de proyectos (SEO) |
-| `/{lang}/about` | Server Component | Página Sobre Mí (SEO) |
-| `/{lang}/contact` | Server Component | Página de contacto (SEO) |
-| `/admin/login` | Client Component | Login del panel admin |
-| `/admin` | Client Component | Dashboard con enlace externo a Google Analytics |
-| `/admin/*` | Client Component | CRUDs de gestión de contenido |
+| Ruta | Tipo | Ubicación en frontend | Descripción |
+|---|---|---|---|
+| `/{lang}/` | Server Component | `frontend/src/app/[locale]/` | Landing Page principal |
+| `/{lang}/projects` | Server Component | `frontend/src/app/[locale]/` | Página de proyectos (SEO) |
+| `/{lang}/about` | Server Component | `frontend/src/app/[locale]/` | Página Sobre Mí (SEO) |
+| `/{lang}/contact` | Server Component | `frontend/src/app/[locale]/` | Página de contacto (SEO) |
+| `/admin/login` | Client Component | `frontend/src/app/admin/` | Login del panel admin |
+| `/admin` | Client Component | `frontend/src/app/admin/` | Dashboard con enlace externo a Google Analytics |
+| `/admin/*` | Client Component | `frontend/src/app/admin/` | CRUDs de gestión de contenido |
 
 ### 3.2 Server Components vs Client Components
 
@@ -188,16 +202,16 @@ anthekira.dev/
 ### 3.3 Layouts Anidados
 
 ```
-RootLayout (src/app/layout.tsx)
+RootLayout (frontend/src/app/layout.tsx)
 ├── HTML, body, fonts, metadata global
 │
-├── LandingLayout (src/app/[locale]/layout.tsx)
+├── LandingLayout (frontend/src/app/[locale]/layout.tsx)
 │   ├── Header (logo, nav, language switcher)
 │   ├── {children} (página actual)
 │   ├── Footer
 │   └── Google Analytics (Script)
 │
-└── AdminLayout (src/app/admin/layout.tsx)
+└── AdminLayout (frontend/src/app/admin/layout.tsx)
     ├── AuthGuard (redirect a /admin/login si no hay sesión)
     ├── Sidebar (navegación)
     ├── Navbar (usuario, logout)
@@ -207,8 +221,9 @@ RootLayout (src/app/layout.tsx)
 
 ### 3.4 Data Fetching
 
-- **Landing Page (pública):** Los Server Components consultan Supabase **directamente** desde el servidor. No pasan por las API Routes públicas, evitando un round-trip innecesario.
-- **Panel Admin (privada):** Los Client Components hacen `fetch()` a los endpoints privados `/api/private/*` con el token JWT en headers.
+- **Landing Page (pública):** Los Server Components (`frontend/src/app/[locale]/`) consultan Supabase **directamente** usando el cliente de `frontend/src/lib/supabase/server.ts`. No pasan por las API Routes públicas, evitando un round-trip innecesario.
+- **Panel Admin (privada):** Los Client Components (`frontend/src/app/admin/`) hacen `fetch()` a los endpoints privados `/api/private/*` con el token JWT en headers.
+- **API Routes (privadas):** Los Route Handlers (`frontend/src/app/api/private/*`) delegan en los servicios de `backend/src/services/` y usan el cliente `backend/src/lib/supabase/admin.ts` (service_role) para operaciones CRUD.
 
 ---
 
@@ -217,7 +232,7 @@ RootLayout (src/app/layout.tsx)
 ### 4.1 Estructura de `/api`
 
 ```
-src/app/api/
+frontend/src/app/api/
 ├── public/          # Sin autenticación
 │   └── [resource]/ # GET (listar)
 │       ├── route.ts
@@ -233,7 +248,7 @@ src/app/api/
 
 ### 4.2 Middleware de Autenticación
 
-- El middleware de Next.js (`src/middleware.ts`) protege las rutas `/admin` y `/api/private/*`
+- El middleware de Next.js (`frontend/src/middleware.ts`) protege las rutas `/admin` y `/api/private/*`
 - Verifica la presencia y validez del token JWT en cookies
 - Redirige a `/admin/login` si no hay sesión válida
 - Para API Routes privadas, verifica el token en el header `Authorization: Bearer <token>`
@@ -243,10 +258,10 @@ src/app/api/
 Cada endpoint de API Route delega en la capa de servicios:
 
 ```
-Route Handler (route.ts)
-    → validación de input (Zod o manual)
-        → Service Layer (src/services/*.ts)
-            → Supabase Client (src/lib/supabase/*.ts)
+Route Handler (frontend/src/app/api/*/route.ts)
+    → validación de input (Zod: shared/src/validators/)
+        → Service Layer (backend/src/services/*.ts)
+            → Supabase Admin Client (backend/src/lib/supabase/admin.ts)
                 → PostgreSQL
 ```
 
@@ -256,7 +271,7 @@ Route Handler (route.ts)
 
 ### 5.1 Esquema General
 
-El esquema completo se define en `backend/02-DATABASE.md`. Las tablas principales son:
+El esquema completo se define en `backend/docs/02-DATABASE.md`. Las tablas principales son:
 
 - `users`
 - `personal_info`
@@ -272,9 +287,7 @@ El esquema completo se define en `backend/02-DATABASE.md`. Las tablas principale
 - `technologies`
 - `services`
 - `service_translations`
-- `media`
-- `contact_messages`
-- `settings`
+education
 
 ### 5.2 Row Level Security (RLS)
 
@@ -284,9 +297,9 @@ El esquema completo se define en `backend/02-DATABASE.md`. Las tablas principale
 
 ### 5.3 Conexión desde Next.js
 
-- **Server Components y Route Handlers:** Usar `@supabase/ssr` (cliente server-side oficial)
-- **Client Components:** Usar `@supabase/ssr` con cookies de sesión
-- **Operaciones administrativas (server-side):** Usar `service_role` key para bypass de RLS
+- **Server Components (Landing Page):** Usar `frontend/src/lib/supabase/server.ts` (`@supabase/ssr` con anon key)
+- **Client Components (Admin Panel):** Usar `frontend/src/lib/supabase/client.ts` (`@supabase/ssr` browser)
+- **Operaciones administrativas (API Routes):** Usar `backend/src/lib/supabase/admin.ts` (`service_role` key, bypass de RLS)
 
 ---
 
@@ -298,7 +311,6 @@ El esquema completo se define en `backend/02-DATABASE.md`. Las tablas principale
 |---|---|---|
 | `profile` | Público | Avatar/imagen de perfil |
 | `projects` | Público | Imágenes y capturas de proyectos |
-| `media` | Público | Recursos visuales generales |
 | `cv` | Público | Currículum vitae (PDF) |
 
 ### 6.2 Políticas de Acceso
@@ -370,6 +382,7 @@ public/locales/
 - **Framework:** Next.js (detección automática en Vercel)
 - **Dominio:** anthekira.dev (personalizado en Vercel)
 - **Deploy:** Automático desde GitHub (rama `main`)
+- **Monorepo:** Vercel detecta automáticamente Next.js en la raíz del proyecto. Los directorios `frontend/`, `backend/` y `shared/` son organizativos; el build de Vercel se ejecuta desde la raíz.
 
 ### 9.2 Variables de Entorno
 
@@ -428,8 +441,8 @@ Admin → /admin/login
 | `02-DECISIONS.md` | Registra las decisiones que originan esta arquitectura |
 | `03-USER-FLOWS.md` | Describe flujos de usuario que esta arquitectura soporta |
 | `04-AI-DEVELOPMENT-GUIDE.md` | Guía para agentes IA que implementarán esta arquitectura |
-| `frontend/01-ROUTES.md` | Especificación detallada de rutas y navegación |
-| `frontend/03-LAYOUTS.md` | Especificación de layouts y jerarquía |
-| `frontend/04-I18N.md` | Configuración detallada de next-intl |
-| `backend/02-DATABASE.md` | Esquema de base de datos |
-| `backend/05-AUTHENTICATION.md` | Implementación detallada de auth |
+| `frontend/docs/01-ROUTES.md` | Especificación detallada de rutas y navegación |
+| `frontend/docs/03-LAYOUTS.md` | Especificación de layouts y jerarquía |
+| `frontend/docs/04-I18N.md` | Configuración detallada de next-intl |
+| `backend/docs/02-DATABASE.md` | Esquema de base de datos |
+| `backend/docs/05-AUTHENTICATION.md` | Implementación detallada de auth |

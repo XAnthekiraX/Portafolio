@@ -17,7 +17,9 @@ Este documento define la funcionalidad completa del panel administrativo de Anth
 │  🚀 SaaS Projects           │
 │  👤 Profile                 │
 │  🎓 Education               │
-│  ⚙️  Settings               │
+│  🛠️  Technologies           │
+│  🏢 Services                │
+│  💻 Skills                  │
 │  ─────────────────          │
 │  📊 Google Analytics        │
 │  ─────────────────          │
@@ -32,7 +34,9 @@ Este documento define la funcionalidad completa del panel administrativo de Anth
 | **SaaS Projects** | `/admin/saas` | CRUD de proyectos SaaS (nombre, descripción, imagen, URL, estado, etc.) |
 | **Profile** | `/admin/profile` | Información personal, CV, skills, redes sociales |
 | **Education** | `/admin/education` | CRUD de formación académica (institución, título, descripción) |
-| **Settings** | `/admin/settings` | Configuración del sitio, tecnologías, servicios, media, mensajes |
+| **Technologies** | `/admin/technologies` | CRUD de tecnologías y herramientas |
+| **Services** | `/admin/services` | CRUD de servicios profesionales ofrecidos |
+| **Skills** | `/admin/skills` | CRUD de habilidades técnicas categorizadas |
 
 ---
 
@@ -78,18 +82,17 @@ Pantalla principal después del login. Muestra información general del proyecto
 ### 4.2 Cards de Resumen
 
 ```
-┌──────────┬──────────┬──────────┬──────────┐
-│  📁 12   │  🚀 3    │  ✅ 8    │  📬 5    │
-│ Projects │ SaaS     │ Active   │ Messages │
-└──────────┴──────────┴──────────┴──────────┘
+┌──────────┬──────────┬──────────┐
+│  📁 12   │  🚀 3    │  🛠️  15  │
+│ Projects │ SaaS     │ Techs    │
+└──────────┴──────────┴──────────┘
 ```
 
 | Card | Fuente | Descripción |
 |---|---|---|
-| **Projects** | `GET /api/private/projects/count` | Total de proyectos regulares |
-| **SaaS Projects** | `GET /api/private/saas/count` | Total de proyectos SaaS |
-| **Active** | `GET /api/private/active/count` | Proyectos activos (regulares + SaaS combinados) |
-| **Messages** | `GET /api/private/messages/count` | Mensajes no leídos |
+| **Projects** | `GET /api/private/stats/count` → `total_projects` | Total de proyectos |
+| **SaaS Projects** | `GET /api/private/stats/count` → `total_saas` | Total de proyectos SaaS |
+| **Technologies** | `GET /api/private/stats/count` → `total_technologies` | Total de tecnologías |
 
 ### 4.3 Google Analytics
 Card que abre Google Analytics en nueva pestaña.
@@ -178,10 +181,7 @@ Al guardar, el backend:
 
 ## 6. CRUD de SaaS Projects (`/admin/saas`)
 
-### 6.1 Descripción
-Gestión de proyectos SaaS. Cada proyecto SaaS tiene información detallada: nombre, descripción, imagen, URL, estado, etc.
-
-### 6.2 Lista (`/admin/saas`)
+### 6.1 Lista (`/admin/saas`)
 
 ```
 GET /api/private/saas
@@ -194,7 +194,7 @@ GET /api/private/saas
   |                                              [New SaaS Project] →    |
 ```
 
-### 6.3 Crear (`/admin/saas/new`)
+### 6.2 Crear (`/admin/saas/new`)
 
 ```
 POST /api/private/saas
@@ -226,52 +226,7 @@ POST /api/private/saas
   └──────────────────────────────────────────────┘
 ```
 
-### 6.4 Modal de Skills
-
-Al igual que en Projects, SaaS Projects incluye un modal de gestión de skills:
-
-```
-┌──────────────────────────────────────────────┐
-│ Manage Skills                          [X]   │
-│                                              │
-│ Search: [________________]                   │
-│                                              │
-│ ┌────────────────────────────────────────┐   │
-│ │ ☑ React          ☑ Node.js            │   │
-│ │ ☑ TypeScript     ☐ Python             │   │
-│ │ ☑ PostgreSQL     ☐ Docker             │   │
-│ │ ☐ AWS            ☐ GraphQL            │   │
-│ └────────────────────────────────────────┘   │
-│                                              │
-│ Selected: React, Node.js, TypeScript         │
-│                                              │
-│           [Cancel]  [Apply]                  │
-└──────────────────────────────────────────────┘
-```
-
-- Misma funcionalidad que el modal de Projects
-- Skills se cargan de `GET /api/private/skills`
-- Selección múltiple con checkboxes
-
-### 6.5 Modelo de datos
-
-```typescript
-type SaasProject = {
-  id: string;
-  name: string;
-  description: string;
-  url: string;
-  image_url: string;
-  status: 'live' | 'beta' | 'development' | 'planning';
-  features: string[];  // Lista de características
-  technology_ids: string[];
-  order: number;
-  created_at: string;
-  updated_at: string;
-};
-```
-
-### 6.5 Traducción
+### 6.3 Auto-traducción
 Al guardar, el backend auto-traduce name y description a EN y PT.
 
 ---
@@ -300,15 +255,6 @@ Gestión completa de la información del usuario: datos personales, CV, skills, 
 │ └────────────────────────────────────────┘   │
 │                                              │
 │ ┌────────────────────────────────────────┐   │
-│ │ 💻 Skills                              │   │
-│ │ Manage all skills by category          │   │
-│ │ Frontend: [React] [TypeScript] [+]     │   │
-│ │ Backend: [Node.js] [PostgreSQL] [+]    │   │
-│ │ DevOps: [Docker] [AWS] [+]             │   │
-│ │ Tools: [Git] [VS Code] [+]             │   │
-│ └────────────────────────────────────────┘   │
-│                                              │
-│ ┌────────────────────────────────────────┐   │
 │ │ 🔗 Social Links                        │   │
 │ │ GitHub URL    [______________]         │   │
 │ │ LinkedIn URL  [______________]         │   │
@@ -320,11 +266,11 @@ Gestión completa de la información del usuario: datos personales, CV, skills, 
 └──────────────────────────────────────────────┘
 ```
 
-### 7.3 Personal Info
+### 7.3 Personal Info (incluye CV y redes sociales)
 
 ```
-GET /api/private/personal-info → datos actuales
-PUT /api/private/personal-info → actualizar
+GET /api/private/personal-info → datos actuales (nombre, bio, avatar, cv_url, redes, etc.)
+PUT /api/private/personal-info → actualizar todo (merge parcial de social_links)
 ```
 
 | Campo | Tipo | Descripción |
@@ -333,24 +279,33 @@ PUT /api/private/personal-info → actualizar
 | Professional Title | `text` | "Full-Stack Developer" |
 | Bio (ES) | `textarea` | Biografía → auto-traducción a EN + PT |
 | Current Status | `text` | "Open to work", "Freelance", etc. |
-| Avatar | `image` | Imagen de perfil (FileUploader → bucket `profile`) |
+| Avatar | `image` | Imagen de perfil |
 | Email | `email` | Email de contacto público |
 | Location | `text` | Ciudad/País |
+| CV URL | `url` | URL del CV descargable |
 
-### 7.4 CV Management
+### 7.4 Social Links
 
 ```
-PUT /api/private/cv → subir/actualizar CV
-GET /api/private/cv → obtener URL actual
+GET /api/private/personal-info → incluye social_links
+PUT /api/private/personal-info → actualiza social_links (merge parcial)
 ```
 
-- Upload de PDF (max 10MB)
-- Solo un archivo activo a la vez
-- Landing Page obtiene la URL vía `GET /api/public/personal-info`
+| Campo | Tipo | Requerido |
+|---|---|---|
+| GitHub URL | `url` | No |
+| LinkedIn URL | `url` | No |
+| Twitter URL | `url` | No |
+| Website URL | `url` | No |
 
-### 7.5 Skills Management
+---
 
+## 8. Skills Management (`/admin/skills`)
+
+### 8.1 Descripción
 Gestión centralizada de todas las skills del usuario.
+
+### 8.2 CRUD
 
 ```
 GET /api/private/skills → lista de skills
@@ -368,39 +323,14 @@ DELETE /api/private/skills/[id] → eliminar skill
 | DevOps | Docker, AWS, CI/CD | `success` (verde) |
 | Tools | Git, VS Code, Figma | `default` (neutro) |
 
-**Modelo de datos:**
-
-```typescript
-type Skill = {
-  id: string;
-  name: string;
-  category: 'frontend' | 'backend' | 'devops' | 'tools' | 'other';
-  order: number;
-};
-```
-
-### 7.6 Social Links
-
-```
-GET /api/private/personal-info → incluye social_links
-PUT /api/private/personal-info → actualiza social_links
-```
-
-| Campo | Tipo | Requerido |
-|---|---|---|
-| GitHub URL | `url` | No |
-| LinkedIn URL | `url` | No |
-| Twitter URL | `url` | No |
-| Website URL | `url` | No |
-
 ---
 
-## 8. Education (`/admin/education`)
+## 9. Education (`/admin/education`)
 
-### 8.1 Descripción
+### 9.1 Descripción
 Gestión de la formación académica. Sin traducción (solo en español).
 
-### 8.2 Lista (`/admin/education`)
+### 9.2 Lista (`/admin/education`)
 
 ```
 GET /api/private/education
@@ -413,7 +343,7 @@ GET /api/private/education
   |                                              [New Education] →         |
 ```
 
-### 8.3 Crear/Editar (`/admin/education/new` y `/admin/education/[id]`)
+### 9.3 Crear/Editar
 
 ```
 POST /api/private/education
@@ -440,60 +370,12 @@ PUT /api/private/education/[id]
 
 ---
 
-## 9. Settings (`/admin/settings`)
+## 10. Technologies (`/admin/technologies`)
 
-### 9.1 Descripción
-Configuración general del sitio y gestión de contenido secundario.
+### 10.1 Descripción
+Gestión de tecnologías y herramientas utilizadas.
 
-### 9.2 Secciones
-
-```
-┌──────────────────────────────────────────────┐
-│ Settings                                      │
-│                                              │
-│ ┌────────────────────────────────────────┐   │
-│ │ ⚙️  General                             │   │
-│ │ Site Name, Description, GA ID          │   │
-│ └────────────────────────────────────────┘   │
-│                                              │
-│ ┌────────────────────────────────────────┐   │
-│ │ 🛠️  Technologies                       │   │
-│ │ CRUD de tecnologías (icono, nombre)    │   │
-│ └────────────────────────────────────────┘   │
-│                                              │
-│ ┌────────────────────────────────────────┐   │
-│ │ 🏢 Services                            │   │
-│ │ CRUD de servicios ofrecidos            │   │
-│ └────────────────────────────────────────┘   │
-│                                              │
-│ ┌────────────────────────────────────────┐   │
-│ │ 📁 Media Library                       │   │
-│ │ Upload/gestionar imágenes y docs       │   │
-│ └────────────────────────────────────────┘   │
-│                                              │
-│ ┌────────────────────────────────────────┐   │
-│ │ 📬 Messages                            │   │
-│ │ Bandeja de mensajes de contacto        │   │
-│ └────────────────────────────────────────┘   │
-│                                              │
-│                    [ Save Settings ]          │
-└──────────────────────────────────────────────┘
-```
-
-### 9.3 General Settings
-
-```
-GET /api/private/settings → configuración actual
-PUT /api/private/settings → actualizar
-```
-
-| Campo | Tipo | Descripción |
-|---|---|---|
-| Site Name | `text` | "Anthekira.dev" |
-| Site Description | `textarea` | Meta description global |
-| Google Analytics ID | `text` | G-XXXXXXXXXX |
-
-### 9.4 Technologies CRUD
+### 10.2 CRUD
 
 ```
 GET /api/private/technologies → lista
@@ -505,10 +387,17 @@ DELETE /api/private/technologies/[id] → eliminar
 | Campo | Tipo | Requerido |
 |---|---|---|
 | Name | `text` | Sí |
-| Icon | `image` (FileUploader) | No |
+| Icon | `image` | No |
 | Website URL | `url` | No |
 
-### 9.5 Services CRUD
+---
+
+## 11. Services (`/admin/services`)
+
+### 11.1 Descripción
+Gestión de servicios profesionales ofrecidos.
+
+### 11.2 CRUD
 
 ```
 GET /api/private/services → lista
@@ -524,73 +413,33 @@ DELETE /api/private/services/[id] → eliminar
 | Icon | `select` (Lucide icons) | Sí | No |
 | Status | `select` (Available, Coming Soon) | Sí | No |
 
-### 9.6 Media Library
+---
 
-```
-GET /api/private/media → lista de archivos
-POST /api/private/media/upload → subir archivo
-DELETE /api/private/media/[id] → eliminar
-```
+## 12. Resumen de Endpoints
 
-- Drag & drop upload
-- Preview de imágenes
-- Copy URL
-- Validación de tipo y tamaño
-
-**Buckets:**
-
-| Bucket | Tipo | Tamaño max |
-|---|---|---|
-| `profile` | JPG, PNG, WebP | 2 MB |
-| `projects` | JPG, PNG, WebP | 5 MB |
-| `media` | JPG, PNG, WebP, PDF | 5 MB |
-| `cv` | PDF | 10 MB |
-
-### 9.7 Messages
-
-```
-GET /api/private/messages → lista
-GET /api/private/messages/[id] → detalle
-DELETE /api/private/messages/[id] → eliminar
-```
-
-- Mensajes no leídos marcados con punto rojo
-- Modal de detalle
-- Sin funcionalidad de respuesta (admin responde desde email)
+| Recurso | GET (list) | POST | PUT `[id]` | DELETE `[id]` |
+|---|---|---|---|---|
+| `/api/private/personal-info` | ✅ | — | ✅ | — |
+| `/api/private/projects` | ✅ | ✅ | ✅ | ✅ |
+| `/api/private/saas` | ✅ | ✅ | ✅ | ✅ |
+| `/api/private/skills` | ✅ | ✅ | ✅ | ✅ |
+| `/api/private/education` | ✅ | ✅ | ✅ | ✅ |
+| `/api/private/technologies` | ✅ | ✅ | ✅ | ✅ |
+| `/api/private/services` | ✅ | ✅ | ✅ | ✅ |
+| `/api/private/stats/count` | ✅ | — | — | — |
+| `/api/private/admin/login` | — | ✅ | — | — |
 
 ---
 
-## 10. Resumen de Endpoints
-
-| Recurso | GET (list) | GET (one) | POST | PUT | DELETE |
-|---|---|---|---|---|---|
-| `/api/private/projects` | ✅ | ✅ `[id]` | ✅ | ✅ `[id]` | ✅ `[id]` |
-| `/api/private/saas` | ✅ | ✅ `[id]` | ✅ | ✅ `[id]` | ✅ `[id]` |
-| `/api/private/skills` | ✅ | ✅ `[id]` | ✅ | ✅ `[id]` | ✅ `[id]` |
-| `/api/private/education` | ✅ | ✅ `[id]` | ✅ | ✅ `[id]` | ✅ `[id]` |
-| `/api/private/personal-info` | ✅ | — | — | ✅ | — |
-| `/api/private/cv` | ✅ (url) | — | ✅ | ✅ | — |
-| `/api/private/technologies` | ✅ | ✅ `[id]` | ✅ | ✅ `[id]` | ✅ `[id]` |
-| `/api/private/services` | ✅ | ✅ `[id]` | ✅ | ✅ `[id]` | ✅ `[id]` |
-| `/api/private/media` | ✅ | ✅ `[id]` | ✅ (upload) | — | ✅ `[id]` |
-| `/api/private/messages` | ✅ | ✅ `[id]` | — | — | ✅ `[id]` |
-| `/api/private/settings` | ✅ | — | — | ✅ | — |
-| `/api/private/admin/login` | — | — | ✅ | — | — |
-| `/api/private/projects/count` | ✅ | — | — | — | — |
-| `/api/private/saas/count` | ✅ | — | — | — | — |
-| `/api/private/messages/count` | ✅ | — | — | — | — |
-
----
-
-## 11. Dependencias con otros documentos
+## 13. Dependencias con otros documentos
 
 | Archivo | Relación |
 |---|---|
 | `00-REQUIREMENTS.md` | Requisitos del panel admin |
 | `03-USER-FLOWS.md` | Flujos de usuario del admin |
-| `frontend/01-ROUTES.md` | Rutas del admin |
-| `frontend/02-COMPONENTS.md` | Componentes (DataTable, FormBuilder, FileUploader, Modal) |
-| `frontend/03-LAYOUTS.md` | AdminLayout con Sidebar y Navbar |
-| `frontend/06-UI-UX.md` | Diseño visual del admin |
-| `backend/04-API-PRIVATE.md` | Endpoints privados del admin |
-| `backend/06-BUSINESS-LOGIC.md` | Lógica de negocio (auto-traducción, validaciones) |
+| `frontend/docs/01-ROUTES.md` | Rutas del admin |
+| `frontend/docs/02-COMPONENTS.md` | Componentes (DataTable, FormBuilder, FileUploader, Modal) |
+| `frontend/docs/03-LAYOUTS.md` | AdminLayout con Sidebar y Navbar |
+| `frontend/docs/06-UI-UX.md` | Diseño visual del admin |
+| `backend/docs/04-API-PRIVATE.md` | Endpoints privados del admin |
+| `backend/docs/06-BUSINESS-LOGIC.md` | Lógica de negocio (auto-traducción, validaciones) |

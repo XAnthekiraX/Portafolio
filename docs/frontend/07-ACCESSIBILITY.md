@@ -430,5 +430,5 @@ Usar roles ARIA solo cuando el HTML semántico no sea suficiente:
 |---|---|
 | `00-REQUIREMENTS.md` | Requisitos de accesibilidad del proyecto |
 | `04-AI-DEVELOPMENT-GUIDE.md` | Reglas sobre accesibilidad para agentes de IA |
-| `frontend/02-COMPONENTS.md` | Componentes que deben implementar estas prácticas |
-| `frontend/06-UI-UX.md` | Colores y estilos que deben mantener contraste suficiente |
+| `frontend/docs/02-COMPONENTS.md` | Componentes que deben implementar estas prácticas |
+| `frontend/docs/06-UI-UX.md` | Colores y estilos que deben mantener contraste suficiente |

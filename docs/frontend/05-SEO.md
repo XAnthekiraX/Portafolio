@@ -116,10 +116,10 @@ Las imágenes OG deben:
 - Usar la paleta de colores (rojo #DC2626, cian #06B6D4, fondo oscuro)
 - Estar en formato JPG o PNG, optimizadas (< 100KB)
 
-Ubicación: `/public/images/og-*.jpg`
+Ubicación: `public/images/og-*.jpg`
 
 ```
-/public/images/
+public/images/
 ├── og-home.jpg         # OG por defecto (Hero)
 ├── og-projects.jpg     # Sección proyectos
 ├── og-about.jpg        # Sección sobre mí
@@ -129,7 +129,7 @@ Ubicación: `/public/images/og-*.jpg`
 ### 4.2 Configuración Global en RootLayout
 
 ```typescript
-// src/app/layout.tsx
+// frontend/src/app/layout.tsx
 export const metadata: Metadata = {
   metadataBase: new URL('https://anthekira.dev'),
   openGraph: {
@@ -153,7 +153,7 @@ export const metadata: Metadata = {
 Next.js App Router permite generar sitemaps dinámicos usando la función `generateSitemaps()`:
 
 ```typescript
-// src/app/sitemap.ts
+// frontend/src/app/sitemap.ts
 import { MetadataRoute } from 'next';
 
 const locales = ['es', 'en', 'pt'];
@@ -206,7 +206,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 ### 5.2 `robots.txt`
 
 ```typescript
-// src/app/robots.ts
+// frontend/src/app/robots.ts
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {

@@ -13,7 +13,7 @@ Todas las rutas públicas están bajo el segmento `[locale]` y soportan los idio
 ### 2.1 Estructura de Archivos
 
 ```
-src/app/[locale]/
+frontend/src/app/[locale]/
 ├── layout.tsx          # LandingLayout (Header + Footer + GA)
 ├── page.tsx            # /{lang}/ — Home (secciones completas)
 ├── projects/
@@ -81,7 +81,7 @@ anthekira.dev → 302 → /es/
       └── cualquier otro → /es/ (default)
 ```
 
-Esto se maneja en `src/middleware.ts` mediante la configuración de next-intl.
+Esto se maneja en `frontend/src/middleware.ts` mediante la configuración de next-intl.
 
 ---
 
@@ -92,7 +92,7 @@ El panel administrativo está en **español** exclusivamente y no tiene prefijo 
 ### 3.1 Estructura de Archivos
 
 ```
-src/app/admin/
+frontend/src/app/admin/
 ├── login/
 │   └── page.tsx        # /admin/login — Pantalla de inicio de sesión
 ├── layout.tsx          # AdminLayout (AuthGuard + Sidebar + Navbar)
@@ -167,7 +167,7 @@ Todas las páginas admin heredan este metadata del AdminLayout. No es necesario 
 
 ## 4. Middleware y Protección de Rutas
 
-### 4.1 `src/middleware.ts`
+### 4.1 `frontend/src/middleware.ts`
 
 El middleware de Next.js tiene dos responsabilidades principales:
 

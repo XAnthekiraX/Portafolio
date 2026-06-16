@@ -14,7 +14,7 @@ Este documento define todas las entidades del sistema como interfaces TypeScript
 | Elemento | Regla |
 |---|---|
 | Nombres | `PascalCase` para interfaces |
-| Archivo destino | `src/types/entities.ts` |
+| Archivo destino | `shared/src/types/entities.ts` |
 | IDs | `string` (UUID v4) |
 | Timestamps | `string` (ISO 8601) — se serializan como string en JSON |
 | Nullable vs Optional | `null` para valores que pueden ser nulos en BD, `undefined` para campos opcionales en requests |
@@ -26,7 +26,7 @@ Este documento define todas las entidades del sistema como interfaces TypeScript
 
 ```typescript
 // ============================================================
-// src/types/entities.ts — Tipos base
+// shared/src/types/entities.ts — Tipos base
 // ============================================================
 
 // ---------- Timestamps ----------
@@ -354,123 +354,7 @@ interface ServiceWithTranslations extends Service {
 
 ---
 
-## 10. Media
 
-```typescript
-// ---------- Media ----------
-interface Media {
-  id: string;
-  user_id: string;                  // FK → auth.users.id
-
-  file_name: string;                // "project-hero.webp"
-  file_size: number;                // En bytes
-  mime_type: string;                // "image/jpeg", "application/pdf"
-  bucket: string;                   // "profile" | "projects" | "media" | "cv"
-  storage_path: string;             // Ruta dentro del bucket
-  public_url: string;               // URL pública generada
-
-  // Metadatos de imagen
-  width?: number | null;            // Solo para imágenes
-  height?: number | null;           // Solo para imágenes
-  alt_text: string;                 // Texto alternativo
-
-  created_at: string;               // Sin updated_at (los archivos no se actualizan)
-}
-
-// ---------- Upload Response ----------
-interface MediaUploadResponse {
-  success: boolean;
-  media: Media;
-}
-
-// ---------- Upload Request ----------
-// El upload se hace como multipart/form-data, no JSON.
-// El backend recibe FormData con:
-// - file: File (el archivo a subir)
-// - bucket: string (opcional, default 'media')
-// - alt_text: string (opcional)
-```
-
----
-
-## 11. Contact Messages
-
-```typescript
-// ---------- ContactMessage ----------
-interface ContactMessage {
-  id: string;
-
-  // Remitente
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-
-  // Estado
-  is_read: boolean;                 // Default: false
-
-  created_at: string;               // Sin updated_at (solo lectura)
-}
-
-// ---------- Create (público, desde formulario) ----------
-interface CreateContactMessageDto {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-}
-
-// ---------- API Response (sin campos sensibles) ----------
-interface ContactMessageListItem {
-  id: string;
-  name: string;
-  email: string;
-  subject: string;
-  is_read: boolean;
-  created_at: string;
-}
-
-interface ContactMessageDetail extends ContactMessage {
-  // message completo solo en GET individual
-}
-```
-
----
-
-## 12. Settings
-
-```typescript
-// ---------- Settings ----------
-interface Settings extends Timestamps {
-  id: string;
-  user_id: string;                  // FK → auth.users.id (1:1)
-
-  site_name: string;                // "Anthekira.dev"
-  site_description: string;         // Meta description global
-  ga_id: string;                    // Google Analytics: "G-XXXXXXXXXX"
-}
-
-// ---------- Update DTO ----------
-interface UpdateSettingsDto {
-  site_name?: string;
-  site_description?: string;
-  ga_id?: string;
-}
-```
-
----
-
-## 13. Dashboard
-
-```typescript
-// ---------- Dashboard Stats (respuesta agregada) ----------
-interface DashboardStats {
-  total_projects: number;           // GET /api/private/projects/count
-  total_saas: number;               // GET /api/private/saas/count
-  total_active: number;             // GET /api/private/active/count
-  unread_messages: number;          // GET /api/private/messages/count
-}
-```
 
 ---
 
@@ -550,7 +434,7 @@ Para validación en servidor, se usan schemas de Zod que reflejan las interfaces
 
 ```typescript
 // ============================================================
-// src/lib/validation.ts — Schemas de validación
+// shared/src/validators/index.ts — Schemas de validación
 // ============================================================
 
 import { z } from 'zod';
@@ -672,10 +556,10 @@ export const updatePersonalInfoSchema = z.object({
 
 | Archivo | Contenido |
 |---|---|
-| `src/types/entities.ts` | Interfaces de todas las entidades (definidas arriba) |
-| `src/types/api.ts` | ApiResponse, ApiError, PaginatedResponse, CountResponse |
-| `src/lib/validation.ts` | Zod schemas para validación de inputs |
-| `src/types/i18n.d.ts` | Tipos para next-intl (traducciones de UI) |
+| `shared/src/types/entities.ts` | Interfaces de todas las entidades (definidas arriba) |
+| `shared/src/types/api.ts` | ApiResponse, ApiError, PaginatedResponse, CountResponse |
+| `shared/src/validators/index.ts` | Zod schemas para validación de inputs |
+| `shared/src/types/i18n.d.ts` | Tipos para next-intl (traducciones de UI) |
 
 ---
 

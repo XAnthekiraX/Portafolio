@@ -38,10 +38,10 @@ Un usuario llega al sitio por primera vez, se le detecta el idioma y explora la 
 ```
 
 ### Componentes involucrados
-- `src/middleware.ts` — Detección de idioma y redirección
-- `src/app/[locale]/layout.tsx` — LandingLayout
-- `src/app/[locale]/page.tsx` — Landing Page
-- `src/components/landing/*` — Componentes de cada sección
+- `frontend/src/middleware.ts` — Detección de idioma y redirección
+- `frontend/src/app/[locale]/layout.tsx` — LandingLayout
+- `frontend/src/app/[locale]/page.tsx` — Landing Page
+- `frontend/src/components/landing/*` — Componentes de cada sección
 
 ---
 
@@ -69,10 +69,10 @@ El visitante navega a la página de proyectos y explora los detalles de un proye
 ```
 
 ### Componentes involucrados
-- `src/app/[locale]/projects/page.tsx` — Lista de proyectos
-- `src/app/[locale]/projects/[slug]/page.tsx` — Detalle de proyecto
-- `src/components/landing/Projects/ProjectCard.tsx`
-- `src/components/landing/Projects/ProjectDetail.tsx`
+- `frontend/src/app/[locale]/projects/page.tsx` — Lista de proyectos
+- `frontend/src/app/[locale]/projects/[slug]/page.tsx` — Detalle de proyecto
+- `frontend/src/components/landing/Projects/ProjectCard.tsx`
+- `frontend/src/components/landing/Projects/ProjectDetail.tsx`
 
 ### Estados
 - **Carga:** Skeleton grid mientras se obtienen datos (SSR, apenas perceptible)
@@ -109,9 +109,9 @@ El visitante completa y envía el formulario de contacto.
 ```
 
 ### Componentes involucrados
-- `src/app/[locale]/contact/page.tsx`
-- `src/components/landing/Contact/ContactForm.tsx` [CC]
-- `src/app/api/public/contact/route.ts`
+- `frontend/src/app/[locale]/contact/page.tsx`
+- `frontend/src/components/landing/Contact/ContactForm.tsx` [CC]
+- `frontend/src/app/api/public/contact/route.ts`
 
 ### Estados
 - **Carga:** Botón de envío deshabilitado con spinner durante el POST
@@ -136,8 +136,8 @@ El visitante descarga el currículum vitae desde la Landing Page.
 ```
 
 ### Componentes involucrados
-- `src/components/landing/Hero/Hero.tsx` — Botón de CV
-- `src/components/landing/About/About.tsx` — Botón de CV
+- `frontend/src/components/landing/Hero/Hero.tsx` — Botón de CV
+- `frontend/src/components/landing/About/About.tsx` — Botón de CV
 - Bucket `cv` en Supabase Storage (lectura pública)
 
 ### Estados
@@ -165,8 +165,8 @@ El visitante cambia el idioma del sitio mediante el selector de idioma.
 ```
 
 ### Componentes involucrados
-- `src/components/shared/LanguageSwitcher.tsx` [CC]
-- next-intl middleware (configurado en `src/middleware.ts`)
+- `frontend/src/components/shared/LanguageSwitcher.tsx` [CC]
+- next-intl middleware (configurado en `frontend/src/middleware.ts`)
 
 ### Estados
 - **Carga:** Indicador de carga mientras next-intl cambia el locale
@@ -199,10 +199,10 @@ El administrador inicia sesión en el panel de administración.
 ```
 
 ### Componentes involucrados
-- `src/app/admin/login/page.tsx`
-- `src/components/admin/LoginForm.tsx` [CC]
-- `src/app/api/private/admin/login/route.ts`
-- `src/middleware.ts` — Protección de rutas
+- `frontend/src/app/admin/login/page.tsx`
+- `frontend/src/components/admin/LoginForm.tsx` [CC]
+- `frontend/src/app/api/private/admin/login/route.ts`
+- `frontend/src/middleware.ts` — Protección de rutas
 
 ### Estados
 - **Carga:** Botón "Sign In" deshabilitado con spinner
@@ -274,13 +274,13 @@ El administrador gestiona un recurso (proyectos, habilidades, servicios, etc.) d
 ```
 
 ### Recursos aplicables
-Este flujo aplica para: **Projects**, **SaaS Projects**, **Skills**, **Education**, **Technologies**, **Services**, **PersonalInfo**, **Settings**, **Social Links**.
+Este flujo aplica para: **Projects**, **SaaS Projects**, **Skills**, **Education**, **Technologies**, **Services**, **PersonalInfo**, **Social Links**.
 
 ### Componentes involucrados
-- `src/components/admin/DataTable/` — Lista de recursos
-- `src/components/admin/FormBuilder/` — Formulario genérico CRUD
-- `src/services/*.ts` — Lógica de negocio por recurso
-- `src/app/api/private/*/route.ts` — Endpoints CRUD
+- `frontend/src/components/admin/DataTable/` — Lista de recursos
+- `frontend/src/components/admin/FormBuilder/` — Formulario genérico CRUD
+- `backend/src/services/*.ts` — Lógica de negocio por recurso
+- `frontend/src/app/api/private/*/route.ts` — Endpoints CRUD
 
 ### Estados
 - **Carga lista:** Skeleton rows en DataTable
@@ -291,47 +291,7 @@ Este flujo aplica para: **Projects**, **SaaS Projects**, **Skills**, **Education
 
 ---
 
-## 9. Flujo: Gestión de Archivos Multimedia
-
-### Descripción
-El administrador sube y gestiona archivos multimedia (imágenes, CV) desde el panel.
-
-```
-[Admin] → Dashboard → Click "Media" (sidebar)
-    ⇢ fetch GET /api/private/media → lista de archivos
-    ⇢ Renderiza grid de thumbnails (imágenes) o lista (documentos)
-[Admin] → Click "Upload" → Selector de archivos
-[Admin] → Selecciona archivo (imagen .jpg/.png/.webp o PDF)
-    ⇢ Validación en cliente:
-        ├── Tipo de archivo permitido
-        └── Tamaño máximo (ej: 5MB)
-    ├── (Si falla) → Muestra error específico
-    └── (Si pasa) → POST /api/private/media/upload (multipart/form-data)
-        ⇢ Route Handler:
-            1. Valida archivo en servidor
-            2. Sube a Supabase Storage (bucket según tipo)
-            3. Registra metadata en tabla media (url, type, alt_text)
-            4. Responde { success: true, url }
-    ⇢ Nuevo archivo aparece en el grid
-```
-
-### Componentes involucrados
-- `src/app/admin/media/page.tsx`
-- `src/components/admin/MediaGrid.tsx` [CC]
-- `src/components/admin/FileUploader.tsx` [CC]
-- `src/app/api/private/media/upload/route.ts`
-- Buckets: `profile`, `projects`, `media`, `cv`
-
-### Estados
-- **Carga:** Skeleton grid mientras se cargan thumbnails
-- **Vacío:** "No files yet. Upload your first image or document."
-- **Subiendo:** Barra de progreso por archivo
-- **Error tipo:** "Only JPG, PNG, WebP and PDF files are allowed"
-- **Error tamaño:** "File exceeds the 5MB limit"
-
----
-
-## 10. Flujo: Cierre de Sesión
+## 9. Flujo: Cierre de Sesión
 
 ### Descripción
 El administrador cierra sesión y es redirigido al login.
@@ -345,7 +305,7 @@ El administrador cierra sesión y es redirigido al login.
 ```
 
 ### Componentes involucrados
-- `src/components/admin/Navbar.tsx` [CC]
+- `frontend/src/components/admin/Navbar.tsx` [CC]
 - Supabase Auth `signOut()`
 
 ### Estados
@@ -354,7 +314,7 @@ El administrador cierra sesión y es redirigido al login.
 
 ---
 
-## 11. Dependencias con otros documentos
+## 10. Dependencias con otros documentos
 
 | Archivo | Relación |
 |---|---|

@@ -55,7 +55,7 @@ Este documento describe cómo el frontend de Anthekira.dev se integra con el bac
 
 ## 3. Clientes de Supabase
 
-### 3.1 `src/lib/supabase/server.ts` — Para Server Components y Route Handlers
+### 3.1 `frontend/src/lib/supabase/server.ts` — Para Server Components y Route Handlers
 
 ```typescript
 import { createServerClient } from '@supabase/ssr';
@@ -91,7 +91,7 @@ export async function createSupabaseServerClient() {
 - Server Components de la Landing Page (consulta directa a BD)
 - Route Handlers de API Routes (con `service_role` ver sección 3.3)
 
-### 3.2 `src/lib/supabase/client.ts` — Para Client Components
+### 3.2 `frontend/src/lib/supabase/client.ts` — Para Client Components
 
 ```typescript
 import { createBrowserClient } from '@supabase/ssr';
@@ -109,7 +109,7 @@ export function createSupabaseBrowserClient() {
 - `ContactForm.tsx` — Verificar estado antes de enviar
 - `LanguageSwitcher.tsx` — No se usa (solo navegación)
 
-### 3.3 `src/lib/supabase/admin.ts` — Para API Routes (service_role)
+### 3.3 `backend/src/lib/supabase/admin.ts` — Para API Routes (service_role)
 
 ```typescript
 import { createClient } from '@supabase/supabase-js';
@@ -149,7 +149,7 @@ export function createSupabaseAdminClient() {
 ### 4.1 Patrón: Server Component → Supabase Directo
 
 ```tsx
-// src/app/[locale]/projects/page.tsx
+// frontend/src/app/[locale]/projects/page.tsx
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { getTranslations } from 'next-intl/server';
 import ProjectCard from '@/components/landing/Projects/ProjectCard';
@@ -254,7 +254,7 @@ const getTranslation = (
 ### 5.1 Patrón: Client Component → fetch() → API Route
 
 ```tsx
-// src/app/admin/projects/page.tsx
+// frontend/src/app/admin/projects/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -317,7 +317,7 @@ El middleware de Next.js verifica la sesión en cookies para todas las rutas `/a
 ### 5.3 Estructura de una API Route
 
 ```typescript
-// src/app/api/private/projects/route.ts
+// frontend/src/app/api/private/projects/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 
@@ -415,7 +415,7 @@ Admin selecciona archivo
 ### 6.3 API Route de Upload
 
 ```typescript
-// src/app/api/private/media/upload/route.ts
+// frontend/src/app/api/private/media/upload/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 
@@ -511,7 +511,7 @@ export async function POST(request: NextRequest) {
 ### 6.4 FileUploader Component (resumen)
 
 ```tsx
-// src/components/admin/FileUploader/index.tsx
+// frontend/src/components/admin/FileUploader/index.tsx
 'use client';
 
 import { useState, useRef } from 'react';
@@ -638,7 +638,7 @@ Admin guarda contenido en ES
 ### 7.2 Implementación del Servicio de Traducción
 
 ```typescript
-// src/services/translation.ts
+// backend/src/services/translations.ts
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 
 const DEEPL_API_URL = 'https://api-free.deepl.com/v2/translate';
@@ -731,7 +731,7 @@ export async function translateContent(
 ### 7.3 Uso en API Routes
 
 ```typescript
-// En route.ts de projects
+// En frontend/src/app/api/private/projects/route.ts
 import { translateContent } from '@/services/translation';
 
 // Después de guardar el proyecto...
@@ -923,7 +923,7 @@ NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 | `01-ARCHITECTURE.md` | Arquitectura de capas (Frontend → API → Supabase) |
 | `02-DECISIONS.md` | ADR-005 (consulta directa), ADR-006 (auto-traducción DeepL) |
 | `03-USER-FLOWS.md` | Flujos de CRUD, upload, traducción |
-| `frontend/00-FRONTEND.md` | Configuración de Supabase clients |
-| `frontend/02-COMPONENTS.md` | FileUploader, DataTable, FormBuilder |
-| `frontend/08-ADMIN-PANEL.md` | Panel admin con CRUDs |
-| `frontend/04-I18N.md` | Estrategia de traducción (JSON + DeepL + BD) |
+| `frontend/docs/00-FRONTEND.md` | Configuración de Supabase clients |
+| `frontend/docs/02-COMPONENTS.md` | FileUploader, DataTable, FormBuilder |
+| `frontend/docs/08-ADMIN-PANEL.md` | Panel admin con CRUDs |
+| `frontend/docs/04-I18N.md` | Estrategia de traducción (JSON + DeepL + BD) |

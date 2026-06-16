@@ -22,7 +22,7 @@ Este documento describe la configuración global del frontend de Anthekira.dev, 
 
 ## 3. Configuración de Next.js
 
-### 3.1 `next.config.ts`
+### 3.1 `next.config.ts` (en raíz del proyecto)
 
 ```typescript
 import type { NextConfig } from 'next';
@@ -84,7 +84,7 @@ NEXT_PUBLIC_SITE_URL=https://anthekira.dev
 > **Tailwind CSS v4** usa configuración CSS-first. No se necesita `tailwind.config.ts`.
 > Los design tokens se definen directamente en CSS con la directiva `@theme`.
 
-### 4.1 `src/app/globals.css` — Design Tokens (CSS-first)
+### 4.1 `frontend/src/app/globals.css` — Design Tokens (CSS-first)
 
 ```css
 @import "tailwindcss";
@@ -217,7 +217,7 @@ html {
 ### 5.1 Jerarquía de Layouts
 
 ```
-RootLayout (src/app/layout.tsx)
+RootLayout (frontend/src/app/layout.tsx)
 ├── <html lang={locale}>
 ├── <body className="font-body bg-surface-900 text-surface-100 antialiased">
 │
@@ -258,7 +258,7 @@ RootLayout (src/app/layout.tsx)
     └── {children} (página actual del admin)
 ```
 
-### 5.2 Root Layout (`src/app/layout.tsx`)
+### 5.2 Root Layout (`frontend/src/app/layout.tsx`)
 
 ```tsx
 // Responsabilidades:
@@ -305,7 +305,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 ```
 
-### 5.3 Landing Layout (`src/app/[locale]/layout.tsx`)
+### 5.3 Landing Layout (`frontend/src/app/[locale]/layout.tsx`)
 
 ```tsx
 // Responsabilidades:
@@ -318,7 +318,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 // y lo pasa a los componentes hijos vía next-intl
 ```
 
-### 5.4 Admin Layout (`src/app/admin/layout.tsx`)
+### 5.4 Admin Layout (`frontend/src/app/admin/layout.tsx`)
 
 ```tsx
 // Responsabilidades:
@@ -391,13 +391,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 | Archivo | Relación |
 |---|---|
 | `01-ARCHITECTURE.md` | Define la arquitectura que este frontend implementa |
-| `frontend/01-ROUTES.md` | Define las rutas y navegación del frontend |
-| `frontend/02-COMPONENTS.md` | Define los componentes del frontend |
-| `frontend/03-LAYOUTS.md` | Especificación detallada de layouts |
-| `frontend/04-I18N.md` | Configuración de next-intl |
-| `frontend/05-SEO.md` | Estrategia SEO del frontend |
-| `frontend/06-UI-UX.md` | Design tokens y guía de diseño visual |
-| `frontend/07-ACCESSIBILITY.md` | Prácticas de accesibilidad |
-| `frontend/08-ADMIN-PANEL.md` | Funcionalidades del panel administrativo |
-| `frontend/09-CMS-INTEGRATION.md` | Integración del CMS con el frontend (clientes Supabase, data fetching, auto-traducción) |
-| `backend/05-AUTHENTICATION.md` | Autenticación para el panel admin |
+| `frontend/docs/01-ROUTES.md` | Define las rutas y navegación del frontend |
+| `frontend/docs/02-COMPONENTS.md` | Define los componentes del frontend |
+| `frontend/docs/03-LAYOUTS.md` | Especificación detallada de layouts |
+| `frontend/docs/04-I18N.md` | Configuración de next-intl |
+| `frontend/docs/05-SEO.md` | Estrategia SEO del frontend |
+| `frontend/docs/06-UI-UX.md` | Design tokens y guía de diseño visual |
+| `frontend/docs/07-ACCESSIBILITY.md` | Prácticas de accesibilidad |
+| `frontend/docs/08-ADMIN-PANEL.md` | Funcionalidades del panel administrativo |
+| `frontend/docs/09-CMS-INTEGRATION.md` | Integración del CMS con el frontend (clientes Supabase, data fetching, auto-traducción) |
+| `backend/docs/05-AUTHENTICATION.md` | Autenticación para el panel admin |

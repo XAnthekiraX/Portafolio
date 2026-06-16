@@ -38,15 +38,17 @@ Este documento define el sistema de autenticación de Anthekira.dev, basado en *
 |---|---|---|
 | **Supabase Auth** | Servicio externo | Manejo de usuarios, JWT, refresh tokens |
 | **@supabase/ssr** | `src/lib/supabase/*.ts` | Clientes SSR para Next.js (server, browser, admin) |
-| **Middleware** | `src/middleware.ts` | Protege rutas `/admin` y `/api/private/*` |
-| **Route Handlers** | `src/app/api/private/*` | Verifican token y usan service_role |
-| **Client Components** | `src/app/admin/*` | Obtienen sesión, envían JWT en headers |
+| **Middleware** | `frontend/src/middleware.ts` | Protege rutas `/admin` y `/api/private/*` |
+| **Route Handlers** | `frontend/src/app/api/private/*` | Verifican token y usan service_role |
+| **Client Components** | `frontend/src/app/admin/*` | Obtienen sesión, envían JWT en headers |
+| **Servicios backend** | `backend/src/services/*` | Lógica de negocio invocada desde Route Handlers |
+| **Lib backend** | `backend/src/lib/*` | Auth verify, errores, upload |
 
 ---
 
 ## 3. Clientes de Supabase
 
-### 3.1 `src/lib/supabase/server.ts` — Cliente Server Component
+### 3.1 `frontend/src/lib/supabase/server.ts` — Cliente Server Component
 
 Usado en Server Components de la Landing Page. Consulta Supabase directamente (sin API Routes intermedias).
 
@@ -77,7 +79,7 @@ export function createClient() {
 }
 ```
 
-### 3.2 `src/lib/supabase/client.ts` — Cliente Browser (Client Component)
+### 3.2 `frontend/src/lib/supabase/client.ts` — Cliente Browser (Client Component)
 
 Usado en Client Components del panel admin para operaciones de auth (login, logout, obtener sesión).
 
@@ -92,7 +94,7 @@ export function createClient() {
 }
 ```
 
-### 3.3 `src/lib/supabase/admin.ts` — Cliente Service Role (solo server)
+### 3.3 `backend/src/lib/supabase/admin.ts` — Cliente Service Role (solo server)
 
 Usado en Route Handlers de API privada para operaciones administrativas. **Nunca se expone al cliente.**
 
@@ -112,7 +114,7 @@ export const supabaseAdmin = createClient(
 );
 ```
 
-> **Importante:** `SUPABASE_SERVICE_ROLE_KEY` es una clave secreta que **nunca** debe exponerse al cliente. Solo se usa en Route Handlers del servidor. Esta clave bypassa todas las políticas de RLS.
+> **Importante:** `SUPABASE_SERVICE_ROLE_KEY` es una clave secreta que **nunca** debe exponerse al cliente. Solo se usa en `backend/src/lib/supabase/admin.ts`. Esta clave bypassa todas las políticas de RLS.
 
 ---
 
@@ -121,7 +123,7 @@ export const supabaseAdmin = createClient(
 ### 4.1 Proceso Detallado
 
 ```typescript
-// src/app/api/private/admin/login/route.ts
+// frontend/src/app/api/private/admin/login/route.ts
 import { createClient } from '@/lib/supabase/client';  // Browser client (server-side)
 import { loginSchema } from '@/lib/validation';
 
@@ -183,7 +185,7 @@ export async function POST(request: NextRequest) {
 ### 4.3 Validación del Lado del Cliente (LoginForm)
 
 ```typescript
-// src/components/admin/LoginForm.tsx [CC]
+// frontend/src/components/admin/LoginForm.tsx [CC]
 'use client';
 
 import { createClient } from '@/lib/supabase/client';
@@ -263,7 +265,7 @@ El `signOut()` de Supabase:
 
 ## 6. Middleware de Protección
 
-### 6.1 `src/middleware.ts`
+### 6.1 `frontend/src/middleware.ts`
 
 ```typescript
 import { type NextRequest, NextResponse } from 'next/server';
@@ -391,7 +393,7 @@ export const config = {
 El middleware agrega `x-user-id` al header. Los Route Handlers lo obtienen así:
 
 ```typescript
-// src/app/api/private/projects/route.ts
+// frontend/src/app/api/private/projects/route.ts
 export async function POST(request: NextRequest) {
   const userId = request.headers.get('x-user-id');
   if (!userId) {
@@ -419,7 +421,7 @@ export async function POST(request: NextRequest) {
 Para requests desde el cliente que no usan cookies (ej: fetch manual):
 
 ```typescript
-// src/lib/auth/verify.ts
+// backend/src/lib/auth/verify.ts
 import { createClient } from '@supabase/supabase-js';
 
 export async function verifyToken(request: NextRequest) {
@@ -494,13 +496,13 @@ La `SUPABASE_SERVICE_ROLE_KEY` se usa para:
 
 ### 9.3 Cuándo usar cada cliente
 
-| Contexto | Cliente | Key | RLS |
-|---|---|---|---|
-| Server Component (Landing Page) | `@supabase/ssr` (server) | Anon key | ✅ Aplica |
-| Client Component (admin UI) | `@supabase/ssr` (browser) | Anon key | ✅ Aplica |
-| API Route pública | `@supabase/ssr` (server) | Anon key | ✅ Aplica |
-| API Route privada (lectura) | `@supabase/ssr` (server) | Anon key | ✅ Aplica (SELECT público) |
-| API Route privada (escritura) | `supabaseAdmin` (service_role) | Service role | ❌ Bypass |
+| Contexto | Cliente | Ubicación | Key | RLS |
+|---|---|---|---|---|
+| Server Component (Landing Page) | `@supabase/ssr` (server) | `frontend/src/lib/supabase/server.ts` | Anon key | ✅ Aplica |
+| Client Component (admin UI) | `@supabase/ssr` (browser) | `frontend/src/lib/supabase/client.ts` | Anon key | ✅ Aplica |
+| API Route pública | `@supabase/ssr` (server) | `frontend/src/lib/supabase/server.ts` | Anon key | ✅ Aplica |
+| API Route privada (lectura) | `@supabase/ssr` (server) | `frontend/src/lib/supabase/server.ts` | Anon key | ✅ Aplica (SELECT público) |
+| API Route privada (escritura) | `supabaseAdmin` (service_role) | `backend/src/lib/supabase/admin.ts` | Service role | ❌ Bypass |
 
 ---
 

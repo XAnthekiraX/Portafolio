@@ -34,7 +34,7 @@ Todas las respuestas siguen el formato envelope definido en `01-ENTITIES.md` §1
 ## 3. Estructura de Archivos
 
 ```
-src/app/api/public/
+frontend/src/app/api/public/
 ├── personal-info/
 │   └── route.ts           # GET /api/public/personal-info
 ├── projects/
@@ -93,7 +93,7 @@ Obtiene la información personal del administrador, con soporte de traducción p
 
 **Service Layer:**
 ```typescript
-// src/services/personal-info.ts
+// backend/src/services/personal-info.ts
 async function getPersonalInfo(locale: string = 'es') {
   const { data } = await supabase
     .from('personal_info')
@@ -158,7 +158,7 @@ Lista todos los proyectos activos, ordenados por `display_order`.
 **Query SQL (con fallback de traducción):**
 
 ```typescript
-// src/services/projects.ts
+// backend/src/services/projects.ts
 async function getPublicProjects(locale: string = 'es') {
   const { data } = await supabase
     .from('projects')
@@ -454,7 +454,7 @@ async function submitContactMessage(input: CreateContactMessageDto) {
 ### 5.1 Helper para aplicar traducciones con fallback
 
 ```typescript
-// src/services/translations.ts
+// backend/src/lib/i18n.ts
 type TranslatableField = 'title' | 'description' | 'name' | 'bio';
 
 function applyTranslation<T extends Record<string, any>>(
@@ -508,7 +508,7 @@ function getLocaleFromRequest(request: NextRequest): string {
 ## 7. Manejo de Errores
 
 ```typescript
-// src/app/api/public/contact/route.ts — Ejemplo de estructura
+// frontend/src/app/api/public/contact/route.ts — Ejemplo de estructura
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -575,5 +575,5 @@ export async function POST(request: NextRequest) {
 | `02-DATABASE.md` | Tablas que estos endpoints consultan |
 | `01-ENTITIES.md` | Tipos de request/response y Zod schemas |
 | `03-USER-FLOWS.md` | Flujos de usuario que consumen estos endpoints |
-| `backend/04-API-PRIVATE.md` | Endpoints privados (contraparte de estos) |
-| `backend/06-BUSINESS-LOGIC.md` | Lógica de auto-traducción y utilidades compartidas |
+| `backend/docs/04-API-PRIVATE.md` | Endpoints privados (contraparte de estos) |
+| `backend/docs/06-BUSINESS-LOGIC.md` | Lógica de auto-traducción y utilidades compartidas |

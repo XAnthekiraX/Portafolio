@@ -67,7 +67,7 @@ Proyecto personal y portafolio profesional. No está planteado como producto, em
 - **CRUD de Projects** con gestión de skills vía modal y auto-traducción DeepL
 - **CRUD de SaaS Projects** con modal de skills, tag input de features, y auto-traducción
 - **Profile** con información personal, CV, skills management y redes sociales
-- **Settings** con configuración general, tecnologías, servicios, media library y mensajes
+- **CRUD de Technologies, Education y Services** con formularios específicos
 
 ### 3.3 CMS Integrado
 - Gestión de contenido estructurado mediante formularios y campos específicos
@@ -107,9 +107,7 @@ Proyecto personal y portafolio profesional. No está planteado como producto, em
 | **SaasProject** | Proyecto SaaS con nombre, descripción, URL, features, skills |
 | **Technology** | Tecnología o herramienta con icono, asociable a proyectos |
 | **Service** | Servicio profesional ofrecido |
-| **Media** | Archivo multimedia (imagen, documento) usado en la Landing Page |
 | **ContactMessage** | Mensaje recibido desde el formulario de contacto |
-| **Settings** | Configuración global del sitio (site name, descripción, GA ID) |
 
 
 ---

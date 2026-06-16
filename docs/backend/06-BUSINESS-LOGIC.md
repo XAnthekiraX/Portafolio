@@ -11,8 +11,8 @@ Este documento define la lógica de negocio y utilidades compartidas del backend
 ### 2.1 Integración con DeepL API
 
 ```typescript
-// src/services/translations.ts
-import { createClient } from '@/lib/supabase/admin';
+// backend/src/services/translations.ts
+import { createClient } from 'backend/src/lib/supabase/admin';
 
 const DEEPL_API_URL = 'https://api-free.deepl.com/v2/translate';
 const DEEPL_API_KEY = process.env.DEEPL_API_KEY;
@@ -61,7 +61,7 @@ export async function deeplTranslate(
 Función genérica que coordina la traducción de cualquier recurso:
 
 ```typescript
-// src/services/translations.ts (continuación)
+// backend/src/services/translations.ts (continuación)
 
 type TranslatableTable =
   | 'project_translations'
@@ -201,7 +201,7 @@ export async function POST(request: NextRequest) {
 ## 3. Slug Generation
 
 ```typescript
-// src/lib/utils.ts
+// shared/src/utils/slug.ts
 
 /**
  * Genera un slug URL-friendly a partir de un título en español.
@@ -256,7 +256,7 @@ export async function generateUniqueSlug(
 Cuando el admin actualiza `social_links` vía `PUT /api/private/personal-info`, no debe reemplazar el objeto JSONB completo, sino hacer merge con los valores existentes.
 
 ```typescript
-// src/services/personal-info.ts
+// shared/src/utils/format.ts
 
 /**
  * Merge parcial de social_links.
@@ -317,10 +317,10 @@ export function mergeSocialLinks(
 
 ---
 
-## 5. File Validation (Media Upload)
+## 5. File Validation (Storage Upload)
 
 ```typescript
-// src/lib/upload.ts
+// backend/src/lib/upload.ts
 
 interface UploadConfig {
   maxSizeBytes: number;
@@ -335,10 +335,6 @@ const BUCKET_CONFIGS: Record<string, UploadConfig> = {
   projects: {
     maxSizeBytes: 5 * 1024 * 1024,  // 5 MB
     allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
-  },
-  media: {
-    maxSizeBytes: 5 * 1024 * 1024,  // 5 MB
-    allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'],
   },
   cv: {
     maxSizeBytes: 10 * 1024 * 1024, // 10 MB
@@ -411,7 +407,7 @@ export function generateStorageFileName(file: File): string {
 ## 6. Error Classes
 
 ```typescript
-// src/lib/errors.ts
+// backend/src/lib/errors.ts
 
 export class AppError extends Error {
   public readonly statusCode: number;
@@ -501,7 +497,7 @@ export function handleApiError(error: unknown): NextResponse {
 ## 7. Zod Error Formatter
 
 ```typescript
-// src/lib/validation.ts (extensión)
+// shared/src/validators/index.ts (extensión)
 
 import { ZodError, ZodIssue } from 'zod';
 
@@ -532,7 +528,7 @@ export function formatZodErrors(error: ZodError): Record<string, string[]> {
 ## 8. Locale Helpers
 
 ```typescript
-// src/lib/i18n.ts (extensión para API)
+// backend/src/lib/i18n.ts (extensión para API)
 
 const SUPPORTED_LOCALES = ['es', 'en', 'pt'] as const;
 const DEFAULT_LOCALE = 'es';
@@ -580,7 +576,7 @@ export function applyTranslation<T extends Record<string, any>>(
 ## 9. Supabase Client Factory
 
 ```typescript
-// src/lib/supabase/index.ts — Factory centralizado
+// backend/src/lib/supabase/index.ts — Factory centralizado
 
 import { createServerClient } from '@supabase/ssr';
 import { createBrowserClient } from '@supabase/ssr';
@@ -677,7 +673,7 @@ export function createRouteHandlerSupabase(
 ## 10. Archivos de Servicio Recomendados
 
 ```
-src/services/
+backend/src/services/
 ├── auth.ts              # login()
 ├── personal-info.ts     # getPersonalInfo(), mergeSocialLinks()
 ├── cv.ts                # uploadCv()
@@ -686,10 +682,7 @@ src/services/
 ├── skills.ts            # CRUD skills
 ├── technologies.ts      # CRUD technologies
 ├── services.ts          # CRUD services
-├── media.ts             # uploadMedia(), deleteMedia()
-├── messages.ts          # getMessages(), markAsRead()
-├── settings.ts          # getSettings(), updateSettings()
-├── dashboard.ts         # getActiveCount()
+├── stats.ts             # getStatsCount()
 ├── translations.ts      # autoTranslate(), deeplTranslate()
 └── contact.ts           # submitContactMessage()
 ```

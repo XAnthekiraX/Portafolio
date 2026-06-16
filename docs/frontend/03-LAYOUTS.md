@@ -12,16 +12,16 @@ Este documento define los layouts del frontend de Anthekira.dev, su jerarquía, 
 RootLayout (obligatorio en Next.js)
 └── HTML, body, fuentes, metadata global
     │
-    ├── LandingLayout (src/app/[locale]/layout.tsx)
+    ├── LandingLayout (frontend/src/app/[locale]/layout.tsx)
     │   └── Header + {children} + Footer + Google Analytics
     │
-    └── AdminLayout (src/app/admin/layout.tsx)
+    └── AdminLayout (frontend/src/app/admin/layout.tsx)
         └── AuthGuard + Sidebar + Navbar + {children}
 ```
 
 ---
 
-## 3. RootLayout (`src/app/layout.tsx`)
+## 3. RootLayout (`frontend/src/app/layout.tsx`)
 
 ### 3.1 Responsabilidades
 
@@ -121,7 +121,7 @@ html {
 
 ---
 
-## 4. LandingLayout (`src/app/[locale]/layout.tsx`)
+## 4. LandingLayout (`frontend/src/app/[locale]/layout.tsx`)
 
 ### 4.1 Responsabilidades
 
@@ -279,7 +279,7 @@ El Footer siempre es vertical en móvil (grid de 1 columna) y horizontal en escr
 
 ---
 
-## 5. AdminLayout (`src/app/admin/layout.tsx`)
+## 5. AdminLayout (`frontend/src/app/admin/layout.tsx`)
 
 ### 5.1 Responsabilidades
 

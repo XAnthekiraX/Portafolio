@@ -147,7 +147,7 @@ className="bg-surface-800/60 backdrop-blur-md border border-surface-700/50"
 ### 6.1 Definiciones en Tailwind v4
 
 > Las animaciones se definen en CSS con `@theme` y `@keyframes` en `globals.css`.
-> Ver `frontend/00-FRONTEND.md` §4.1 para la implementación completa.
+> Ver `frontend/docs/00-FRONTEND.md` §4.1 para la implementación completa.
 
 **Variables CSS en `@theme`:**
 ```css
@@ -450,9 +450,9 @@ import { Github, Linkedin, Mail, Download, ExternalLink, FolderKanban, Code, Cpu
 
 | Archivo | Relación |
 |---|---|
-| `frontend/00-FRONTEND.md` | Configuración de Tailwind que implementa estos tokens visuales |
-| `frontend/02-COMPONENTS.md` | Componentes que usan estos estilos |
-| `frontend/03-LAYOUTS.md` | Layouts que aplican estos estilos globales |
-| `frontend/05-SEO.md` | Imágenes OG diseñadas con esta paleta |
-| `frontend/07-ACCESSIBILITY.md` | Contraste y legibilidad de estos colores |
-| `frontend/08-ADMIN-PANEL.md` | Diseño diferenciado del admin |
+| `frontend/docs/00-FRONTEND.md` | Configuración de Tailwind que implementa estos tokens visuales |
+| `frontend/docs/02-COMPONENTS.md` | Componentes que usan estos estilos |
+| `frontend/docs/03-LAYOUTS.md` | Layouts que aplican estos estilos globales |
+| `frontend/docs/05-SEO.md` | Imágenes OG diseñadas con esta paleta |
+| `frontend/docs/07-ACCESSIBILITY.md` | Contraste y legibilidad de estos colores |
+| `frontend/docs/08-ADMIN-PANEL.md` | Diseño diferenciado del admin |

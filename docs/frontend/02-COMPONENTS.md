@@ -7,8 +7,8 @@ Este documento define todos los componentes del frontend de Anthekira.dev, organ
 **Convenciones:**
 - `[SC]` = Server Component (sin `"use client"`)
 - `[CC]` = Client Component (con `"use client"`)
-- Los componentes atómicos están en `src/components/ui/`
-- Los componentes de sección están en `src/components/landing/` o `src/components/admin/`
+- Los componentes atómicos están en `frontend/src/components/ui/`
+- Los componentes de sección están en `frontend/src/components/landing/` o `frontend/src/components/admin/`
 
 ---
 
@@ -67,7 +67,7 @@ Componentes específicos de la Landing Page pública. Todos son `[SC]` por defec
 
 | Propiedad | Descripción |
 |---|---|
-| **Ubicación** | `src/components/landing/Header/index.tsx` |
+| **Ubicación** | `frontend/src/components/landing/Header/index.tsx` |
 | **Tipo** | `[SC]` |
 | **Props** | `locale: string` |
 | **Renderiza** | Logo texto "Anthekira" → Nav (Projects, About, Contact) → LanguageSwitcher |
@@ -81,7 +81,7 @@ Comportamiento:
 
 | Propiedad | Descripción |
 |---|---|
-| **Ubicación** | `src/components/landing/Hero/index.tsx` |
+| **Ubicación** | `frontend/src/components/landing/Hero/index.tsx` |
 | **Tipo** | `[SC]` |
 | **Props** | `personalInfo: PersonalInfo` |
 | **Renderiza** | Avatar ilustrado → Nombre → Título profesional → Descripción breve → Botón CV → Redes sociales |
@@ -397,7 +397,7 @@ RootLayout
 ## 7. Convenciones de Implementación
 
 1. **Cada componente en su propia carpeta** con `index.tsx` como exportación principal
-2. **Los tipos de props se definen en el mismo archivo** o en `src/types/` si se reutilizan
+2. **Los tipos de props se definen en el mismo archivo** o en `shared/src/types/` si se reutilizan
 3. **Los estilos son exclusivamente Tailwind CSS** (sin CSS modules, sin styled-components)
 4. **Los componentes `[SC]` no deben importar hooks** (`useState`, `useEffect`, `useContext`)
 5. **Los `[CC]` deben ser lo más pequeños posible** (solo la parte interactiva, no el layout completo)

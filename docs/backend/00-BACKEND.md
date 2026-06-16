@@ -4,7 +4,7 @@
 
 Este documento es el punto de entrada a la documentación del backend de Anthekira.dev. Proporciona un resumen del stack backend, un índice de todos los documentos, y una guía de navegación para desarrolladores y agentes de IA.
 
-El backend está implementado como **API Routes de Next.js** dentro del mismo monorepo del frontend, sin servidor separado.
+El backend está implementado como **API Routes de Next.js** (en `frontend/src/app/api/`) que delegan la lógica de negocio en los servicios de `backend/src/services/`. Los tipos y validaciones compartidas residen en `shared/src/`.
 
 ---
 
@@ -26,7 +26,7 @@ El backend está implementado como **API Routes de Next.js** dentro del mismo mo
 
 | Principio | Aplicación |
 |---|---|
-| **Monorepo unificado** | Frontend y backend en un mismo proyecto Next.js |
+| **Separación por dominios** | `frontend/` (UI + API Routes), `backend/` (servicios), `shared/` (tipos) |
 | **Server Components** | Landing Page consulta Supabase directamente (sin API intermediaria) |
 | **API Routes como BFF** | Endpoints privados como Backend-for-Frontend del panel admin |
 | **Service Role para escritura** | Operaciones CRUD usan `service_role` key (bypass RLS) |
@@ -39,65 +39,57 @@ El backend está implementado como **API Routes de Next.js** dentro del mismo mo
 ## 3. Estructura del Backend
 
 ```
-src/
-├── app/api/
-│   ├── public/            # Endpoints públicos (sin auth)
-│   │   ├── personal-info/ # GET /api/public/personal-info
-│   │   ├── projects/      # GET /api/public/projects
-│   │   ├── skills/        # GET /api/public/skills
-│   │   ├── education/     # GET /api/public/education
-│   │   ├── technologies/  # GET /api/public/technologies
-│   │   ├── services/      # GET /api/public/services
-│   │   ├── saas/          # GET /api/public/saas
-│   │   └── contact/       # POST /api/public/contact
+backend/
+├── src/
+│   ├── services/              # Capa de servicios (lógica de negocio)
+│   │   ├── auth.ts            #   login()
+│   │   ├── personal-info.ts   #   getPersonalInfo(), mergeSocialLinks()
+│   │   ├── cv.ts              #   uploadCv()
+│   │   ├── projects.ts        #   CRUD projects
+│   │   ├── saas.ts            #   CRUD saas_projects
+│   │   ├── skills.ts          #   CRUD skills
+│   │   ├── education.ts       #   CRUD education (sin traducción)
+│   │   ├── technologies.ts    #   CRUD technologies
+│   │   ├── services.ts        #   CRUD services
+│   │   ├── media.ts           #   uploadMedia(), deleteMedia()
+│   │   ├── messages.ts        #   getMessages(), markAsRead()
+│   │   ├── settings.ts        #   getSettings(), updateSettings()
+│   │   ├── dashboard.ts       #   getActiveCount()
+│   │   ├── translations.ts    #   autoTranslate(), deeplTranslate()
+│   │   └── contact.ts         #   submitContactMessage()
 │   │
-│   └── private/           # Endpoints privados (con auth JWT)
-│       ├── admin/login/   # POST /api/private/admin/login
-│       ├── personal-info/ # GET, PUT
-│       ├── cv/            # GET, POST, PUT
-│       ├── projects/      # GET, POST, GET/[id], PUT/[id], DELETE/[id], /count
-│       ├── saas/          # GET, POST, GET/[id], PUT/[id], DELETE/[id], /count
-│       ├── skills/        # GET, POST, GET/[id], PUT/[id], DELETE/[id]
-│       ├── education/     # GET, POST, GET/[id], PUT/[id], DELETE/[id]
-│       ├── technologies/  # GET, POST, GET/[id], PUT/[id], DELETE/[id]
-│       ├── services/      # GET, POST, GET/[id], PUT/[id], DELETE/[id]
-│       ├── media/         # GET, POST/upload, GET/[id], DELETE/[id]
-│       ├── messages/      # GET, GET/[id], DELETE/[id], /count
-│       ├── settings/      # GET, PUT
-│       └── active/count/  # GET /api/private/active/count
+│   └── lib/                   # Utilidades del backend
+│       ├── supabase/
+│       │   └── admin.ts       #   Service role client (bypass RLS)
+│       ├── auth/
+│       │   └── verify.ts      #   Verificación de tokens JWT
+│       ├── errors.ts          #   Clases de error personalizadas
+│       ├── upload.ts          #   validateFile(), getImageDimensions()
+│       └── i18n.ts            #   getLocaleFromRequest(), applyTranslation()
 │
-├── lib/
-│   ├── supabase/          # Clientes Supabase
-│   │   ├── server.ts      #   Server Component client (anon key)
-│   │   ├── client.ts      #   Browser client (anon key)
-│   │   ├── admin.ts       #   Service role client (bypass RLS)
-│   │   └── index.ts       #   Factory centralizada
-│   ├── auth/              # Utilidades de autenticación
-│   │   └── verify.ts      #   Verificación de tokens JWT
-│   ├── errors.ts          # Clases de error personalizadas
-│   ├── validation.ts      # Zod schemas + formatZodErrors()
-│   ├── utils.ts           # generateSlug(), mergeSocialLinks(), etc.
-│   ├── upload.ts          # validateFile(), getImageDimensions()
-│   └── i18n.ts            # getLocaleFromRequest(), applyTranslation()
+├── docs/                      # Documentación del backend
+│   └── (documentos .md del backend)
 │
-├── services/              # Capa de servicios (lógica de negocio)
-│   ├── auth.ts            #   login()
-│   ├── personal-info.ts   #   getPersonalInfo(), mergeSocialLinks()
-│   ├── cv.ts              #   uploadCv()
-│   ├── projects.ts        #   CRUD projects
-│   ├── saas.ts            #   CRUD saas_projects
-│   ├── skills.ts          #   CRUD skills
-│   ├── education.ts       #   CRUD education (sin traducción)
-│   ├── technologies.ts    #   CRUD technologies
-│   ├── services.ts        #   CRUD services
-│   ├── media.ts           #   uploadMedia(), deleteMedia()
-│   ├── messages.ts        #   getMessages(), markAsRead()
-│   ├── settings.ts        #   getSettings(), updateSettings()
-│   ├── dashboard.ts       #   getActiveCount()
-│   ├── translations.ts    #   autoTranslate(), deeplTranslate()
-│   └── contact.ts         #   submitContactMessage()
-│
-└── middleware.ts           # Next.js Middleware (auth + i18n)
+└── [Nota: Los Route Handlers de la API están en frontend/src/app/api/]
+    frontend/src/app/api/
+    ├── public/            # Endpoints públicos (sin auth)
+    └── private/           # Endpoints privados (con auth JWT)
+
+[Nota: Los clientes de Supabase server/client están en frontend/src/lib/supabase/]
+frontend/src/lib/supabase/
+├── server.ts      # Server Component client (anon key)
+└── client.ts      # Browser client (anon key)
+
+[Nota: Los tipos compartidos y validadores están en shared/src/]
+shared/src/
+├── types/          # Interfaces TypeScript
+│   ├── entities.ts
+│   └── api.ts
+├── validators/     # Zod schemas + formatZodErrors()
+│   └── index.ts
+└── utils/          # Utilidades generales
+    ├── slug.ts     # generateSlug(), generateUniqueSlug()
+    └── format.ts   # mergeSocialLinks(), formatZodErrors()
 ```
 
 ---
@@ -106,25 +98,25 @@ src/
 
 | # | Documento | Contenido | Archivo |
 |---|---|---|---|
-| **01** | **Entidades TypeScript** | Interfaces, DTOs, tipos, Zod schemas, API envelope | `01-ENTITIES.md` |
-| **02** | **Esquema de Base de Datos** | Tablas, columnas, índices, RLS, migración SQL, seed data | `02-DATABASE.md` |
-| **03** | **API Pública** | Endpoints GET públicos, locale, caché, errores | `03-API-PUBLIC.md` |
-| **04** | **API Privada** | Endpoints CRUD del admin panel, auto-traducción, auth | `04-API-PRIVATE.md` |
-| **05** | **Autenticación** | Supabase Auth, JWT, cookies, middleware, service role | `05-AUTHENTICATION.md` |
-| **06** | **Lógica de Negocio** | DeepL, slugs, validaciones, errores, helpers | `06-BUSINESS-LOGIC.md` |
+| **01** | **Entidades TypeScript** | Interfaces, DTOs, tipos, Zod schemas, API envelope | `backend/docs/01-ENTITIES.md` |
+| **02** | **Esquema de Base de Datos** | Tablas, columnas, índices, RLS, migración SQL, seed data | `backend/docs/02-DATABASE.md` |
+| **03** | **API Pública** | Endpoints GET públicos, locale, caché, errores | `backend/docs/03-API-PUBLIC.md` |
+| **04** | **API Privada** | Endpoints CRUD del admin panel, auto-traducción, auth | `backend/docs/04-API-PRIVATE.md` |
+| **05** | **Autenticación** | Supabase Auth, JWT, cookies, middleware, service role | `backend/docs/05-AUTHENTICATION.md` |
+| **06** | **Lógica de Negocio** | DeepL, slugs, validaciones, errores, helpers | `backend/docs/06-BUSINESS-LOGIC.md` |
 
 ### 4.1 Orden de Lectura Recomendado
 
 ```
 Para entender el backend completo, leer en este orden:
 
-1. 00-BACKEND.md      ← Este documento (visión general)
-2. 01-ENTITIES.md     ← Entidades y tipos (conceptos base)
-3. 02-DATABASE.md     ← Esquema de BD (almacenamiento)
-4. 05-AUTHENTICATION.md ← Sistema de auth (seguridad)
-5. 03-API-PUBLIC.md   ← API pública (consulta externa)
-6. 04-API-PRIVATE.md  ← API privada (CRUD admin)
-7. 06-BUSINESS-LOGIC.md ← Lógica de negocio (implementación)
+1. `backend/docs/00-BACKEND.md`      ← Este documento (visión general)
+2. `backend/docs/01-ENTITIES.md`     ← Entidades y tipos (conceptos base)
+3. `backend/docs/02-DATABASE.md`     ← Esquema de BD (almacenamiento)
+4. `backend/docs/05-AUTHENTICATION.md` ← Sistema de auth (seguridad)
+5. `backend/docs/03-API-PUBLIC.md`   ← API pública (consulta externa)
+6. `backend/docs/04-API-PRIVATE.md`  ← API privada (CRUD admin)
+7. `backend/docs/06-BUSINESS-LOGIC.md` ← Lógica de negocio (implementación)
 ```
 
 ---
@@ -133,12 +125,12 @@ Para entender el backend completo, leer en este orden:
 
 ### 5.1 `01-ENTITIES.md` — Entidades TypeScript
 
-Define **15 interfaces** que representan todas las tablas de la BD, más DTOs para creación/actualización, tipos de API envelope, y **Zod schemas** de validación para todos los endpoints.
+Define interfaces que representan las tablas de la BD, más DTOs para creación/actualización, tipos de API envelope, y **Zod schemas** de validación para todos los endpoints.
 
 **Archivos destino:**
-- `src/types/entities.ts` — Interfaces
-- `src/types/api.ts` — API envelope
-- `src/lib/validation.ts` — Zod schemas
+- `shared/src/types/entities.ts` — Interfaces
+- `shared/src/types/api.ts` — API envelope
+- `shared/src/validators/index.ts` — Zod schemas
 
 ### 5.2 `02-DATABASE.md` — Esquema de Base de Datos
 
@@ -160,12 +152,10 @@ Define **16 tablas** en PostgreSQL 15+ con migración SQL completa, incluyendo:
 
 ### 5.4 `04-API-PRIVATE.md` — API Privada
 
-**38 endpoints privados** protegidos con JWT para el panel admin:
-- CRUD completo de projects, saas, skills, **education**, technologies, services
-- Media upload con validación por bucket
-- Messages con marcado automático de lectura
-- Settings, Personal Info, CV
-- 4 endpoints de conteo para el Dashboard
+**~27 endpoints privados** protegidos con JWT para el panel admin:
+- CRUD completo de projects, saas, skills, education, technologies, services
+- Personal Info (incluye CV y redes sociales)
+- 1 endpoint unificado de conteo (`/stats/count`) para el Dashboard
 - Auto-traducción DeepL en POST/PUT
 
 ### 5.5 `05-AUTHENTICATION.md` — Autenticación
@@ -261,6 +251,6 @@ NEXT_PUBLIC_SITE_URL=https://anthekira.dev
 | `01-ARCHITECTURE.md` | Describe la arquitectura general del sistema |
 | `02-DECISIONS.md` | ADR-001 (monorepo), ADR-002 (Supabase), ADR-006 (DeepL), ADR-008 (sin roles) |
 | `03-USER-FLOWS.md` | Flujos de usuario que el backend soporta |
-| `frontend/08-ADMIN-PANEL.md` | Interfaz de usuario que consume los endpoints privados |
-| `frontend/01-ROUTES.md` | Middleware de protección de rutas admin |
-| `frontend/02-COMPONENTS.md` | Componentes que consumen la API (FormBuilder, DataTable) |
+| `frontend/docs/08-ADMIN-PANEL.md` | Interfaz de usuario que consume los endpoints privados |
+| `frontend/docs/01-ROUTES.md` | Middleware de protección de rutas admin |
+| `frontend/docs/02-COMPONENTS.md` | Componentes que consumen la API (FormBuilder, DataTable) |

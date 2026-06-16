@@ -31,8 +31,6 @@ users (auth.users de Supabase)
   │
   ├── personal_info ─── (1:1, FK → users.id)
   │
-  ├── settings ─── (1:1, FK → users.id)
-  │
   ├── projects ─── (1:N, creator → users.id)
   │     ├── project_translations ─── (1:N, FK → projects.id)
   │     └── project_skills ─── (N:M, skills)
@@ -49,9 +47,7 @@ users (auth.users de Supabase)
   ├── services ─── (1:N, creator → users.id)
   │     └── service_translations ─── (1:N, FK → services.id)
   │
-  ├── media ─── (1:N, uploader → users.id)
-  │
-  └── contact_messages ─── (sin FK, solo registro)
+  └── contact_messages ─── (sin FK, solo registro — formulario contacto público)
 ```
 
 ---
@@ -539,66 +535,18 @@ ALTER TABLE service_translations ENABLE ROW LEVEL SECURITY;
 
 ---
 
-### 4.13 `media`
+### 4.13 `contact_messages`
 
-Metadatos de archivos multimedia subidos a Supabase Storage.
-
-```sql
-CREATE TABLE media (
-  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id       UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-
-  -- Metadata del archivo
-  file_name     TEXT NOT NULL,
-  file_size     INTEGER NOT NULL,              -- En bytes
-  mime_type     TEXT NOT NULL,                  -- "image/jpeg", "image/png", "application/pdf", etc.
-  bucket        TEXT NOT NULL,                  -- "profile", "projects", "media", "cv"
-  storage_path  TEXT NOT NULL UNIQUE,           -- Ruta dentro del bucket
-
-  -- URL pública generada
-  public_url    TEXT NOT NULL,
-
-  -- Para imágenes
-  width         INTEGER,
-  height        INTEGER,
-  alt_text      TEXT NOT NULL DEFAULT '',
-
-  created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
-CREATE INDEX idx_media_user_id ON media(user_id);
-CREATE INDEX idx_media_bucket ON media(bucket);
-CREATE INDEX idx_media_mime_type ON media(mime_type);
-```
-
-**RLS:**
-```sql
-CREATE POLICY "media_select_public"
-  ON media FOR SELECT
-  USING (true);
-
-ALTER TABLE media ENABLE ROW LEVEL SECURITY;
-```
-
----
-
-### 4.14 `contact_messages`
-
-Mensajes recibidos desde el formulario de contacto.
+Mensajes recibidos desde el formulario de contacto público.
 
 ```sql
 CREATE TABLE contact_messages (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-
-  -- Remitente
   name        TEXT NOT NULL,
   email       TEXT NOT NULL,
   subject     TEXT NOT NULL,
   message     TEXT NOT NULL,
-
-  -- Estado
   is_read     BOOLEAN NOT NULL DEFAULT false,
-
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -614,36 +562,7 @@ ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
 
 ---
 
-### 4.15 `settings`
 
-Configuración global del sitio.
-
-```sql
-CREATE TABLE settings (
-  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id           UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
-
-  site_name         TEXT NOT NULL DEFAULT 'Anthekira.dev',
-  site_description  TEXT NOT NULL DEFAULT '',
-  ga_id             TEXT NOT NULL DEFAULT '',     -- Google Analytics ID: G-XXXXXXXXXX
-
-  created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at        TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
-CREATE INDEX idx_settings_user_id ON settings(user_id);
-```
-
-**RLS:**
-```sql
-CREATE POLICY "settings_select_public"
-  ON settings FOR SELECT
-  USING (true);
-
-ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
-```
-
----
 
 ## 5. Traducciones (DeepL Auto-translate)
 
@@ -708,9 +627,7 @@ ORDER BY p.display_order;
 | `technologies` | ✅ Sí (todo el mundo) | ❌ Solo service_role |
 | `services` | ✅ Sí (todo el mundo) | ❌ Solo service_role |
 | `service_translations` | ✅ Sí (todo el mundo) | ❌ Solo service_role |
-| `media` | ✅ Sí (todo el mundo) | ❌ Solo service_role |
 | `contact_messages` | ❌ No (solo service_role) | ❌ Solo service_role |
-| `settings` | ✅ Sí (todo el mundo) | ❌ Solo service_role |
 
 ### 6.2 Notas
 
@@ -730,7 +647,6 @@ ORDER BY p.display_order;
 |---|---|---|---|---|
 | `profile` | Público | JPG, PNG, WebP | 2 MB | Avatar/imagen de perfil |
 | `projects` | Público | JPG, PNG, WebP | 5 MB | Imágenes de proyectos |
-| `media` | Público | JPG, PNG, WebP, PDF | 5 MB | Recursos visuales generales |
 | `cv` | Público | PDF | 10 MB | Currículum vitae |
 
 ### 7.2 Políticas de Storage
@@ -745,7 +661,23 @@ CREATE POLICY "profile_insert_private"
   ON storage.objects FOR INSERT
   WITH CHECK (bucket_id = 'profile' AND auth.role() = 'service_role');
 
--- (Mismas políticas para projects, media, cv — cambiando bucket_id)
+-- Bucket: projects
+CREATE POLICY "projects_select_public"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'projects');
+
+CREATE POLICY "projects_insert_private"
+  ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = 'projects' AND auth.role() = 'service_role');
+
+-- Bucket: cv
+CREATE POLICY "cv_select_public"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'cv');
+
+CREATE POLICY "cv_insert_private"
+  ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = 'cv' AND auth.role() = 'service_role');
 ```
 
 ### 7.3 Estructura de Carpetas
@@ -759,11 +691,6 @@ projects/
       ├── main.webp
       └── screenshot-1.webp
 
-media/
-  └── general/
-      ├── {uuid}.webp
-      └── {uuid}.png
-
 cv/
   └── anthekira-cv.pdf
 ```
@@ -776,18 +703,7 @@ cv/
 
 El usuario administrador se crea manualmente desde el Dashboard de Supabase Auth (email + password). No se incluye en migraciones automáticas.
 
-### 8.2 Settings por Defecto
-
-```sql
-INSERT INTO settings (user_id, site_name, site_description)
-VALUES (
-  (SELECT id FROM auth.users LIMIT 1),  -- Se ejecuta después de crear el admin
-  'Anthekira.dev',
-  'Portfolio personal | Desarrollo Web, Backend, Full Stack, AI Native Development'
-);
-```
-
-### 8.3 Personal Info por Defecto
+### 8.2 Personal Info por Defecto
 
 ```sql
 INSERT INTO personal_info (user_id, name, professional_title)
@@ -980,26 +896,6 @@ CREATE TABLE service_translations (
 CREATE INDEX idx_service_translations_service ON service_translations(service_id);
 CREATE INDEX idx_service_translations_locale ON service_translations(locale);
 
--- 4.13 media
-CREATE TABLE media (
-  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id       UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  file_name     TEXT NOT NULL,
-  file_size     INTEGER NOT NULL,
-  mime_type     TEXT NOT NULL,
-  bucket        TEXT NOT NULL,
-  storage_path  TEXT NOT NULL UNIQUE,
-  public_url    TEXT NOT NULL,
-  width         INTEGER,
-  height        INTEGER,
-  alt_text      TEXT NOT NULL DEFAULT '',
-  created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
-CREATE INDEX idx_media_user_id ON media(user_id);
-CREATE INDEX idx_media_bucket ON media(bucket);
-CREATE INDEX idx_media_mime_type ON media(mime_type);
-
 -- 4.14 contact_messages
 CREATE TABLE contact_messages (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -1013,19 +909,6 @@ CREATE TABLE contact_messages (
 
 CREATE INDEX idx_contact_messages_is_read ON contact_messages(is_read);
 CREATE INDEX idx_contact_messages_created_at ON contact_messages(created_at DESC);
-
--- 4.15 settings
-CREATE TABLE settings (
-  id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id           UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
-  site_name         TEXT NOT NULL DEFAULT 'Anthekira.dev',
-  site_description  TEXT NOT NULL DEFAULT '',
-  ga_id             TEXT NOT NULL DEFAULT '',
-  created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at        TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
-CREATE INDEX idx_settings_user_id ON settings(user_id);
 
 -- ============================================================
 -- ROW LEVEL SECURITY
@@ -1045,9 +928,7 @@ ALTER TABLE technologies ENABLE ROW LEVEL SECURITY;
 ALTER TABLE education ENABLE ROW LEVEL SECURITY;
 ALTER TABLE services ENABLE ROW LEVEL SECURITY;
 ALTER TABLE service_translations ENABLE ROW LEVEL SECURITY;
-ALTER TABLE media ENABLE ROW LEVEL SECURITY;
 ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
-ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
 
 -- Políticas de SELECT público
 CREATE POLICY "personal_info_select_public"
@@ -1088,12 +969,6 @@ CREATE POLICY "services_select_public"
 
 CREATE POLICY "service_translations_select_public"
   ON service_translations FOR SELECT USING (true);
-
-CREATE POLICY "media_select_public"
-  ON media FOR SELECT USING (true);
-
-CREATE POLICY "settings_select_public"
-  ON settings FOR SELECT USING (true);
 
 -- Nota: contact_messages no tiene SELECT público
 -- (solo accesible via service_role desde API privada)
@@ -1153,10 +1028,6 @@ CREATE TRIGGER trg_services_updated_at
 CREATE TRIGGER trg_service_translations_updated_at
   BEFORE UPDATE ON service_translations
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER trg_settings_updated_at
-  BEFORE UPDATE ON settings
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 ```
 
 ---
@@ -1172,12 +1043,10 @@ CREATE TRIGGER trg_settings_updated_at
 | Profile → CV | `personal_info.cv_url` | Campo |
 | Profile → Skills | `skills` | CRUD completo |
 | Profile → Social Links | `personal_info.social_links` (JSONB) | Campo (merge parcial) |
-| Settings → General | `settings` | GET/PUT |
-| Settings → Technologies | `technologies` | CRUD completo |
-| Settings → Education | `education` | CRUD completo (sin traducción) |
-| Settings → Services | `services`, `service_translations` | CRUD completo |
-| Settings → Media | `media` + Supabase Storage | CRUD + upload |
-| Settings → Messages | `contact_messages` | GET/DELETE (solo lectura) |
+| Technologies | `technologies` | CRUD completo |
+| Education | `education` | CRUD completo (sin traducción) |
+| Services | `services`, `service_translations` | CRUD completo |
+| Contact Messages | `contact_messages` | POST (público) |
 | Login | `auth.users` (Supabase Auth) | Autenticación |
 
 ---
@@ -1189,8 +1058,8 @@ CREATE TRIGGER trg_settings_updated_at
 | `00-REQUIREMENTS.md` | Define las entidades del sistema |
 | `01-ARCHITECTURE.md` | Describe cómo se conecta Next.js a esta BD |
 | `02-DECISIONS.md` | ADR-002 (Supabase), ADR-006 (DeepL traducciones) |
-| `frontend/08-ADMIN-PANEL.md` | Define los formularios y campos que escriben en estas tablas |
-| `backend/03-API-PUBLIC.md` | Endpoints públicos que leen de estas tablas |
-| `backend/04-API-PRIVATE.md` | Endpoints privados que escriben en estas tablas |
-| `backend/05-AUTHENTICATION.md` | Integración con auth.users y Supabase Auth |
-| `backend/06-BUSINESS-LOGIC.md` | Lógica de negocio (auto-traducción, validaciones) |
+| `frontend/docs/08-ADMIN-PANEL.md` | Define los formularios y campos que escriben en estas tablas |
+| `backend/docs/03-API-PUBLIC.md` | Endpoints públicos que leen de estas tablas |
+| `backend/docs/04-API-PRIVATE.md` | Endpoints privados que escriben en estas tablas |
+| `backend/docs/05-AUTHENTICATION.md` | Integración con auth.users y Supabase Auth |
+| `backend/docs/06-BUSINESS-LOGIC.md` | Lógica de negocio (auto-traducción, validaciones) |
