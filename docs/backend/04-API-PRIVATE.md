@@ -205,7 +205,8 @@ export async function login(input: LoginRequest) {
 **Auto-traducción:** Al actualizar `bio`, el backend debe:
 1. Guardar bio en español
 2. Llamar a DeepL API para traducir a EN y PT
-3. Guardar traducciones en `personal_info_translations`
+3. Guardar traducciones en `personal_info_translations` (content JSONB: `{ "bio": "..." }`)
+4. Actualizar `translation_status` a `completed` si DeepL responde OK, o `failed` si no
 
 ---
 
@@ -256,8 +257,9 @@ export async function login(input: LoginRequest) {
 **Auto-traducción:** Al crear, el backend:
 1. Inserta el proyecto con title/description en español
 2. Llama a DeepL API → traduce title y description a EN y PT
-3. Inserta traducciones en `project_translations`
-4. Asocia skills (insert en `project_skills`)
+3. Inserta traducciones en `project_translations` (content JSONB: `{ "title": "...", "description": "..." }`)
+4. Actualiza `translation_status` a `completed` por cada locale traducido
+5. Asocia skills (insert en `project_skills`)
 
 **Response `201`:**
 
@@ -272,7 +274,7 @@ export async function login(input: LoginRequest) {
 
 **Request:** Mismos campos que POST, todos opcionales.
 
-**Auto-traducción:** Si `title` o `description` cambiaron, re-traduce a EN y PT vía DeepL.
+**Auto-traducción:** Si `title` o `description` cambiaron, re-traduce a EN y PT vía DeepL. Actualiza el `content` JSONB existente y `translation_status`.
 
 **Response `200`:**
 
@@ -338,7 +340,7 @@ export async function login(input: LoginRequest) {
 }
 ```
 
-**Auto-traducción:** name + description → EN y PT (igual que projects).
+**Auto-traducción:** name + description → EN y PT (igual que projects). Contenido en `content` JSONB: `{ "name": "...", "description": "..." }`.
 
 #### `PUT /api/private/saas/[id]` — Actualizar SaaS
 
@@ -473,7 +475,7 @@ Mismos campos que POST, todos opcionales.
       "status": "available",
       "display_order": 0,
       "translations": [
-        { "locale": "en", "title": "Web Development", "description": "..." }
+        { "locale": "en", "content": { "title": "Web Development", "description": "..." }, "translation_status": "completed" }
       ]
     }
   ]
@@ -492,7 +494,7 @@ Mismos campos que POST, todos opcionales.
 }
 ```
 
-**Auto-traducción:** title + description → EN y PT (igual que projects).
+**Auto-traducción:** title + description → EN y PT (igual que projects). Contenido en `content` JSONB: `{ "title": "...", "description": "..." }`.
 
 #### `PUT /api/private/services/[id]` — Actualizar (re-traduce si cambió title/description)
 
@@ -520,7 +522,7 @@ Obtiene el conteo total de proyectos, saas y tecnologías. Usado para las cards 
 **Service Layer:**
 
 ```typescript
-// backend/src/services/dashboard.ts
+// backend/src/services/stats.ts
 export async function getStatsCount() {
   const [projectsResult, saasResult, techResult] = await Promise.all([
     supabaseAdmin
@@ -554,38 +556,57 @@ export async function autoTranslate(
   resourceId: string,
   table: string,          // 'project_translations' | 'service_translations' | etc.
   fkColumn: string,       // 'project_id' | 'service_id' | 'saas_project_id' | 'personal_info_id'
-  sourceFields: Record<string, string>,  // { title: "texto en ES", description: "texto en ES" }
+  sourceContent: Record<string, any>,  // { title: "texto en ES", description: "texto en ES" }
 ) {
   const locales = ['en', 'pt'];
 
   for (const locale of locales) {
-    const translations: Record<string, string> = {};
+    try {
+      const translatedContent: Record<string, any> = {};
 
-    for (const [field, text] of Object.entries(sourceFields)) {
-      if (!text) continue;
-      // Llamar a DeepL API
-      const translated = await deeplTranslate(text, 'ES', locale.toUpperCase());
-      translations[field] = translated;
+      for (const [key, text] of Object.entries(sourceContent)) {
+        if (typeof text !== 'string' || !text.trim()) continue;
+        // Llamar a DeepL API
+        const translated = await deeplTranslate(text, 'ES', locale.toUpperCase());
+        translatedContent[key] = translated;
+      }
+
+      if (Object.keys(translatedContent).length === 0) continue;
+
+      // Upsert: insertar o actualizar la traducción
+      await supabaseAdmin
+        .from(table)
+        .upsert(
+          {
+            [fkColumn]: resourceId,
+            locale,
+            content: translatedContent,           // JSONB con el contenido traducido
+            translation_status: 'completed',       // Marcar como completada
+          },
+          { onConflict: `${fkColumn},locale` }
+        );
+    } catch (error) {
+      console.error(`Translation failed for ${locale}:`, error);
+      // Guardar como failed para permitir reintentos
+      await supabaseAdmin
+        .from(table)
+        .upsert(
+          {
+            [fkColumn]: resourceId,
+            locale,
+            content: sourceContent,                // Guardar contenido original como fallback
+            translation_status: 'failed',
+          },
+          { onConflict: `${fkColumn},locale` }
+        );
     }
-
-    // Upsert: insertar o actualizar si ya existe traducción para ese locale
-    await supabaseAdmin
-      .from(table)
-      .upsert(
-        {
-          [fkColumn]: resourceId,
-          locale,
-          ...translations,
-        },
-        { onConflict: `${fkColumn},locale` }
-      );
   }
 }
 ```
 
 ### 5.1 Tablas con auto-traducción
 
-| Recurso | Tabla de traducción | FK Column | Campos traducibles |
+| Recurso | Tabla de traducción | FK Column | content keys |
 |---|---|---|---|
 | Projects | `project_translations` | `project_id` | `title`, `description` |
 | Services | `service_translations` | `service_id` | `title`, `description` |

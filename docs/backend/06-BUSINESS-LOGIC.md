@@ -58,7 +58,7 @@ export async function deeplTranslate(
 
 ### 2.2 Auto-translate Orchestrator
 
-Función genérica que coordina la traducción de cualquier recurso:
+Función genérica que coordina la traducción de cualquier recurso. Utiliza el modelo de contenido JSONB: almacena todos los textos traducibles en un campo `content` en lugar de columnas específicas.
 
 ```typescript
 // backend/src/services/translations.ts (continuación)
@@ -69,37 +69,39 @@ type TranslatableTable =
   | 'saas_project_translations'
   | 'personal_info_translations';
 
-type TranslationFields = Record<string, string>; // { title: "...", description: "..." }
+// Contenido traducible: objeto con key-value pairs (e.g., { title: "...", description: "..." })
+type TranslationContent = Record<string, any>;
 
 export async function autoTranslate(
   table: TranslatableTable,
   fkColumn: string,
   resourceId: string,
-  sourceFields: TranslationFields
+  sourceContent: TranslationContent
 ): Promise<{ success: boolean; error?: string }> {
   const locales = ['en', 'pt'];
   const results: { locale: string; success: boolean; error?: string }[] = [];
 
   for (const locale of locales) {
     try {
-      const translations: Record<string, string> = {};
+      const translatedContent: TranslationContent = {};
 
-      for (const [field, text] of Object.entries(sourceFields)) {
-        if (!text.trim()) continue;
+      for (const [key, text] of Object.entries(sourceContent)) {
+        if (typeof text !== 'string' || !text.trim()) continue;
         const translated = await deeplTranslate(text, 'ES', DEEPL_TARGET_LANGUAGES[locale]);
-        translations[field] = translated;
+        translatedContent[key] = translated;
       }
 
-      if (Object.keys(translations).length === 0) continue;
+      if (Object.keys(translatedContent).length === 0) continue;
 
-      // Upsert: insertar o actualizar si ya existe traducción para ese locale
+      // Upsert: insertar o actualizar la traducción (content JSONB + translation_status)
       const { error } = await supabaseAdmin
         .from(table)
         .upsert(
           {
             [fkColumn]: resourceId,
             locale,
-            ...translations,
+            content: translatedContent,        // JSONB con todos los textos traducidos
+            translation_status: 'completed',    // Marcar como completada
           },
           { onConflict: `${fkColumn},locale` }
         );
@@ -112,6 +114,18 @@ export async function autoTranslate(
       }
     } catch (error) {
       console.error(`Translation failed for ${locale}:`, error);
+      // Guardar como failed para permitir reintentos
+      await supabaseAdmin
+        .from(table)
+        .upsert(
+          {
+            [fkColumn]: resourceId,
+            locale,
+            content: sourceContent,             // Fallback: contenido original en ES
+            translation_status: 'failed',
+          },
+          { onConflict: `${fkColumn},locale` }
+        );
       results.push({ locale, success: false, error: String(error) });
     }
   }
@@ -168,6 +182,7 @@ export async function POST(request: NextRequest) {
   }
 
   // 3. Auto-traducción (no bloqueante — no debe impedir la creación)
+  //    El contenido se almacena como content JSONB en la tabla de traducciones
   autoTranslate('project_translations', 'project_id', projectId, {
     title: validated.title,
     description: validated.description,
@@ -185,11 +200,11 @@ export async function POST(request: NextRequest) {
 }
 ```
 
-> **⚠️ No bloqueante:** La auto-traducción se ejecuta después de responder al cliente (`.then()`). Si DeepL falla, el contenido se guarda en español y se registra un warning. El admin puede reintentar la traducción manualmente o el sistema puede reintentar en un job futuro.
+> **⚠️ No bloqueante:** La auto-traducción se ejecuta después de responder al cliente (`.then()`). Si DeepL falla, la traducción se marca como `failed` y se almacena el contenido original como fallback. El admin puede reintentar manualmente o el sistema puede reintentar en un job futuro.
 
 ### 2.4 Tablas de Traducción
 
-| Recurso | Tabla | FK Column | Campos | Locales |
+| Recurso | Tabla | FK Column | content keys | Locales |
 |---|---|---|---|---|
 | Projects | `project_translations` | `project_id` | `title`, `description` | `en`, `pt` |
 | Services | `service_translations` | `service_id` | `title`, `description` | `en`, `pt` |
@@ -544,27 +559,31 @@ export function getLocaleFromRequest(request: NextRequest): string {
 
 /**
  * Query helper: aplica traducción con fallback al idioma fuente (ES).
- * Útil para Server Components y API pública.
- *
- * Uso en Supabase query:
- *   .select(`*, project_translations!left(title, description, locale)`)
- *   → post-processing con applyTranslation()
+ * Extrae campos del content JSONB de la traducción.
  */
 export function applyTranslation<T extends Record<string, any>>(
   item: T,
-  translations: Array<{ locale: string; [key: string]: any }> | null,
+  translations: Array<{
+    locale: string;
+    content: Record<string, any>;
+    translation_status: string;
+  }> | null,
   locale: string,
   fields: string[]
 ): T {
   if (!translations || locale === DEFAULT_LOCALE) return item;
 
-  const translation = translations.find(t => t.locale === locale);
+  // Buscar traducción completada para el locale solicitado
+  const translation = translations.find(
+    t => t.locale === locale && t.translation_status === 'completed'
+  );
   if (!translation) return item; // Fallback a ES
 
+  // Extraer campos del content JSONB
   const result = { ...item };
   for (const field of fields) {
-    if (translation[field]) {
-      result[field] = translation[field];
+    if (translation.content?.[field]) {
+      result[field] = translation.content[field];
     }
   }
   return result;
@@ -676,14 +695,13 @@ export function createRouteHandlerSupabase(
 backend/src/services/
 ├── auth.ts              # login()
 ├── personal-info.ts     # getPersonalInfo(), mergeSocialLinks()
-├── cv.ts                # uploadCv()
 ├── projects.ts          # getProjects(), createProject(), etc.
 ├── saas.ts              # getSaasProjects(), createSaasProject(), etc.
 ├── skills.ts            # CRUD skills
 ├── technologies.ts      # CRUD technologies
 ├── services.ts          # CRUD services
 ├── stats.ts             # getStatsCount()
-├── translations.ts      # autoTranslate(), deeplTranslate()
+├── translations.ts      # autoTranslate(), deeplTranslate() — modelo JSON content
 └── contact.ts           # submitContactMessage()
 ```
 

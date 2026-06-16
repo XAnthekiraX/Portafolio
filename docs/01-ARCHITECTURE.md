@@ -276,18 +276,18 @@ El esquema completo se define en `backend/docs/02-DATABASE.md`. Las tablas princ
 - `users`
 - `personal_info`
 - `personal_info`
-- `personal_info_translations`
+- `personal_info_translations` (content JSONB)
 - `skills`
 - `projects`
-- `project_translations`
+- `project_translations` (content JSONB)
 - `project_skills` (relación N:M)
 - `saas_projects`
-- `saas_project_translations`
+- `saas_project_translations` (content JSONB)
 - `saas_project_skills` (relación N:M)
 - `technologies`
 - `services`
-- `service_translations`
-education
+- `service_translations` (content JSONB)
+- `education`
 
 ### 5.2 Row Level Security (RLS)
 

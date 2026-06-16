@@ -99,7 +99,7 @@ async function getPersonalInfo(locale: string = 'es') {
     .from('personal_info')
     .select(`
       *,
-      personal_info_translations!left(bio, locale)
+      personal_info_translations!left(content, locale, translation_status)
     `)
     .limit(1)
     .single();
@@ -107,9 +107,9 @@ async function getPersonalInfo(locale: string = 'es') {
   // Aplicar traducción de la bio según locale
   if (locale !== 'es' && data?.personal_info_translations) {
     const translation = data.personal_info_translations
-      .find(t => t.locale === locale);
-    if (translation?.bio) {
-      data.bio = translation.bio;
+      .find(t => t.locale === locale && t.translation_status === 'completed');
+    if (translation?.content?.bio) {
+      data.bio = translation.content.bio;
     }
   }
 
@@ -167,7 +167,7 @@ async function getPublicProjects(locale: string = 'es') {
       status, display_order, created_at,
       title, description,  -- Fallback ES
       project_translations!left(
-        title, description, locale
+        content, locale, translation_status
       ),
       project_skills!inner(
         skills(id, name, category)
@@ -183,6 +183,7 @@ async function getPublicProjects(locale: string = 'es') {
 **Caché:** `stale-while-revalidate` (ISR cada 5 minutos).
 
 ---
+
 ### 4.3 `GET /api/public/skills`
 
 Lista todas las skills agrupadas por categoría.
@@ -421,8 +422,8 @@ Envía un mensaje de contacto.
 **Service Layer:**
 
 ```typescript
-// src/services/contact.ts
-import { createContactMessageSchema } from '@/lib/validation';
+// backend/src/services/contact.ts
+import { createContactMessageSchema } from 'shared/src/validators';
 
 async function submitContactMessage(input: CreateContactMessageDto) {
   // 1. Validar input
@@ -455,21 +456,33 @@ async function submitContactMessage(input: CreateContactMessageDto) {
 
 ```typescript
 // backend/src/lib/i18n.ts
-type TranslatableField = 'title' | 'description' | 'name' | 'bio';
+type TranslationContent = Record<string, any>; // JSONB content
 
+/**
+ * Aplica traducción con fallback al idioma fuente (ES).
+ * Extrae campos del content JSONB de la traducción.
+ */
 function applyTranslation<T extends Record<string, any>>(
   item: T,
-  translations: Array<{ locale: string; [key: string]: any }>,
+  translations: Array<{
+    locale: string;
+    content: TranslationContent;
+    translation_status: string;
+  }> | null,
   locale: string,
-  fields: TranslatableField[]
+  fields: string[]
 ): T {
-  const translation = translations.find(t => t.locale === locale);
+  if (!translations || locale === 'es') return item;
+
+  const translation = translations.find(
+    t => t.locale === locale && t.translation_status === 'completed'
+  );
   if (!translation) return item; // Fallback a ES
 
   const result = { ...item };
   for (const field of fields) {
-    if (translation[field]) {
-      result[field] = translation[field];
+    if (translation.content?.[field]) {
+      result[field] = translation.content[field];
     }
   }
   return result;

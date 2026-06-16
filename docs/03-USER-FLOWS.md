@@ -229,7 +229,7 @@ El administrador gestiona un recurso (proyectos, habilidades, servicios, etc.) d
         1. Título (ES)
         2. Descripción (ES)
         3. Skills (selector múltiple vía modal)
-        4. Imágenes (selector de Media)
+        4. Imagen del proyecto
         5. URL del proyecto
         6. URL del repositorio
         7. Estado (activo/inactivo)
@@ -239,11 +239,12 @@ El administrador gestiona un recurso (proyectos, habilidades, servicios, etc.) d
         ⇢ Route Handler:
             1. Valida input (Zod)
             2. Guarda proyecto en tabla projects
-            3. Toma los campos en ES y llama a DeepL API:
-                ├── Traduce título y descripción a EN
-                └── Traduce título y descripción a PT
-            4. Guarda traducciones en project_translations
-            5. Responde { success: true, id }
+            3. Llama a autoTranslate() de forma asíncrona (no bloqueante):
+                ├── DeepL traduce título y descripción a EN y PT
+                ├── Guarda content JSONB: { "title": "...", "description": "..." }
+                ├── Marca translation_status: 'completed' por cada locale
+                └── Si falla → translation_status: 'failed' (reintentable)
+            4. Responde { success: true, id }
     ⇢ Muestra toast verde "Project created"
     ⇢ Redirige a /admin/projects (lista actualizada)
 ```
@@ -251,13 +252,14 @@ El administrador gestiona un recurso (proyectos, habilidades, servicios, etc.) d
 ### Flujo de Edición (similar)
 ```
 [Admin] → Click "Edit" en un proyecto
-    ⇢ fetch GET /api/private/projects/[id] → carga datos actuales
+    ⇢ fetch GET /api/private/projects → carga datos actuales (lista completa)
     ⇢ FormBuilder pre-poblado con datos existentes
 [Admin] → Modifica campos → Click "Save"
     ⇢ PUT /api/private/projects/[id]
         ⇢ Actualiza projects
         ⇢ Re-traduce a EN y PT via DeepL (si cambió texto en ES)
-        ⇢ Actualiza project_translations
+        ⇢ Actualiza content JSONB en project_translations
+        ⇢ Actualiza translation_status
     ⇢ Toast "Project updated"
 ```
 
@@ -287,7 +289,7 @@ Este flujo aplica para: **Projects**, **SaaS Projects**, **Skills**, **Education
 - **Carga formulario:** Spinner mientras se obtienen datos existentes
 - **Vacío (lista):** "No [resource] yet. Create your first one."
 - **Error guardar:** Toast rojo "Could not save. Check your connection."
-- **Error DeepL:** Toast amarillo "Saved but translations failed. You can edit them manually."
+- **Error DeepL:** Toast amarillo "Saved but translations failed. Translation marked as failed — you can retry later."
 
 ---
 

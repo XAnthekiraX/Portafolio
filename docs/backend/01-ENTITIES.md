@@ -18,7 +18,7 @@ Este documento define todas las entidades del sistema como interfaces TypeScript
 | IDs | `string` (UUID v4) |
 | Timestamps | `string` (ISO 8601) — se serializan como string en JSON |
 | Nullable vs Optional | `null` para valores que pueden ser nulos en BD, `undefined` para campos opcionales en requests |
-| Traducciones | Tipo genérico `Translation<T>` reutilizable |
+| Traducciones | Modelo JSON genérico con `content` JSONB |
 
 ---
 
@@ -46,12 +46,21 @@ interface SocialLinks {
   website?: string;
 }
 
-// ---------- Genérico para tablas de traducción (patrón, no usado directamente) ----------
-type Translation<T> = {
+// ---------- Estado de traducción ----------
+type TranslationStatus = 'pending' | 'translating' | 'completed' | 'failed';
+
+// ---------- Genérico para tablas de traducción ----------
+// Cada tabla de traducción almacena el contenido traducible en un campo `content` JSONB.
+// Esto permite agregar nuevos campos traducibles sin modificar el esquema.
+interface Translation {
   id: string;
-  locale: Locale;
-  // Omit 'es' porque el idioma fuente está en la tabla principal
-} & Partial<T> & Timestamps;
+  entity_id: string;              // FK → tabla principal
+  locale: Locale;                 // 'en' | 'pt'
+  content: Record<string, any>;   // JSONB — textos traducibles: { title, description, bio, etc. }
+  translation_status: TranslationStatus;  // Estado de la traducción
+  created_at: string;
+  updated_at: string;
+}
 
 // ---------- Estados ----------
 type ProjectStatus = 'draft' | 'active' | 'archived';
@@ -87,11 +96,9 @@ interface PersonalInfo extends Timestamps {
 }
 
 // ---------- PersonalInfoTranslation ----------
-interface PersonalInfoTranslation extends Timestamps {
-  id: string;
-  personal_info_id: string;     // FK → personal_info.id
-  locale: Locale;               // 'en' | 'pt'
-  bio: string;                  // Biografía traducida
+interface PersonalInfoTranslation extends Translation {
+  entity_id: string;            // FK → personal_info.id
+  // content: { bio: "..." }
 }
 ```
 
@@ -160,12 +167,9 @@ interface Project extends Timestamps {
 }
 
 // ---------- ProjectTranslation ----------
-interface ProjectTranslation extends Timestamps {
-  id: string;
-  project_id: string;               // FK → projects.id
-  locale: Locale;                   // 'en' | 'pt'
-  title: string;                    // Título traducido
-  description: string;              // Descripción traducida
+interface ProjectTranslation extends Translation {
+  entity_id: string;                // FK → projects.id
+  // content: { title: "...", description: "..." }
 }
 
 // ---------- Project con traducciones ----------
@@ -221,12 +225,9 @@ interface SaasProject extends Timestamps {
 }
 
 // ---------- SaasProjectTranslation ----------
-interface SaasProjectTranslation extends Timestamps {
-  id: string;
-  saas_project_id: string;          // FK → saas_projects.id
-  locale: Locale;                   // 'en' | 'pt'
-  name: string;                     // Nombre traducido
-  description: string;              // Descripción traducida
+interface SaasProjectTranslation extends Translation {
+  entity_id: string;                // FK → saas_projects.id
+  // content: { name: "...", description: "..." }
 }
 
 // ---------- SaasProject con skills ----------
@@ -327,12 +328,9 @@ interface Service extends Timestamps {
 }
 
 // ---------- ServiceTranslation ----------
-interface ServiceTranslation extends Timestamps {
-  id: string;
-  service_id: string;               // FK → services.id
-  locale: Locale;                   // 'en' | 'pt'
-  title: string;                    // Título traducido
-  description: string;              // Descripción traducida
+interface ServiceTranslation extends Translation {
+  entity_id: string;                // FK → services.id
+  // content: { title: "...", description: "..." }
 }
 
 // ---------- Create/Update DTO ----------
@@ -355,8 +353,6 @@ interface ServiceWithTranslations extends Service {
 ---
 
 
-
----
 
 ## 14. Auth
 
@@ -523,13 +519,6 @@ export const createEducationSchema = z.object({
 });
 
 export const updateEducationSchema = createEducationSchema.partial();
-
-// ---------- Settings ----------
-export const updateSettingsSchema = z.object({
-  site_name: z.string().min(1).max(100).optional(),
-  site_description: z.string().max(500).optional(),
-  ga_id: z.string().regex(/^G-[A-Z0-9]+$/, 'Invalid Google Analytics ID').optional().or(z.literal('')),
-});
 
 // ---------- Personal Info ----------
 export const updatePersonalInfoSchema = z.object({

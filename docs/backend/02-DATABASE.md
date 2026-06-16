@@ -18,7 +18,7 @@ Este documento define el esquema completo de la base de datos PostgreSQL de Anth
 | Primary Key | `id UUID DEFAULT gen_random_uuid()` | — |
 | Timestamps | `created_at` y `updated_at` en cada tabla | `TIMESTAMPTZ NOT NULL DEFAULT now()` |
 | Soft delete | No implementado en V1 (DELETE físico) | — |
-| Traducciones | Tabla separada `{resource}_translations` | `project_translations` |
+| Traducciones | Tabla separada `{resource}_translations` con `content JSONB` | `project_translations` |
 | Relaciones N:M | Tabla pivote `{resource1}_{resource2}` | `project_skills` |
 | JSON para datos planos | `JSONB` para listas pequeñas sin consultas complejas | `social_links`, `features` |
 
@@ -30,12 +30,14 @@ Este documento define el esquema completo de la base de datos PostgreSQL de Anth
 users (auth.users de Supabase)
   │
   ├── personal_info ─── (1:1, FK → users.id)
+  │     └── personal_info_translations ─── (1:N, content JSONB)
   │
   ├── projects ─── (1:N, creator → users.id)
-  │     ├── project_translations ─── (1:N, FK → projects.id)
+  │     ├── project_translations ─── (1:N, content JSONB)
   │     └── project_skills ─── (N:M, skills)
   │
   ├── saas_projects ─── (1:N, creator → users.id)
+  │     ├── saas_project_translations ─── (1:N, content JSONB)
   │     └── saas_project_skills ─── (N:M, skills)
   │
   ├── skills ─── (1:N, creator → users.id)
@@ -45,7 +47,7 @@ users (auth.users de Supabase)
   ├── education ─── (sin FK, independiente)
   │
   ├── services ─── (1:N, creator → users.id)
-  │     └── service_translations ─── (1:N, FK → services.id)
+  │     └── service_translations ─── (1:N, content JSONB)
   │
   └── contact_messages ─── (sin FK, solo registro — formulario contacto público)
 ```
@@ -128,7 +130,7 @@ ALTER TABLE personal_info ENABLE ROW LEVEL SECURITY;
 
 ### 4.2.1 `personal_info_translations`
 
-Traducciones de la biografía generadas por DeepL.
+Traducciones de la biografía. Utiliza el modelo genérico de contenido JSONB.
 
 ```sql
 CREATE TABLE personal_info_translations (
@@ -136,7 +138,13 @@ CREATE TABLE personal_info_translations (
   personal_info_id UUID NOT NULL REFERENCES personal_info(id) ON DELETE CASCADE,
   locale          TEXT NOT NULL CHECK (locale IN ('en', 'pt')),
 
-  bio             TEXT NOT NULL,
+  -- Contenido traducible (JSONB genérico)
+  content         JSONB NOT NULL DEFAULT '{}'::jsonb,
+  -- Ejemplo: { "bio": "Full-stack developer..." }
+
+  -- Estado de la traducción
+  translation_status TEXT NOT NULL DEFAULT 'pending'
+    CHECK (translation_status IN ('pending', 'translating', 'completed', 'failed')),
 
   created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -146,6 +154,7 @@ CREATE TABLE personal_info_translations (
 
 CREATE INDEX idx_personal_info_translations_info ON personal_info_translations(personal_info_id);
 CREATE INDEX idx_personal_info_translations_locale ON personal_info_translations(locale);
+CREATE INDEX idx_personal_info_translations_status ON personal_info_translations(translation_status);
 ```
 
 **RLS:**
@@ -239,7 +248,7 @@ ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
 
 ### 4.5 `project_translations`
 
-Traducciones de proyectos generadas por DeepL.
+Traducciones de proyectos. Utiliza el modelo genérico de contenido JSONB.
 
 ```sql
 CREATE TABLE project_translations (
@@ -247,9 +256,13 @@ CREATE TABLE project_translations (
   project_id  UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
   locale      TEXT NOT NULL CHECK (locale IN ('en', 'pt')),
 
-  -- Campos traducidos
-  title       TEXT NOT NULL,
-  description TEXT NOT NULL,
+  -- Contenido traducible (JSONB genérico)
+  content     JSONB NOT NULL DEFAULT '{}'::jsonb,
+  -- Ejemplo: { "title": "My Project", "description": "A full-stack app..." }
+
+  -- Estado de la traducción
+  translation_status TEXT NOT NULL DEFAULT 'pending'
+    CHECK (translation_status IN ('pending', 'translating', 'completed', 'failed')),
 
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -260,6 +273,7 @@ CREATE TABLE project_translations (
 
 CREATE INDEX idx_project_translations_project ON project_translations(project_id);
 CREATE INDEX idx_project_translations_locale ON project_translations(locale);
+CREATE INDEX idx_project_translations_status ON project_translations(translation_status);
 ```
 
 **RLS:**
@@ -342,7 +356,7 @@ ALTER TABLE saas_projects ENABLE ROW LEVEL SECURITY;
 
 ### 4.7.1 `saas_project_translations`
 
-Traducciones de proyectos SaaS generadas por DeepL (name + description).
+Traducciones de proyectos SaaS. Utiliza el modelo genérico de contenido JSONB.
 
 ```sql
 CREATE TABLE saas_project_translations (
@@ -350,8 +364,13 @@ CREATE TABLE saas_project_translations (
   saas_project_id UUID NOT NULL REFERENCES saas_projects(id) ON DELETE CASCADE,
   locale          TEXT NOT NULL CHECK (locale IN ('en', 'pt')),
 
-  name            TEXT NOT NULL,
-  description     TEXT NOT NULL,
+  -- Contenido traducible (JSONB genérico)
+  content         JSONB NOT NULL DEFAULT '{}'::jsonb,
+  -- Ejemplo: { "name": "App Alpha", "description": "A SaaS platform..." }
+
+  -- Estado de la traducción
+  translation_status TEXT NOT NULL DEFAULT 'pending'
+    CHECK (translation_status IN ('pending', 'translating', 'completed', 'failed')),
 
   created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -361,6 +380,7 @@ CREATE TABLE saas_project_translations (
 
 CREATE INDEX idx_saas_project_translations_project ON saas_project_translations(saas_project_id);
 CREATE INDEX idx_saas_project_translations_locale ON saas_project_translations(locale);
+CREATE INDEX idx_saas_project_translations_status ON saas_project_translations(translation_status);
 ```
 
 **RLS:**
@@ -503,7 +523,7 @@ ALTER TABLE services ENABLE ROW LEVEL SECURITY;
 
 ### 4.12 `service_translations`
 
-Traducciones de servicios generadas por DeepL.
+Traducciones de servicios. Utiliza el modelo genérico de contenido JSONB.
 
 ```sql
 CREATE TABLE service_translations (
@@ -511,8 +531,13 @@ CREATE TABLE service_translations (
   service_id  UUID NOT NULL REFERENCES services(id) ON DELETE CASCADE,
   locale      TEXT NOT NULL CHECK (locale IN ('en', 'pt')),
 
-  title       TEXT NOT NULL,
-  description TEXT NOT NULL,
+  -- Contenido traducible (JSONB genérico)
+  content     JSONB NOT NULL DEFAULT '{}'::jsonb,
+  -- Ejemplo: { "title": "Web Development", "description": "Building modern apps..." }
+
+  -- Estado de la traducción
+  translation_status TEXT NOT NULL DEFAULT 'pending'
+    CHECK (translation_status IN ('pending', 'translating', 'completed', 'failed')),
 
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -522,6 +547,7 @@ CREATE TABLE service_translations (
 
 CREATE INDEX idx_service_translations_service ON service_translations(service_id);
 CREATE INDEX idx_service_translations_locale ON service_translations(locale);
+CREATE INDEX idx_service_translations_status ON service_translations(translation_status);
 ```
 
 **RLS:**
@@ -574,28 +600,62 @@ ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
 | **Idiomas destino** | Inglés (EN) y Portugués (PT) |
 | **Cuándo se traduce** | Al guardar/actualizar el contenido (POST/PUT) |
 | **Servicio** | DeepL API (plan gratis: 500K caracteres/mes) |
-| **Almacenamiento** | Tablas separadas `{resource}_translations` con `locale` |
-| **Fallback** | Si no hay traducción para un locale, se muestra ES |
+| **Almacenamiento** | Tablas separadas `{resource}_translations` con `content JSONB` |
+| **Modelo de contenido** | JSONB genérico — cada tabla almacena un objeto `content` con todos los textos traducibles |
+| **Fallback** | Si no hay traducción para un locale, se muestra ES (contenido de la tabla principal) |
 | **Edición manual** | El admin puede modificar cualquier traducción manualmente |
+| **Estado de traducción** | Campo `translation_status` controla el ciclo de vida |
 
-### 5.2 Tablas de Traducción
+### 5.2 Modelo de Contenido JSON
 
-| Tabla | Resource FK | Locales | Campos traducibles |
-|---|---|---|---|
-| `project_translations` | `project_id → projects.id` | `en`, `pt` | `title`, `description` |
-| `service_translations` | `service_id → services.id` | `en`, `pt` | `title`, `description` |
-| `saas_project_translations` | `saas_project_id → saas_projects.id` | `en`, `pt` | `name`, `description` |
-| `personal_info_translations` | `personal_info_id → personal_info.id` | `en`, `pt` | `bio` |
+Cada tabla de traducción almacena el contenido traducible en un campo `content` JSONB, en lugar de columnas específicas. Esto permite:
 
-### 5.3 Consulta con Fallback
+- **Agregar nuevos campos traducibles** sin modificar el esquema de la tabla
+- **Evolucionar el CMS** sin migraciones de base de datos
+- **Reducir acoplamiento** entre la estructura de tablas y los campos traducibles
+
+**Ejemplo conceptual de contenido por entidad:**
+
+| Entidad | content JSONB |
+|---|---|
+| `project_translations` | `{ "title": "...", "description": "..." }` |
+| `service_translations` | `{ "title": "...", "description": "..." }` |
+| `saas_project_translations` | `{ "name": "...", "description": "..." }` |
+| `personal_info_translations` | `{ "bio": "..." }` |
+
+> **Nota:** Estos ejemplos son ilustrativos. El contenido exacto depende de los campos traducibles de cada entidad. El sistema es extensible: si se agrega un campo `short_description` a projects, se agrega automáticamente al content JSON sin migraciones.
+
+### 5.3 Estados de Traducción
+
+| Estado | Descripción |
+|---|---|
+| `pending` | Traducción creada, pendiente de procesar |
+| `translating` | En proceso de traducción (DeepL API) |
+| `completed` | Traducción completada exitosamente |
+| `failed` | Error en la traducción (reintentable) |
+
+**Flujo de estados:**
+```
+pending → translating → completed
+                  ↓
+                failed → (reintento) → translating → completed
+```
+
+### 5.4 Consulta con Fallback
 
 ```sql
 -- Obtener proyecto con traducción en el locale solicitado (con fallback a ES)
 SELECT
   p.id,
   p.slug,
-  COALESCE(pt.title, p.title) AS title,
-  COALESCE(pt.description, p.description) AS description,
+  COALESCE(
+    (pt.content->>'title'),        -- Extraer del JSONB
+    p.title                        -- Fallback a ES
+  ) AS title,
+  COALESCE(
+    (pt.content->>'description'),
+    p.description
+  ) AS description,
   p.project_url,
   p.image_url,
   p.status
@@ -605,6 +665,15 @@ LEFT JOIN project_translations pt
 WHERE p.status = 'active'
 ORDER BY p.display_order;
 ```
+
+### 5.5 Tablas de Traducción
+
+| Tabla | Resource FK | Locales | content keys |
+|---|---|---|---|
+| `project_translations` | `project_id → projects.id` | `en`, `pt` | `title`, `description` |
+| `service_translations` | `service_id → services.id` | `en`, `pt` | `title`, `description` |
+| `saas_project_translations` | `saas_project_id → saas_projects.id` | `en`, `pt` | `name`, `description` |
+| `personal_info_translations` | `personal_info_id → personal_info.id` | `en`, `pt` | `bio` |
 
 ---
 
@@ -749,6 +818,23 @@ CREATE TABLE personal_info (
 
 CREATE INDEX idx_personal_info_user_id ON personal_info(user_id);
 
+-- 4.2.1 personal_info_translations (modelo JSON content)
+CREATE TABLE personal_info_translations (
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  personal_info_id    UUID NOT NULL REFERENCES personal_info(id) ON DELETE CASCADE,
+  locale              TEXT NOT NULL CHECK (locale IN ('en', 'pt')),
+  content             JSONB NOT NULL DEFAULT '{}'::jsonb,
+  translation_status  TEXT NOT NULL DEFAULT 'pending'
+    CHECK (translation_status IN ('pending', 'translating', 'completed', 'failed')),
+  created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (personal_info_id, locale)
+);
+
+CREATE INDEX idx_personal_info_translations_info ON personal_info_translations(personal_info_id);
+CREATE INDEX idx_personal_info_translations_locale ON personal_info_translations(locale);
+CREATE INDEX idx_personal_info_translations_status ON personal_info_translations(translation_status);
+
 -- 4.3 skills
 CREATE TABLE skills (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -783,20 +869,22 @@ CREATE INDEX idx_projects_status ON projects(status);
 CREATE INDEX idx_projects_slug ON projects(slug);
 CREATE INDEX idx_projects_display_order ON projects(display_order);
 
--- 4.5 project_translations
+-- 4.5 project_translations (modelo JSON content)
 CREATE TABLE project_translations (
-  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  project_id  UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
-  locale      TEXT NOT NULL CHECK (locale IN ('en', 'pt')),
-  title       TEXT NOT NULL,
-  description TEXT NOT NULL,
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  project_id          UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  locale              TEXT NOT NULL CHECK (locale IN ('en', 'pt')),
+  content             JSONB NOT NULL DEFAULT '{}'::jsonb,
+  translation_status  TEXT NOT NULL DEFAULT 'pending'
+    CHECK (translation_status IN ('pending', 'translating', 'completed', 'failed')),
+  created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE (project_id, locale)
 );
 
 CREATE INDEX idx_project_translations_project ON project_translations(project_id);
 CREATE INDEX idx_project_translations_locale ON project_translations(locale);
+CREATE INDEX idx_project_translations_status ON project_translations(translation_status);
 
 -- 4.6 project_skills
 CREATE TABLE project_skills (
@@ -827,6 +915,23 @@ CREATE TABLE saas_projects (
 CREATE INDEX idx_saas_projects_user_id ON saas_projects(user_id);
 CREATE INDEX idx_saas_projects_status ON saas_projects(status);
 CREATE INDEX idx_saas_projects_display_order ON saas_projects(display_order);
+
+-- 4.7.1 saas_project_translations (modelo JSON content)
+CREATE TABLE saas_project_translations (
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  saas_project_id     UUID NOT NULL REFERENCES saas_projects(id) ON DELETE CASCADE,
+  locale              TEXT NOT NULL CHECK (locale IN ('en', 'pt')),
+  content             JSONB NOT NULL DEFAULT '{}'::jsonb,
+  translation_status  TEXT NOT NULL DEFAULT 'pending'
+    CHECK (translation_status IN ('pending', 'translating', 'completed', 'failed')),
+  created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (saas_project_id, locale)
+);
+
+CREATE INDEX idx_saas_project_translations_project ON saas_project_translations(saas_project_id);
+CREATE INDEX idx_saas_project_translations_locale ON saas_project_translations(locale);
+CREATE INDEX idx_saas_project_translations_status ON saas_project_translations(translation_status);
 
 -- 4.8 saas_project_skills
 CREATE TABLE saas_project_skills (
@@ -881,22 +986,24 @@ CREATE TABLE services (
 
 CREATE INDEX idx_services_display_order ON services(display_order);
 
--- 4.12 service_translations
+-- 4.12 service_translations (modelo JSON content)
 CREATE TABLE service_translations (
-  id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  service_id  UUID NOT NULL REFERENCES services(id) ON DELETE CASCADE,
-  locale      TEXT NOT NULL CHECK (locale IN ('en', 'pt')),
-  title       TEXT NOT NULL,
-  description TEXT NOT NULL,
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  service_id          UUID NOT NULL REFERENCES services(id) ON DELETE CASCADE,
+  locale              TEXT NOT NULL CHECK (locale IN ('en', 'pt')),
+  content             JSONB NOT NULL DEFAULT '{}'::jsonb,
+  translation_status  TEXT NOT NULL DEFAULT 'pending'
+    CHECK (translation_status IN ('pending', 'translating', 'completed', 'failed')),
+  created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE (service_id, locale)
 );
 
 CREATE INDEX idx_service_translations_service ON service_translations(service_id);
 CREATE INDEX idx_service_translations_locale ON service_translations(locale);
+CREATE INDEX idx_service_translations_status ON service_translations(translation_status);
 
--- 4.14 contact_messages
+-- 4.13 contact_messages
 CREATE TABLE contact_messages (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name        TEXT NOT NULL,
@@ -916,6 +1023,7 @@ CREATE INDEX idx_contact_messages_created_at ON contact_messages(created_at DESC
 
 -- Habilitar RLS en todas las tablas
 ALTER TABLE personal_info ENABLE ROW LEVEL SECURITY;
+ALTER TABLE personal_info_translations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE skills ENABLE ROW LEVEL SECURITY;
 ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE project_translations ENABLE ROW LEVEL SECURITY;
@@ -923,7 +1031,6 @@ ALTER TABLE project_skills ENABLE ROW LEVEL SECURITY;
 ALTER TABLE saas_projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE saas_project_translations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE saas_project_skills ENABLE ROW LEVEL SECURITY;
-ALTER TABLE personal_info_translations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE technologies ENABLE ROW LEVEL SECURITY;
 ALTER TABLE education ENABLE ROW LEVEL SECURITY;
 ALTER TABLE services ENABLE ROW LEVEL SECURITY;
@@ -933,6 +1040,9 @@ ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
 -- Políticas de SELECT público
 CREATE POLICY "personal_info_select_public"
   ON personal_info FOR SELECT USING (true);
+
+CREATE POLICY "personal_info_translations_select_public"
+  ON personal_info_translations FOR SELECT USING (true);
 
 CREATE POLICY "skills_select_public"
   ON skills FOR SELECT USING (true);
@@ -954,9 +1064,6 @@ CREATE POLICY "saas_project_translations_select_public"
 
 CREATE POLICY "saas_project_skills_select_public"
   ON saas_project_skills FOR SELECT USING (true);
-
-CREATE POLICY "personal_info_translations_select_public"
-  ON personal_info_translations FOR SELECT USING (true);
 
 CREATE POLICY "technologies_select_public"
   ON technologies FOR SELECT USING (true);
@@ -989,6 +1096,10 @@ CREATE TRIGGER trg_personal_info_updated_at
   BEFORE UPDATE ON personal_info
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+CREATE TRIGGER trg_personal_info_translations_updated_at
+  BEFORE UPDATE ON personal_info_translations
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 CREATE TRIGGER trg_skills_updated_at
   BEFORE UPDATE ON skills
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -1007,10 +1118,6 @@ CREATE TRIGGER trg_saas_projects_updated_at
 
 CREATE TRIGGER trg_saas_project_translations_updated_at
   BEFORE UPDATE ON saas_project_translations
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER trg_personal_info_translations_updated_at
-  BEFORE UPDATE ON personal_info_translations
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER trg_technologies_updated_at
