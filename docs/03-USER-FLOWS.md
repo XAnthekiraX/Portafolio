@@ -41,33 +41,35 @@ Admin → /admin → middleware detecta sin sesión → /admin/login
 ## 4. CRUD Contenido (Admin)
 ```
 Admin → Dashboard → Sidebar → /admin/projects
-  → GET /api/private/projects (JWT en cookie)
-    → DataTable con acciones (Editar/Eliminar)
+  → GET /api/private/projects (JWT en cookie + CSRF header)
+    → GenericDataTable con acciones (Editar/Eliminar)
 
-Crear: Click "New" → FormBuilder → campos estructurados
+Crear: Click "New" → GenericForm → campos estructurados
   → POST /api/private/[resource]
-    → Valida (Zod) → Guarda en ES → DeepL traduce a EN+PT
-      → Guarda content JSONB en tabla _translations
+    → Valida (Zod) → Guarda en ES → DeepL traduce a EN+PT (Promise.all, síncrono)
+      → Guarda content JSONB en tabla entity_translations
         → translation_status: completed (o failed)
           → Toast y redirección
 
-Editar: Click "Edit" → FormBuilder pre-poblado → PUT /api/private/[resource]/[id]
+Editar: Click "Edit" → GenericForm pre-poblado → PUT /api/private/[resource]/[id]
   → Re-traduce si cambió texto fuente
 
 Eliminar: Click "Delete" → Modal confirmación → DELETE /api/private/[resource]/[id]
   → Cascade elimina traducciones y relaciones N:M
 ```
 
-Aplica para: Projects, SaaS, Skills, Education, Technologies, Services, PersonalInfo.
+Aplica para: Projects (incluye SaaS vía `type: 'saas'`), Skills, Education, Technologies, Services, PersonalInfo.
+
+> **Nota:** Projects y SaaS están unificados. Al crear/editar un proyecto, el campo `type` determina si es proyecto regular (`'project'`) o SaaS (`'saas'`). Los campos específicos de SaaS (`url`, `features`) aparecen condicionalmente en GenericForm.
 
 ### 4.1 Education (Admin)
 ```
 Admin → /admin/education
-  → GET /api/private/education → DataTable (Institution, Degree, Actions)
+  → GET /api/private/education → GenericDataTable (Institution, Degree, Actions)
 
-Crear: Click "New" → FormBuilder → institution, degree, description, website_url, logo_url → POST
+Crear: Click "New" → GenericForm → institution, degree, description, website_url, logo_url → POST
 
-Editar: Click "Edit" → FormBuilder pre-poblado → PUT /api/private/education/[id]
+Editar: Click "Edit" → GenericForm pre-poblado → PUT /api/private/education/[id]
 
 Eliminar: Click "Delete" → Modal confirmación → DELETE /api/private/education/[id]
 ```

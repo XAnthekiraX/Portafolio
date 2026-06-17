@@ -4,51 +4,66 @@
 ```typescript
 interface Timestamps { created_at: string; updated_at: string; }
 type Locale = 'es' | 'en' | 'pt';
-type TranslationStatus = 'pending' | 'translating' | 'completed' | 'failed';
+type TranslationStatus = 'completed' | 'failed';
 type ProjectStatus = 'draft' | 'active' | 'archived';
-type SaasStatus = 'live' | 'beta' | 'development' | 'planning';
+type ProjectType = 'project' | 'saas';
 type ServiceStatus = 'available' | 'coming_soon';
 type SkillCategory = 'frontend' | 'backend' | 'devops' | 'tools' | 'other';
+type EntityType = 'project' | 'personal_info' | 'service';
 
 interface SocialLinks { github?: string; linkedin?: string; twitter?: string; website?: string; }
+```
 
-// Modelo genérico de traducción (content JSONB)
-interface Translation {
-  id: string; entity_id: string; locale: Locale;
-  content: Record<string, any>;  // JSONB con textos traducibles
+> **Simplificación:** Se eliminaron los tipos `SaasStatus` (unificado con ProjectStatus) y `TranslationStatus` se redujo de 4 estados a 2 (`completed | failed`).
+
+## 2. Tabla de Traducciones (genérica)
+Una sola tabla `entity_translations` reemplaza las 4 tablas anteriores:
+
+```typescript
+interface EntityTranslation {
+  id: string;
+  entity_type: EntityType;     // 'project' | 'personal_info' | 'service'
+  entity_id: string;           // FK polimórfica
+  locale: Locale;              // 'en' | 'pt'
+  content: Record<string, any>; // JSONB con textos traducibles
   translation_status: TranslationStatus;
-  created_at: string; updated_at: string;
+  created_at: string;
+  updated_at: string;
 }
 ```
 
-## 2. Entidades
-**PersonalInfo** extends Timestamps: id, user_id, name, professional_title, bio, current_status, email, location, avatar_url, cv_url, social_links (SocialLinks type).  
-**PersonalInfoTranslation** extends Translation: entity_id → personal_info.id | content: `{ bio: "..." }`
+**content keys por entity_type:**
+| entity_type | content keys |
+|---|---|
+| `project` | `title`, `description` |
+| `personal_info` | `bio` |
+| `service` | `title`, `description` |
 
-**Skill** extends Timestamps: id, name, category, display_order.
+## 3. Entidades
 
-**Project** extends Timestamps: id, user_id, title, description, slug, project_url, repository_url, image_url, status, display_order.  
-**ProjectTranslation** extends Translation: entity_id → projects.id | content: `{ title: "...", description: "..." }`
+**PersonalInfo** extends Timestamps: id, user_id, name, professional_title, bio, current_status, email, location, avatar_url, cv_url, social_links (SocialLinks type).
 
-**SaasProject** extends Timestamps: id, user_id, name, description, url, image_url, status, features (string[]), display_order.  
-**SaasProjectTranslation** extends Translation: entity_id → saas_projects.id | content: `{ name: "...", description: "..." }`
+**Skill** extends Timestamps: id, name (unique), category, display_order.
+
+**Project** extends Timestamps: id, user_id, title, description, slug (unique), project_url, repository_url, image_url, type (ProjectType, default 'project'), status (ProjectStatus), features (string[], solo si type='saas'), display_order.
+
+> **Nota:** Los proyectos SaaS (`type='saas'`) usan `url` en lugar de `project_url` + `repository_url`. El campo `features` es un array JSONB de strings. La relación N:M con skills se maneja en `project_skills`.
 
 **Technology** extends Timestamps: id, name (unique), icon_url, website_url, display_order.
 
 **Education** extends Timestamps: id, institution, degree, description, website_url, logo_url, display_order.
 
-**Service** extends Timestamps: id, title, description, icon, status, display_order.  
-**ServiceTranslation** extends Translation: entity_id → services.id | content: `{ title: "...", description: "..." }`
+**Service** extends Timestamps: id, title, description, icon (Lucide icon name), status, display_order.
 
 **ContactMessage:** id, name, email, subject, message, is_read, created_at.
 
-## 3. Auth Types
+## 4. Auth Types
 ```typescript
 interface LoginRequest { email: string; password: string; }
 interface LoginResponse { success: boolean; error?: string; }
 ```
 
-## 4. API Envelope
+## 5. API Envelope
 ```typescript
 interface ApiResponse<T> { success: true; data: T; }
 interface ApiError { success: false; error: string; code?: string; details?: Record<string, string[]>; }
@@ -56,7 +71,37 @@ interface PaginatedResponse<T> { success: true; data: T[]; pagination: { total; 
 interface CountResponse { success: true; data: { count: number; }; }
 ```
 
-## 5. Zod Schemas (shared/src/validators/index.ts)
+## 6. Zod Schemas (shared/src/validators/index.ts)
 Schemas para cada entidad: `create{Entity}Schema` + `update{Entity}Schema = create.partial()`.  
-Ej: `createProjectSchema = z.object({ title: z.string().min(2).max(200), description: z.string().min(10).max(10000), ... })`.  
-Especiales: `updatePersonalInfoSchema` con `social_links` merge parcial (campos opcionales + nullable para eliminación).
+Ej: `createProjectSchema = z.object({ title: z.string().min(2).max(200), description: z.string().min(10).max(10000), type: z.enum(['project', 'saas']).default('project'), ... })`.  
+Especiales:
+- `updatePersonalInfoSchema` con `social_links` merge parcial (campos opcionales + nullable para eliminación)
+- `createProjectSchema` con validación condicional: si `type='saas'`, `features` es requerido y `project_url`/`repository_url` se reemplazan por `url`
+
+## 7. Configuraciones CRUD Genérico
+```typescript
+interface CrudConfig<T> {
+  table: string;              // nombre tabla en BD
+  schema: {
+    create: z.ZodSchema<T>;
+    update: z.ZodSchema<Partial<T>>;
+  };
+  translations?: {
+    entityType: EntityType;    // para auto-traducción
+    fields: string[];          // campos a traducir (ej: ['title', 'description'])
+  };
+  slug?: {
+    source: string;            // campo usado para generar slug (ej: 'title')
+    unique: boolean;
+  };
+  searchFields?: string[];     // campos para búsqueda en listado
+}
+
+// Ejemplo de configuración:
+const projectCrud = createCrudService('projects', {
+  schema: { create: createProjectSchema, update: updateProjectSchema },
+  translations: { entityType: 'project', fields: ['title', 'description'] },
+  slug: { source: 'title', unique: true },
+  searchFields: ['title', 'description'],
+});
+```

@@ -14,7 +14,6 @@
 | GET | `/api/public/education` | Formación académica | ISR 30 min |
 | GET | `/api/public/technologies` | Tecnologías | ISR 30 min |
 | GET | `/api/public/services` | Servicios + traducciones | ISR 5 min |
-| GET | `/api/public/saas` | Proyectos SaaS + traducciones | ISR 5 min |
 | POST | `/api/public/contact` | Enviar mensaje de contacto | Sin caché |
 
 **Query param opcional:** `?locale=en|pt` (default: es) — aplica en endpoints con traducciones.
@@ -25,10 +24,13 @@
 ```json
 { "success": true, "data": { "name": "Anthekira", "professional_title": "Full-Stack Developer", "bio": "...", "avatar_url": "...", "cv_url": "...", "social_links": { "github": "...", "linkedin": "..." }, "current_status": "Open to work", "location": "..." } }
 ```
-Traducción: busca `personal_info_translations` donde `locale = ?locale` y `translation_status = 'completed'`. Fallback a ES.
+Traducción: busca `entity_translations` donde `entity_type='personal_info'`, `locale = ?locale` y `translation_status = 'completed'`. Fallback a ES.
 
 ### GET /api/public/projects
-Filtra `status = 'active'`. JOIN `project_translations` + `project_skills`. Orden por `display_order`.
+Filtra `status = 'active'`. JOIN `entity_translations` (entity_type='project') + `project_skills`. Orden por `display_order`.  
+**Query param:** `?type=project|saas` (opcional, filtra por tipo).
+
+**Nota:** El endpoint unifica projects y saas en una sola respuesta. El campo `type` indica si es proyecto regular o SaaS.
 
 ### GET /api/public/skills
 Retorna agrupado por categoría: `{ frontend: [...], backend: [...], devops: [...], tools: [...], other: [...] }`.
@@ -37,7 +39,7 @@ Retorna agrupado por categoría: `{ frontend: [...], backend: [...], devops: [..
 **Request:** `{ name (min:2), email (valid), subject (min:3), message (min:10) }`  
 **Validation:** Zod schema → 400 con detalles por campo.  
 **Response 201:** `{ success: true, data: { message: "Message sent successfully" } }`  
-**Rate limiting:** No implementado en V1.
+**Rate limiting:** 3 requests/hora por IP (ver ADR-015). Si se excede, respuesta 429.
 
 ## 4. Traducciones en API Pública
 ```typescript

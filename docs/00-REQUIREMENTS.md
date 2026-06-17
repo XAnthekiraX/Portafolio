@@ -30,7 +30,9 @@
 **Analytics:** GA4 en Landing Page. Dashboard muestra enlace externo a GA.
 
 ## 4. Entidades
-User, PersonalInfo, Education, Skill, Project, SaasProject, Technology, Service, ContactMessage.
+User, PersonalInfo, Education, Skill, Project (unifica Project + SaasProject mediante campo `type`), Technology, Service, ContactMessage.
+
+> **Nota:** Se eliminó SaasProject como entidad separada. Los proyectos SaaS se representan con `type: 'saas'` en la tabla `projects`. Las traducciones usan una tabla genérica `entity_translations` en lugar de tablas separadas por entidad.
 
 ## 5. Diseño
 **Estilo:** Moderno, minimalista, modo oscuro único. Glassmorphism sutil.  

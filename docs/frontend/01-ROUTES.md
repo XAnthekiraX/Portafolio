@@ -27,65 +27,36 @@ Redirección: `anthekira.dev` → 302 → `/{lang}/` según Accept-Language. Def
 ```
 frontend/src/app/admin/
 ├── login/
-│   └── page.tsx          # /admin/login
-├── layout.tsx            # AdminLayout (AuthGuard + Sidebar + Navbar)
-├── page.tsx              # /admin — Dashboard
-├── projects/
-│   ├── page.tsx          # /admin/projects
-│   ├── new/page.tsx      # /admin/projects/new
-│   └── [id]/page.tsx     # /admin/projects/[id]
-├── saas/
-│   ├── page.tsx          # /admin/saas
-│   ├── new/page.tsx      # /admin/saas/new
-│   └── [id]/page.tsx     # /admin/saas/[id]
-├── profile/page.tsx      # /admin/profile
-├── education/
-│   ├── page.tsx          # /admin/education
-│   ├── new/page.tsx      # /admin/education/new
-│   └── [id]/page.tsx     # /admin/education/[id]
-├── technologies/
-│   ├── page.tsx          # /admin/technologies
-│   ├── new/page.tsx      # /admin/technologies/new
-│   └── [id]/page.tsx     # /admin/technologies/[id]
-├── services/
-│   ├── page.tsx          # /admin/services
-│   ├── new/page.tsx      # /admin/services/new
-│   └── [id]/page.tsx     # /admin/services/[id]
-├── skills/
-│   ├── page.tsx          # /admin/skills
-│   ├── new/page.tsx      # /admin/skills/new
-│   └── [id]/page.tsx     # /admin/skills/[id]
+│   └── page.tsx            # /admin/login
+├── layout.tsx              # AdminLayout (AuthGuard + Sidebar + Navbar)
+├── page.tsx                # /admin — Dashboard
+├── [resource]/             # CRUD genérico (projects, skills, education, technologies, services)
+│   ├── page.tsx            # /admin/[resource] — GenericDataTable
+│   ├── new/page.tsx        # /admin/[resource]/new — GenericForm (crear)
+│   └── [id]/page.tsx       # /admin/[resource]/[id] — GenericForm (editar)
+├── profile/page.tsx        # /admin/profile (personalizado, no genérico)
 ├── contact/
-│   ├── page.tsx          # /admin/contact — Lista de mensajes
-│   └── [id]/page.tsx     # /admin/contact/[id] — Detalle del mensaje
-└── error.tsx             # 500 admin
+│   ├── page.tsx            # /admin/contact — Lista de mensajes
+│   └── [id]/page.tsx       # /admin/contact/[id] — Detalle del mensaje
+├── error.tsx               # 500 admin
+└── loading.tsx             # Loading state admin
 ```
 
 | Ruta | Tipo | SEO |
 |---|---|---|
 | `/admin/login` | `[CC]` | noindex |
 | `/admin` | `[CC]` | noindex |
-| `/admin/projects` | `[CC]` | noindex |
-| `/admin/projects/new` | `[CC]` | noindex |
-| `/admin/projects/[id]` | `[CC]` | noindex |
-| `/admin/saas` | `[CC]` | noindex |
-| `/admin/saas/new` | `[CC]` | noindex |
-| `/admin/saas/[id]` | `[CC]` | noindex |
+| `/admin/[resource]` | `[CC]` | noindex |
+| `/admin/[resource]/new` | `[CC]` | noindex |
+| `/admin/[resource]/[id]` | `[CC]` | noindex |
 | `/admin/profile` | `[CC]` | noindex |
-| `/admin/education` | `[CC]` | noindex |
-| `/admin/education/new` | `[CC]` | noindex |
-| `/admin/education/[id]` | `[CC]` | noindex |
-| `/admin/technologies` | `[CC]` | noindex |
-| `/admin/technologies/new` | `[CC]` | noindex |
-| `/admin/technologies/[id]` | `[CC]` | noindex |
-| `/admin/services` | `[CC]` | noindex |
-| `/admin/services/new` | `[CC]` | noindex |
-| `/admin/services/[id]` | `[CC]` | noindex |
-| `/admin/skills` | `[CC]` | noindex |
-| `/admin/skills/new` | `[CC]` | noindex |
-| `/admin/skills/[id]` | `[CC]` | noindex |
 | `/admin/contact` | `[CC]` | noindex |
 | `/admin/contact/[id]` | `[CC]` | noindex |
+
+> **Mejora:** Las 21 páginas CRUD específicas se reemplazan por 3 páginas genéricas (`[resource]/`). La configuración de cada recurso (columnas, campos, endpoint, traducciones) se define en un archivo de configuración centralizado.
+
+**Recursos soportados por el CRUD genérico:** `projects`, `skills`, `education`, `technologies`, `services`.
+**Excepciones (requieren UI personalizada):** `profile` (merge social_links), `contact` (mensajes de terceros).
 
 ## 3. Middleware
 **Responsabilidades:** 1) Proteger `/admin` (excepto `/admin/login`) y `/api/private/*`. 2) Aplicar i18n routing a rutas públicas.

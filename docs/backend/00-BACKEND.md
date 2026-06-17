@@ -16,20 +16,34 @@
 ```
 backend/src/
 ├── services/          # Lógica de negocio
-│   ├── auth.ts, personal-info.ts, projects.ts, saas.ts
-│   ├── skills.ts, technologies.ts, services.ts, stats.ts
-│   ├── translations.ts, contact.ts
-│   ├── education.ts
-│   └── dashboard.ts -> stats.ts
+│   ├── auth.ts              # Login + logout
+│   ├── personal-info.ts     # Profile CRUD + traducción
+│   ├── projects.ts          # Projects CRUD + traducción + slug
+│   ├── skills.ts            # Skills CRUD
+│   ├── technologies.ts      # Technologies CRUD
+│   ├── services.ts          # Services CRUD + traducción
+│   ├── education.ts         # Education CRUD
+│   ├── translations.ts      # Retry traducciones fallidas
+│   ├── contact.ts           # Messages management
+│   ├── stats.ts             # Dashboard counts
+│   └── generic.ts           # createCrudService() genérico
 ├── lib/
 │   ├── supabase/admin.ts    # service_role client (bypass RLS)
 │   ├── auth/verify.ts       # JWT verification
-│   ├── errors.ts            # AppError classes
+│   ├── auth/csrf.ts         # CSRF token validation
+│   ├── rate-limit.ts        # Rate limiting helper (Upstash/Vercel KV)
+│   ├── generic/handler.ts   # createCrudHandler() genérico
+│   ├── errors.ts            # AppError classes + handleApiError()
 │   ├── upload.ts            # File validation por bucket
 │   ├── storage.ts           # Supabase Storage upload helper
-│   └── i18n.ts              # Locale helpers + applyTranslation()
+│   └── i18n.ts              # Locale helpers + applyTranslation() + translateField()
 └── docs/
 ```
+
+**Mejoras:**
+- `services/generic.ts` + `lib/generic/handler.ts`: CRUD genérico que elimina ~70% del boilerplate
+- `lib/auth/csrf.ts`: Validación CSRF doble cookie
+- `lib/rate-limit.ts`: Rate limiting para login y contacto
 
 Los Route Handlers están en `frontend/src/app/api/{public,private}/`.
 

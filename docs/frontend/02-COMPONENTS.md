@@ -34,6 +34,8 @@ Todos `[SC]` excepto donde se indique.
 **Ubicación:** `frontend/src/components/landing/{Section}/index.tsx`
 
 ## 3. Admin Components (`src/components/admin/`) — Todos `[CC]`
+
+### Componentes base
 | Componente | Props | Renderiza |
 |---|---|---|
 | `Sidebar` | `currentPath: string` | Logo → Nav vertical → GA link → Sign Out. Colapsable en móvil |
@@ -45,16 +47,128 @@ Todos `[SC]` excepto donde se indique.
 | `FileUploader` | `accept, maxSizeMB?, bucket, onUploadComplete, multiple?` | Drag & drop → Preview → Progress → URL |
 | `AnalyticsLink` | `[SC]` `gaUrl?` | Botón que abre GA en nueva pestaña |
 
-## 4. Shared Components (`src/components/shared/`)
+### Componentes CRUD Genéricos (ADR-014)
+| Componente | Props | Descripción |
+|---|---|---|
+| `ResourcePage` | `config: ResourceConfig` | Página completa de listado + acciones (usa GenericDataTable + GenericForm internamente) |
+| `GenericDataTable` | `resource: string, columns: Column[], actions: Action[]` | Tabla genérica con paginación, búsqueda, y acciones CRUD |
+| `GenericForm` | `fields: FieldConfig[], initialValues?, onSubmit, submitLabel?, mode: 'create'\|'edit'` | Formulario dinámico con soporte para relaciones N:M (skills), upload de imágenes, auto-traducción |
+
+**ResourceConfig:**
+```typescript
+interface ResourceConfig {
+  resource: string;          // nombre del recurso (projects, skills, etc.)
+  endpoint: string;          // /api/private/projects
+  label: string;             // "Projects"
+  icon: string;              // Lucide icon name
+  columns: Column[];         // configuración de columnas del DataTable
+  fields: FieldConfig[];     // configuración de campos del formulario
+  translations?: {           // opcional: auto-traducción
+    entityType: EntityType;
+    fields: string[];
+  };
+}
+
+interface FieldConfig {
+  name: string;
+  label: string;
+  type: 'text' | 'textarea' | 'email' | 'url' | 'select' | 'file' | 'tags' | 'skills' | 'checkbox' | 'jsonb';
+  required?: boolean;
+  options?: { value: string; label: string }[];  // para select
+  placeholder?: string;
+  showIf?: (values: any) => boolean;              // campos condicionales
+}
+
+interface Column {
+  key: string;
+  label: string;
+  render?: (value: any, row: any) => ReactNode;  // custom render
+  sortable?: boolean;
+}
+```
+
+**Ejemplo de configuración:**
+```typescript
+const projectsConfig: ResourceConfig = {
+  resource: 'projects',
+  endpoint: '/api/private/projects',
+  label: 'Projects',
+  icon: 'FolderKanban',
+  columns: [
+    { key: 'title', label: 'Title', sortable: true },
+    { key: 'type', label: 'Type', render: (v) => <Badge>{v}</Badge> },
+    { key: 'status', label: 'Status' },
+  ],
+  fields: [
+    { name: 'title', label: 'Title', type: 'text', required: true },
+    { name: 'description', label: 'Description', type: 'textarea', required: true },
+    {
+      name: 'type', label: 'Type', type: 'select', required: true,
+      options: [
+        { value: 'project', label: 'Project' },
+        { value: 'saas', label: 'SaaS' },
+      ],
+    },
+    { name: 'url', label: 'URL', type: 'url', showIf: (v) => v.type === 'saas' },
+    { name: 'features', label: 'Features', type: 'tags', showIf: (v) => v.type === 'saas' },
+    { name: 'project_url', label: 'Project URL', type: 'url', showIf: (v) => v.type === 'project' },
+    { name: 'repository_url', label: 'Repository URL', type: 'url', showIf: (v) => v.type === 'project' },
+    { name: 'image_url', label: 'Image', type: 'file', bucket: 'projects' },
+    { name: 'skills', label: 'Skills', type: 'skills' },
+    { name: 'status', label: 'Status', type: 'select', options: [
+      { value: 'draft', label: 'Draft' },
+      { value: 'active', label: 'Active' },
+      { value: 'archived', label: 'Archived' },
+    ]},
+  ],
+  translations: { entityType: 'project', fields: ['title', 'description'] },
+};
+```
+
+**Uso en página admin:**
+```tsx
+// frontend/src/app/admin/[resource]/page.tsx
+const configs = {
+  projects: projectsConfig,
+  skills: skillsConfig,
+  // ...
+};
+
+export default function ResourceListPage({ params }: { params: { resource: string } }) {
+  const config = configs[params.resource];
+  return <ResourcePage config={config} />;
+}
+```
+
+## 4. Error Boundaries
+
+| Componente | Tipo | Props | Uso |
+|---|---|---|---|
+| `ErrorBoundary` | `[CC]` | `fallback?: ReactNode, children` | Envuelve secciones críticas de la Landing Page para evitar crash total |
+| `ErrorMessage` | `[SC]` | `message: string, retry?: () => void` | Mensaje de error amigable con botón de reintento |
+| `EmptyState` | `[SC]` | `icon, title, description` | Estado vacío para listas sin datos |
+
+```tsx
+// Uso típico en landing page
+<section>
+  <ErrorBoundary fallback={<ErrorMessage message="Could not load projects" />}>
+    <ProjectsList />
+  </ErrorBoundary>
+</section>
+```
+
+## 5. Shared Components (`src/components/shared/`)
 | Componente | Tipo | Props | Uso |
 |---|---|---|---|
 | `LanguageSwitcher` | `[CC]` | `currentLocale: string` | Header Landing. Menú ES/EN/PT. Oculta en admin |
-| `AuthGuard` | `[CC]` | `children` | AdminLayout. Verifica sesión, redirige a /admin/login |
+| `AuthGuard` | `[CC]` | `children` | AdminLayout. Verifica sesión, redirige a /admin/login. Muestra spinner mientras verifica |
+| `SkipToContent` | `[SC]` | `targetId?: string` (default: `'main-content'`) | Enlace de accesibilidad "Skip to content" en RootLayout, permite saltar la navegación al presionar Tab al cargar |
 
-## 5. Convenciones
+## 6. Convenciones
 - Cada componente en su propia carpeta con `index.tsx`
 - Props types en mismo archivo o en `shared/src/types/`
 - Estilos exclusivamente Tailwind
 - `[SC]` no puede importar hooks (useState, useEffect, useContext)
 - `[CC]` debe ser lo más pequeño posible
 - Textos visibles via next-intl, no hardcodeados
+- **CRUD Genérico:** Los componentes genéricos están en `frontend/src/lib/generic/`. Los componentes de UI base están en `frontend/src/components/ui/`.
