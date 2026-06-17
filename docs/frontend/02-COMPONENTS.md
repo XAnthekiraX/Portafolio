@@ -172,3 +172,57 @@ export default function ResourceListPage({ params }: { params: { resource: strin
 - `[CC]` debe ser lo más pequeño posible
 - Textos visibles via next-intl, no hardcodeados
 - **CRUD Genérico:** Los componentes genéricos están en `frontend/src/lib/generic/`. Los componentes de UI base están en `frontend/src/components/ui/`.
+
+## 7. Límite de Tamaño de Componentes y Patrones de División (ADR-021)
+
+### Límites
+| Tipo | Límite duro | Límite recomendado |
+|---|---|---|
+| Admin CC | 300 líneas | 200 líneas |
+| Landing CC | 300 líneas | 250 líneas |
+| Landing SC | 400 líneas* | 300 líneas |
+| UI Components | 150 líneas | 100 líneas |
+
+>*Excepción para componentes de landing page con contenido principalmente JSX estático si la división no aporta valor semántico.
+
+### Reglas de composición
+- Si un componente tiene > 5 props → dividir en subcomponentes
+- Si un componente maneja > 3 estados internos → extraer lógica a hooks
+- Si un componente supera el límite → mover a `ComponentName/` con `index.tsx` + subcomponentes
+
+### Patrón de split
+```
+# ANTES (300+ líneas)
+frontend/src/components/admin/ProjectsList.tsx
+
+# DESPUÉS
+frontend/src/components/admin/ProjectsList/
+├── index.tsx          # Orchestrador, renderiza subcomponentes
+├── ProjectCard.tsx    # Card individual
+├── ProjectFilters.tsx # Filtros y búsqueda
+└── useProjects.ts     # Lógica de fetch y estado
+```
+
+### Extracción de hooks
+```typescript
+// En lugar de mezclar lógica en el componente:
+function useProjects(filters?: ProjectFilters) {
+  const [data, setData] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchProjects(filters).then(...).catch(...);
+  }, [filters]);
+
+  return { data, loading, error, refetch: () => {...} };
+}
+```
+
+### Casos típicos que requieren split
+| Señal | Acción |
+|---|---|
+| Componente mezcla fetch + render + eventos | Extraer fetch a hook `useResource()` |
+| Múltiples modales/dialogs en un componente | Extraer cada modal a su propio archivo |
+| Formulario con > 10 campos | Dividir en secciones (BasicInfo, Media, Skills) |
+| Tabla con lógica de paginación, sort, selección | Extraer lógica a hook `useDataTable()` |

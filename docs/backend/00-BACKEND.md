@@ -12,38 +12,46 @@
 | Traducción | DeepL API (free tier) |
 | Validación | Zod |
 
-## 2. Estructura
+## 2. Estructura y Responsabilidades de Servicios
 ```
 backend/src/
-├── services/          # Lógica de negocio
-│   ├── auth.ts              # Login + logout
-│   ├── personal-info.ts     # Profile CRUD + traducción
-│   ├── projects.ts          # Projects CRUD + traducción + slug
-│   ├── skills.ts            # Skills CRUD
-│   ├── technologies.ts      # Technologies CRUD
-│   ├── services.ts          # Services CRUD + traducción
-│   ├── education.ts         # Education CRUD
-│   ├── translations.ts      # Retry traducciones fallidas
-│   ├── contact.ts           # Messages management
-│   ├── stats.ts             # Dashboard counts
-│   └── generic.ts           # createCrudService() genérico
+├── services/          # Lógica de negocio — cada archivo = UNA entidad
+│   ├── auth.ts              # Login + logout (solo esto, no mezcla con otras entidades)
+│   ├── personal-info.ts     # Profile CRUD (merge social_links) + auto-traducción
+│   ├── projects.ts          # Projects: CRUD via createCrudService + slug + traducción
+│   ├── skills.ts            # Skills: CRUD via createCrudService (sin traducciones)
+│   ├── technologies.ts      # Technologies: CRUD via createCrudService (sin traducciones)
+│   ├── services.ts          # Services: CRUD via createCrudService + traducción
+│   ├── education.ts         # Education: CRUD via createCrudService (sin traducciones)
+│   ├── translations.ts      # Retry de traducciones fallidas (solo reintento)
+│   ├── contact.ts           # Messages: list, markAsRead, delete (gestión de terceros)
+│   ├── stats.ts             # Dashboard counts agregados (query-only, sin escritura)
+│   └── generic.ts           # createCrudService: fábrica CRUD para 5/10 servicios
 ├── lib/
 │   ├── supabase/admin.ts    # service_role client (bypass RLS)
 │   ├── auth/verify.ts       # JWT verification
-│   ├── auth/csrf.ts         # CSRF token validation
+│   ├── auth/csrf.ts         # CSRF token validation (stateless, double-submit)
+│   ├── auth/log-sanitizer.ts # PII removal antes de escribir logs
 │   ├── rate-limit.ts        # Rate limiting helper (Upstash/Vercel KV)
-│   ├── generic/handler.ts   # createCrudHandler() genérico
+│   ├── generic/handler.ts   # createCrudHandler: wrapper API Route para CRUD genérico
 │   ├── errors.ts            # AppError classes + handleApiError()
 │   ├── upload.ts            # File validation por bucket
 │   ├── storage.ts           # Supabase Storage upload helper
-│   └── i18n.ts              # Locale helpers + applyTranslation() + translateField()
+│   └── i18n.ts              # Locale helpers + applyTranslation()
 └── docs/
 ```
 
+**Principios de separación:**
+- Cada archivo en `services/` = UNA entidad de negocio. Sin mezclar auth con projects.
+- Servicios que usan `createCrudService` solo definen configuración. La lógica CRUD está en `generic.ts`.
+- Helpers en `lib/` son técnicos (auth, rate-limit, errors) — sin conocimiento de entidades.
+- `lib/errors.ts` es el único punto de definición de errores.
+
 **Mejoras:**
-- `services/generic.ts` + `lib/generic/handler.ts`: CRUD genérico que elimina ~70% del boilerplate
+- `services/generic.ts` + `lib/generic/handler.ts`: CRUD genérico elimina ~70% del boilerplate
 - `lib/auth/csrf.ts`: Validación CSRF doble cookie
-- `lib/rate-limit.ts`: Rate limiting para login y contacto
+- `lib/auth/log-sanitizer.ts`: Sanitización logs para GDPR
+- `lib/rate-limit.ts`: Rate limiting login + contacto
 
 Los Route Handlers están en `frontend/src/app/api/{public,private}/`.
 
@@ -60,13 +68,18 @@ Los Route Handlers están en `frontend/src/app/api/{public,private}/`.
 ## 4. Endpoints
 | Aspecto | Público (/api/public/) | Privado (/api/private/) |
 |---|---|---|
-| Auth | ❌ | ✅ JWT |
+| Auth | ❌ | ✅ JWT + CSRF |
 | Cliente DB | Anon + RLS | Service role (bypass) |
-| Operaciones | GET (excepto POST /contact) | CRUD completo |
+| Operaciones | GET (excepto POST /contact con rate limit) | CRUD completo + rate limit login |
 | Caché | ISR 5-30 min | Sin caché |
 | CORS | ✅ | ❌ mismo origen |
 
-## 5. Variables de Entorno
+## 5. Logging
+- Formato JSON estructurado: `{ timestamp, level, message, requestId }`
+- Sin PII en logs: emails, IPs completas, nombres, mensajes de contenido — todos redactados
+- Ver `lib/auth/log-sanitizer.ts` para implementación
+
+## 6. Variables de Entorno
 ```
 NEXT_PUBLIC_SUPABASE_URL / ANON_KEY  # Públicas
 SUPABASE_SERVICE_ROLE_KEY            # Secreta (solo server)

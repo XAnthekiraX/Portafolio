@@ -51,11 +51,33 @@ RootLayout (HTML, body, fonts, metadata global)
 └── AdminLayout admin/layout.tsx (AuthGuard + Sidebar + Navbar)
 ```
 
-## 5. Manejo de Estado
-- Sin estado global (no Redux, no Zustand)
-- Server Components: datos directo de Supabase
-- Client Components: estado local con hooks
-- Admin: fetch a API privada con JWT
+## 5. Manejo de Estado (ADR-022)
+**Principio general:** Estado local y predecible. Sin estado global.
+
+| Capa | Estrategia | Ejemplos |
+|---|---|---|
+| Landing Page (SC) | Datos directo de Supabase server-side. Sin estado cliente. | Hero, Projects, Skills |
+| Landing Page (CC) | useState + useEffect local. Sin Context. | Contact form, LanguageSwitcher |
+| Admin CRUD | `useResource(resource)` hook que encapsula fetch states (loading, error, data, refetch). Sin caché — refetch al navegar. | GenericDataTable, GenericForm |
+| Admin Auth | React Context dentro de AdminLayout para sesión. Scope: solo admin. | AuthGuard, Sidebar |
+| Formularios complejos | `useForm()` hook custom con validación + dirty tracking. Sin estado global. | Contact form, GenericForm |
+
+**Reglas:**
+- ✅ Estado local con hooks estándar (useState, useReducer)
+- ✅ Prop drilling máximo 2 niveles (si más, extraer componente intermedio)
+- ✅ Custom hooks para lógica reutilizable
+- ❌ No Redux, no Zustand, no Context global
+- ❌ No useContext para estado de formularios
+- ❌ No estado global para datos de BD
+- ❌ No prop drilling entre componentes no relacionados (extraer componente)
+
+### Custom Hooks Requeridos
+| Hook | Responsabilidad | Scope |
+|---|---|---|
+| `useAuth()` | Sesión admin, login, logout, verificación periódica | Solo admin |
+| `useResource(resource)` | Fetch CRUD a API privada (list, get, create, update, delete) | Admin CRUD páginas |
+| `useForm()` | Validación, dirty tracking, submit handling, errores | Formularios CC |
+| `useGdprConsent()` | Consentimiento cookies/GA4, almacenado en localStorage | Landing Page |
 
 ## 6. Buenas Prácticas
 - Server Components preferidos sobre Client

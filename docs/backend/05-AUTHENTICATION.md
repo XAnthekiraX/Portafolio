@@ -97,9 +97,39 @@ Automáticos via `@supabase/ssr`. Access token: 1 hora. Refresh token: 60 días.
 | CSRF Protection | Double submit cookie: cookie + header X-CSRF-Token |
 | Rate limiting login | 5 intentos/minuto por IP (Upstash/Vercel KV) |
 | Service role solo server | `backend/src/lib/supabase/admin.ts` |
+| Refresh token rotation | Automático @supabase/ssr v1+ — cada uso invalida el token anterior (ADR-020) |
 | Sin roles ni permisos | ADR-008 |
 | Logout invalida sesión | signOut() invalida refresh token |
 
 **Limitaciones V1:** Sin MFA/2FA, sin logs de acceso, sin expiración forzada de sesión.
 
 **Nota de seguridad (futuro):** Se recomienda migrar a roles de BD específicos en lugar de usar service_role para todo, para limitar el daño potencial si un endpoint se compromete.
+
+## 8. PII en Logs
+Los logs del backend siguen estas reglas (ADR-019):
+- No se loguean request bodies ni query params
+- No se loguean emails, IPs completas, ni mensajes de contacto
+- IPs se truncan al prefijo (ej: `192.168.x.x`) para rate limiting
+- Logs en formato JSON estructurado: `{ timestamp, level, message, requestId }`
+```typescript
+// Ejemplo: sanitizer wrapper (backend/src/lib/auth/log-sanitizer.ts)
+export function sanitizeForLog(value: string): string {
+  // Reemplaza emails con [REDACTED]
+  return value.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '[REDACTED]');
+}
+
+export function logInfo(message: string, meta?: Record<string, any>) {
+  const sanitizedMeta = meta ? Object.fromEntries(
+    Object.entries(meta).map(([k, v]) =>
+      typeof v === 'string' ? [k, sanitizeForLog(v)] : [k, v]
+    )
+  ) : {};
+  console.log(JSON.stringify({ timestamp: new Date().toISOString(), level: 'info', message, ...sanitizedMeta }));
+}
+```
+
+## 9. GDPR Consent
+- Modal de consentimiento se muestra al primer visitante
+- Se almacena preferencia en `localStorage.setItem('gdpr_consent', 'true')`
+- GA4 solo se carga si `gdpr_consent === true`
+- El formulario de contacto incluye texto: "Al enviar, aceptas el almacenamiento de tus datos para responder tu consulta"
