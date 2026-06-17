@@ -10,6 +10,7 @@
 🛠️ Technologies  → /admin/technologies
 🏢 Services      → /admin/services
 💻 Skills        → /admin/skills
+✉️ Messages      → /admin/contact
 ─────────────────
 📊 Google Analytics → (enlace externo)
 🚪 Sign Out
@@ -64,5 +65,7 @@ CRUD con auto-traducción. Campos: title, description (ES → EN/PT), icon (Luci
 | `/api/private/education` | ✅ | ✅ | ✅ | ✅ |
 | `/api/private/technologies` | ✅ | ✅ | ✅ | ✅ |
 | `/api/private/services` | ✅ | ✅ | ✅ | ✅ |
+| `/api/private/upload` | — | ✅ | — | — |
+| `/api/private/contact` | ✅ | — | ✅ (read) | ✅ |
 | `/api/private/stats/count` | ✅ | — | — | — |
 | `/api/private/admin/login` | — | ✅ | — | — |

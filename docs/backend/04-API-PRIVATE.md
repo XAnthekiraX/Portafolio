@@ -5,7 +5,7 @@
 **Middleware:** `frontend/src/middleware.ts` protege todas las rutas `/api/private/*`.  
 **Envelope:** `{ success: true, data: T }` / `{ success: false, error: string, code?: string, details?: Record<string, string[]> }`
 
-## 2. Endpoints (27)
+## 2. Endpoints (34)
 
 ### Auth
 | Método | Ruta | Descripción |
@@ -49,10 +49,41 @@
 | PUT | `/api/private/services/[id]` | Re-traduce si cambió |
 | DELETE | `/api/private/services/[id]` | Cascade |
 
+### Upload / Storage
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | `/api/private/upload` | Subir archivo a Supabase Storage |
+
+**Request:** `multipart/form-data` — campos: `file` (File), `bucket` (string: `profile` | `projects` | `cv`).  
+**Validación:** Tipos MIME y tamaño según bucket (ver `backend/06-BUSINESS-LOGIC.md` §4).  
+**Response 201:** `{ success: true, data: { url: "https://...", path: "..." } }`  
+**Errores:** 400 (archivo inválido o bucket incorrecto), 413 (archivo demasiado grande), 500 (error Storage).
+
 ### Stats
 | Método | Ruta | Response |
 |---|---|---|
 | GET | `/api/private/stats/count` | `{ total_projects: N, total_saas: N, total_technologies: N }` |
+| GET | `/api/private/stats/translations-pending` | `{ total_pending: N, total_failed: N }` — conteo de traducciones pendientes y fallidas |
+
+### Translations
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | `/api/private/translations/retry` | Reintentar traducciones fallidas (`translation_status = 'failed'`). Re-ejecuta `autoTranslate()` para cada una |
+
+**POST /api/private/translations/retry:**  
+**Response 200:** `{ success: true, data: { retried: N, failed: N } }` — número de traducciones reintentadas con éxito y las que siguen fallando.  
+**Nota:** Esta operación se invoca manualmente desde el dashboard admin. No hay reintento automático programado.
+
+### Contact Messages
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/api/private/contact` | Listar mensajes de contacto (orden descendente por fecha) |
+| PUT | `/api/private/contact/[id]/read` | Marcar mensaje como leído |
+| DELETE | `/api/private/contact/[id]` | Eliminar mensaje |
+
+**GET /api/private/contact:**  
+**Response 200:** `{ success: true, data: [{ id, name, email, subject, message, is_read, created_at }] }`  
+**Query params opcionales:** `?is_read=true|false` (filtrar por estado de lectura), `?page=1&page_size=20` (paginación).
 
 ## 3. Auto-traducción (DeepL) en POST/PUT
 ```typescript

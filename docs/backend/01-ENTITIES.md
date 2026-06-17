@@ -22,7 +22,7 @@ interface Translation {
 ```
 
 ## 2. Entidades
-**PersonalInfo** extends Timestamps: id, user_id, name, professional_title, bio, current_status, email, location, avatar_url, cv_url, social_links.  
+**PersonalInfo** extends Timestamps: id, user_id, name, professional_title, bio, current_status, email, location, avatar_url, cv_url, social_links (SocialLinks type).  
 **PersonalInfoTranslation** extends Translation: entity_id → personal_info.id | content: `{ bio: "..." }`
 
 **Skill** extends Timestamps: id, name, category, display_order.

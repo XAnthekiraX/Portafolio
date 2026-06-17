@@ -17,6 +17,13 @@ export async function deeplTranslate(text: string, sourceLang = 'ES', targetLang
 ```
 **Free tier:** 500K chars/mes. Consumo estimado: ~5-10K por guardado completo.
 
+### Estrategia de Reintento
+Las traducciones fallidas (`translation_status = 'failed'`) se reintentan manualmente desde el panel admin:
+- El endpoint `GET /api/private/stats/translations-pending` expone el conteo de traducciones con estado `failed`.
+- Desde el dashboard/admin se muestra un badge "N traducciones pendientes" que enlaza a una acción de reintento.
+- El reintento consiste en re-ejecutar `autoTranslate()` para los registros con `translation_status = 'failed'` vía `POST /api/private/translations/retry`.
+- No hay reintento automático programado. DeepL API free tier tiene límite de 500K chars/mes, por lo que reintentos automáticos podrían agotar el cuota sin intervención del administrador.
+
 ### Auto-translate Orchestrator
 ```typescript
 export async function autoTranslate(table, fkColumn, resourceId, sourceContent: TranslationContent) {
@@ -39,7 +46,7 @@ export async function autoTranslate(table, fkColumn, resourceId, sourceContent: 
   }
 }
 ```
-**No bloqueante:** Se ejecuta después de responder al cliente (`.then()`). Si falla: `status: 'failed'` + contenido ES como fallback.
+**No bloqueante:** Se ejecuta después de responder al cliente (`.then()`). Si falla: `status: 'failed'` + contenido ES como fallback. El administrador puede reintentar desde el panel.
 
 ## 2. Slug Generation
 ```typescript
@@ -95,5 +102,7 @@ export function getLocaleFromRequest(request: NextRequest): string {
 
 ## 7. Service Files
 ```
-backend/src/services/{auth, personal-info, projects, saas, skills, technologies, services, stats, translations, contact}.ts
+backend/src/services/{auth, personal-info, projects, saas, skills, technologies, services, stats, translations, contact, education, dashboard}.ts
 ```
+
+Ver estructura completa en `backend/00-BACKEND.md` §2.

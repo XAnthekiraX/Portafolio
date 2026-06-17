@@ -68,7 +68,26 @@ Todas las tablas con RLS habilitado. SELECT público en todas excepto contact_me
 | projects | JPG, PNG, WebP | 5 MB | Imágenes |
 | cv | PDF | 10 MB | CV |
 
-Políticas: SELECT público, INSERT solo service_role.
+### Políticas RLS de Storage
+Cada bucket tiene dos políticas:
+- **SELECT público:** `(bucket_id = 'profile' OR bucket_id = 'projects' OR bucket_id = 'cv')` → permite a cualquier usuario leer objetos.
+- **INSERT/UPDATE/DELETE solo service_role:** `(auth.role() = 'service_role')` → solo el backend con service_role key puede escribir.
+
+```sql
+-- Ejemplo para bucket 'profile'
+CREATE POLICY "profile_select_public" ON storage.objects
+  FOR SELECT USING (bucket_id = 'profile');
+
+CREATE POLICY "profile_insert_service_role" ON storage.objects
+  FOR INSERT WITH CHECK (auth.role() = 'service_role' AND bucket_id = 'profile');
+
+CREATE POLICY "profile_update_service_role" ON storage.objects
+  FOR UPDATE USING (auth.role() = 'service_role' AND bucket_id = 'profile');
+
+CREATE POLICY "profile_delete_service_role" ON storage.objects
+  FOR DELETE USING (auth.role() = 'service_role' AND bucket_id = 'profile');
+-- Repetir para buckets 'projects' y 'cv'
+```
 
 ## 7. Seed Data
 Admin user se crea manualmente en Supabase Auth. Seed de personal_info:

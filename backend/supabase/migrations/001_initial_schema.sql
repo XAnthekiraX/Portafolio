@@ -7,9 +7,7 @@
 -- Extensión obligatoria: pgcrypto (para UUIDs) — habilitada por defecto en Supabase.
 --
 -- Este archivo crea el esquema completo de la base de datos:
--- - 14 tablas principales
--- - 4 tablas de traducciones (modelo JSON content)
--- - 2 tablas pivote (relaciones N:M)
+-- - 8 tablas principales + 4 de traducciones (modelo JSON content) + 2 pivotes N:M (14 tablas en total)
 -- - Row Level Security (RLS) habilitado
 -- - Triggers de updated_at automáticos
 -- ============================================================

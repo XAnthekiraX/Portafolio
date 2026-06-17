@@ -45,7 +45,7 @@ anthekira.dev/
 
 ## 4. Base de Datos
 PostgreSQL 15+ (Supabase). Esquema en `backend/docs/02-DATABASE.md`.
-- 14 tablas principales + 4 de traducciones (content JSONB) + 2 pivotes N:M
+- 8 tablas principales + 4 de traducciones (content JSONB) + 2 pivotes N:M (14 tablas en total)
 - RLS: SELECT público excepto contact_messages. Escritura solo service_role
 - Storage: buckets `profile`, `projects`, `cv`
 

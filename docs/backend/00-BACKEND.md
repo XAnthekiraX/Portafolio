@@ -19,12 +19,14 @@ backend/src/
 │   ├── auth.ts, personal-info.ts, projects.ts, saas.ts
 │   ├── skills.ts, technologies.ts, services.ts, stats.ts
 │   ├── translations.ts, contact.ts
+│   ├── education.ts
 │   └── dashboard.ts -> stats.ts
 ├── lib/
 │   ├── supabase/admin.ts    # service_role client (bypass RLS)
 │   ├── auth/verify.ts       # JWT verification
 │   ├── errors.ts            # AppError classes
 │   ├── upload.ts            # File validation por bucket
+│   ├── storage.ts           # Supabase Storage upload helper
 │   └── i18n.ts              # Locale helpers + applyTranslation()
 └── docs/
 ```
@@ -36,8 +38,8 @@ Los Route Handlers están en `frontend/src/app/api/{public,private}/`.
 |---|---|---|
 | 01 | 01-ENTITIES.md | Interfaces, DTOs, Zod schemas |
 | 02 | 02-DATABASE.md | Esquema SQL, tablas, RLS, Storage |
-| 03 | 03-API-PUBLIC.md | 8 endpoints públicos GET (locale, caché) |
-| 04 | 04-API-PRIVATE.md | 27 endpoints privados CRUD + auto-traducción |
+| 03 | 03-API-PUBLIC.md | 8 endpoints públicos (GET + POST contact) (locale, caché) |
+| 04 | 04-API-PRIVATE.md | 34 endpoints privados CRUD + auto-traducción + upload + contacto + reintento traducción |
 | 05 | 05-AUTHENTICATION.md | Supabase Auth, JWT, cookies, middleware |
 | 06 | 06-BUSINESS-LOGIC.md | DeepL, slugs, validaciones, errores |
 

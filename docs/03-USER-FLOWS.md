@@ -60,6 +60,19 @@ Eliminar: Click "Delete" → Modal confirmación → DELETE /api/private/[resour
 
 Aplica para: Projects, SaaS, Skills, Education, Technologies, Services, PersonalInfo.
 
+### 4.1 Education (Admin)
+```
+Admin → /admin/education
+  → GET /api/private/education → DataTable (Institution, Degree, Actions)
+
+Crear: Click "New" → FormBuilder → institution, degree, description, website_url, logo_url → POST
+
+Editar: Click "Edit" → FormBuilder pre-poblado → PUT /api/private/education/[id]
+
+Eliminar: Click "Delete" → Modal confirmación → DELETE /api/private/education/[id]
+```
+Sin auto-traducción ni relaciones N:M.
+
 ## 5. Flujo: Cambio de Idioma
 ```
 Visitante → LanguageSwitcher [CC] → selecciona idioma

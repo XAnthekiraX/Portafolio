@@ -55,6 +55,9 @@ frontend/src/app/admin/
 │   ├── page.tsx          # /admin/skills
 │   ├── new/page.tsx      # /admin/skills/new
 │   └── [id]/page.tsx     # /admin/skills/[id]
+├── contact/
+│   ├── page.tsx          # /admin/contact — Lista de mensajes
+│   └── [id]/page.tsx     # /admin/contact/[id] — Detalle del mensaje
 └── error.tsx             # 500 admin
 ```
 
@@ -66,11 +69,23 @@ frontend/src/app/admin/
 | `/admin/projects/new` | `[CC]` | noindex |
 | `/admin/projects/[id]` | `[CC]` | noindex |
 | `/admin/saas` | `[CC]` | noindex |
+| `/admin/saas/new` | `[CC]` | noindex |
+| `/admin/saas/[id]` | `[CC]` | noindex |
 | `/admin/profile` | `[CC]` | noindex |
 | `/admin/education` | `[CC]` | noindex |
+| `/admin/education/new` | `[CC]` | noindex |
+| `/admin/education/[id]` | `[CC]` | noindex |
 | `/admin/technologies` | `[CC]` | noindex |
+| `/admin/technologies/new` | `[CC]` | noindex |
+| `/admin/technologies/[id]` | `[CC]` | noindex |
 | `/admin/services` | `[CC]` | noindex |
+| `/admin/services/new` | `[CC]` | noindex |
+| `/admin/services/[id]` | `[CC]` | noindex |
 | `/admin/skills` | `[CC]` | noindex |
+| `/admin/skills/new` | `[CC]` | noindex |
+| `/admin/skills/[id]` | `[CC]` | noindex |
+| `/admin/contact` | `[CC]` | noindex |
+| `/admin/contact/[id]` | `[CC]` | noindex |
 
 ## 3. Middleware
 **Responsabilidades:** 1) Proteger `/admin` (excepto `/admin/login`) y `/api/private/*`. 2) Aplicar i18n routing a rutas públicas.

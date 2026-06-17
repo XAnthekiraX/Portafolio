@@ -47,7 +47,7 @@ const response = await fetch('/api/private/projects'); // cookies JWT automátic
 | `projects` | JPG, PNG, WebP | 5 MB | Imágenes proyectos |
 | `cv` | PDF | 10 MB | Currículum |
 
-**Flujo:** FileUploader [CC] → valida tipo+tamaño → POST `/api/private/media/upload` → Supabase Storage → URL pública → callback.
+**Flujo:** FileUploader [CC] → valida tipo+tamaño → POST `/api/private/upload` → Supabase Storage → URL pública → callback.
 
 ## 6. Auto-traducción DeepL
 ```
