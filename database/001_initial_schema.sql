@@ -1,7 +1,7 @@
 -- ============================================================
 -- 001_initial_schema.sql — Migración inicial de Anthekira.dev
 -- ============================================================
--- Fuente: docs/backend/02-DATABASE.md
+-- Fuente: ai/docs/backend/02-DATABASE.md (doc_id: backend-database)
 --
 -- Plataforma: Supabase (PostgreSQL 15+)
 -- Extensión obligatoria: pgcrypto (para UUIDs) — habilitada por defecto en Supabase.
@@ -11,6 +11,8 @@
 -- - Tabla genérica `entity_translations` reemplaza 4 tablas de traducción individuales
 -- - Estados de traducción simplificados: solo 'completed' | 'failed'
 -- - CHECK constraints adicionales (email format, slug pattern)
+--
+-- Total: 9 tablas (7 principales + 1 pivote N:M + 1 traducciones genérica)
 -- ============================================================
 
 -- ============================================================
@@ -25,7 +27,7 @@ CREATE TABLE personal_info (
   professional_title  TEXT NOT NULL DEFAULT '',
   bio                 TEXT NOT NULL DEFAULT '',
   current_status      TEXT NOT NULL DEFAULT '',
-  email               TEXT NOT NULL DEFAULT '',
+  email               TEXT NOT NULL DEFAULT '' CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
   location            TEXT NOT NULL DEFAULT '',
   avatar_url          TEXT NOT NULL DEFAULT '',
   social_links        JSONB NOT NULL DEFAULT '{}'::jsonb,
@@ -39,7 +41,7 @@ CREATE INDEX idx_personal_info_user_id ON personal_info(user_id);
 -- 3.2 skills
 CREATE TABLE skills (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name          TEXT NOT NULL,
+  name          TEXT NOT NULL UNIQUE,
   category      TEXT NOT NULL CHECK (category IN ('frontend', 'backend', 'devops', 'tools', 'other')),
   display_order INTEGER NOT NULL DEFAULT 0,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -55,7 +57,7 @@ CREATE TABLE projects (
   user_id         UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   title           TEXT NOT NULL,
   description     TEXT NOT NULL,
-  slug            TEXT NOT NULL,
+  slug            TEXT NOT NULL UNIQUE,
   type            TEXT NOT NULL DEFAULT 'project' CHECK (type IN ('project', 'saas')),
   project_url     TEXT NOT NULL DEFAULT '',
   repository_url  TEXT NOT NULL DEFAULT '',
@@ -106,7 +108,7 @@ CREATE INDEX idx_entity_translations_status ON entity_translations(translation_s
 -- 3.6 technologies
 CREATE TABLE technologies (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name          TEXT NOT NULL,
+  name          TEXT NOT NULL UNIQUE,
   icon_url      TEXT NOT NULL DEFAULT '',
   website_url   TEXT NOT NULL DEFAULT '',
   display_order INTEGER NOT NULL DEFAULT 0,
@@ -175,7 +177,7 @@ ALTER TABLE education ENABLE ROW LEVEL SECURITY;
 ALTER TABLE services ENABLE ROW LEVEL SECURITY;
 ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
 
--- Políticas de SELECT público
+-- Políticas de SELECT público (ver 02-DATABASE.md §RLS)
 CREATE POLICY "personal_info_select_public"
   ON personal_info FOR SELECT USING (true);
 
@@ -200,7 +202,7 @@ CREATE POLICY "education_select_public"
 CREATE POLICY "services_select_public"
   ON services FOR SELECT USING (true);
 
--- Nota: contact_messages no tiene SELECT público
+-- Nota: contact_messages NO tiene SELECT público
 -- (solo accesible via service_role desde API privada)
 
 -- Políticas de escritura solo service_role
@@ -247,3 +249,10 @@ CREATE TRIGGER trg_education_updated_at
 CREATE TRIGGER trg_services_updated_at
   BEFORE UPDATE ON services
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================================
+-- SEED DATA (ver 02-DATABASE.md §Seed Data)
+-- ============================================================
+
+INSERT INTO personal_info (user_id, name, professional_title)
+VALUES ((SELECT id FROM auth.users LIMIT 1), 'Anthekira', 'Full-Stack Developer');

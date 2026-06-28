@@ -1,9 +1,35 @@
-# 02-DATABASE.md — Anthekira.dev
+---
+doc_id: backend-database
+version: 1.0.0
+last_updated: 2026-06-28
+owner: Anthekira
+type: api-reference
+dependencies: [backend-overview, entities]
+tags: [database, postgresql, supabase, rls, migrations, indexes]
+ai_context:
+  primary_use: Reference for database schema, tables, indexes, RLS policies, and translations
+  key_constraints: [PostgreSQL 15+, Supabase, RLS enabled, snake_case plural, UUID PKs]
+  target_audience: Backend developers, AI agents implementing database queries
+---
 
-## 1. Plataforma
-Supabase (PostgreSQL 15+). Extensión: pgcrypto (UUIDs). Convenciones: snake_case plural, PK = `id UUID DEFAULT gen_random_uuid()`, timestamps `created_at`/`updated_at`.
+# Database — Anthekira.dev
 
-## 2. Diagrama Relacional
+## 📋 Contexto
+
+**Propósito:** Documentación completa del esquema de base de datos PostgreSQL.  
+**Cuándo usarlo:** Al crear/modificar queries, migraciones, o entender relaciones entre tablas.  
+**Problemas que resuelve:** Centraliza esquema SQL, índices, RLS, y estrategia de traducciones.
+
+## 🏗️ Plataforma
+
+| Componente | Tecnología | Notas |
+|------------|------------|-------|
+| Motor | PostgreSQL 15+ | Via Supabase |
+| Extensión | pgcrypto | UUIDs con `gen_random_uuid()` |
+| Convenciones | snake_case plural | PK = `id UUID`, timestamps `created_at`/`updated_at` |
+
+## 📁 Diagrama Relacional
+
 ```
 auth.users
 ├── personal_info (1:1)
@@ -19,16 +45,26 @@ auth.users
 └── contact_messages (independiente)
 ```
 
-**Cambios respecto a V1 original:**
-- `saas_projects`, `saas_project_translations`, `saas_project_skills` → eliminadas, absorbidas por `projects` (con campo `type`) y `project_skills`
-- `personal_info_translations`, `project_translations`, `service_translations` → reemplazadas por única tabla `entity_translations`
+### Cambios vs V1 Original
 
-## 3. Tablas
+| Tabla Eliminada | Absorbida Por | Cambio |
+|-----------------|---------------|--------|
+| `saas_projects` | `projects` | Unificada con campo `type` |
+| `saas_project_translations` | `entity_translations` | Tabla genérica |
+| `saas_project_skills` | `project_skills` | Pivote unificado |
+| `personal_info_translations` | `entity_translations` | Tabla genérica |
+| `project_translations` | `entity_translations` | Tabla genérica |
+| `service_translations` | `entity_translations` | Tabla genérica |
+
+**Total:** 14 tablas → 9 tablas (10 tablas principales + 1 pivote N:M + 1 traducciones genérica)
+
+## 📊 Tablas
 
 ### personal_info
+
 | Columna | Tipo | Notas |
 |---------|------|-------|
-| id | UUID PK | gen_random_uuid() |
+| id | UUID PK | `gen_random_uuid()` |
 | user_id | UUID FK → auth.users | UNIQUE, ON DELETE CASCADE |
 | name | TEXT | |
 | professional_title | TEXT | |
@@ -43,6 +79,7 @@ auth.users
 | updated_at | TIMESTAMPTZ | |
 
 ### skills
+
 | Columna | Tipo | Notas |
 |---------|------|-------|
 | id | UUID PK | |
@@ -53,6 +90,7 @@ auth.users
 | updated_at | TIMESTAMPTZ | |
 
 ### projects (unificada: projects + saas_projects)
+
 | Columna | Tipo | Notas |
 |---------|------|-------|
 | id | UUID PK | |
@@ -63,17 +101,18 @@ auth.users
 | type | TEXT | 'project' \| 'saas', default 'project' |
 | project_url | TEXT | Solo si type='project' |
 | repository_url | TEXT | Solo si type='project' |
-| url | TEXT | Solo si type='saas' (link al SaaS) |
+| url | TEXT | Solo si type='saas' |
 | image_url | TEXT | |
-| features | JSONB | Solo si type='saas'. `CHECK (features IS NULL OR jsonb_typeof(features) = 'array')` |
+| features | JSONB | Solo si type='saas'. CHECK: `features IS NULL OR jsonb_typeof(features) = 'array'` |
 | status | TEXT | CHECK IN ('draft','active','archived') |
 | display_order | INTEGER | Default 0 |
 | created_at | TIMESTAMPTZ | |
 | updated_at | TIMESTAMPTZ | |
 
-> **Nota:** Se eliminó `SaasStatus` ('live','beta','development','planning'). Todos los proyectos comparten el mismo status enum. Si un proyecto SaaS necesita indicar su estado de desarrollo, se usa un campo semántico adicional o tags.
+> **Nota:** Se eliminó `SaasStatus` ('live','beta','development','planning'). Todos comparten el mismo status enum.
 
 ### project_skills (N:M)
+
 | Columna | Tipo | Notas |
 |---------|------|-------|
 | project_id | UUID FK → projects.id | ON DELETE CASCADE |
@@ -82,11 +121,12 @@ auth.users
 | **PK** | (project_id, skill_id) | |
 
 ### entity_translations (genérica — reemplaza 4 tablas)
+
 | Columna | Tipo | Notas |
 |---------|------|-------|
 | id | UUID PK | |
 | entity_type | TEXT | CHECK IN ('project', 'personal_info', 'service') |
-| entity_id | UUID | FK polimórfica (sin constraint FK por ser polimórfica) |
+| entity_id | UUID | FK polimórfica (sin constraint FK) |
 | locale | TEXT | CHECK IN ('en', 'pt') |
 | content | JSONB | `{ title?, description?, bio? }` según entity_type |
 | translation_status | TEXT | CHECK IN ('completed', 'failed') |
@@ -94,16 +134,18 @@ auth.users
 | updated_at | TIMESTAMPTZ | |
 | **UNIQUE** | (entity_type, entity_id, locale) | |
 
-> **Simplificación:** Se eliminaron los estados `pending` y `translating`. La traducción ahora es síncrona, por lo que solo hay dos estados posibles.
+> **Simplificación:** Se eliminaron `pending` y `translating`. Solo dos estados posibles.
 
-**content keys por entity_type:**
+### Content Keys por entity_type
+
 | entity_type | content keys |
-|---|---|
+|-------------|--------------|
 | `project` | `title`, `description` |
 | `personal_info` | `bio` |
 | `service` | `title`, `description` |
 
 ### technologies
+
 | Columna | Tipo | Notas |
 |---------|------|-------|
 | id | UUID PK | |
@@ -115,6 +157,7 @@ auth.users
 | updated_at | TIMESTAMPTZ | |
 
 ### education
+
 | Columna | Tipo | Notas |
 |---------|------|-------|
 | id | UUID PK | |
@@ -128,6 +171,7 @@ auth.users
 | updated_at | TIMESTAMPTZ | |
 
 ### services
+
 | Columna | Tipo | Notas |
 |---------|------|-------|
 | id | UUID PK | |
@@ -140,6 +184,7 @@ auth.users
 | updated_at | TIMESTAMPTZ | |
 
 ### contact_messages
+
 | Columna | Tipo | Notas |
 |---------|------|-------|
 | id | UUID PK | |
@@ -150,15 +195,20 @@ auth.users
 | is_read | BOOLEAN | Default false |
 | created_at | TIMESTAMPTZ | |
 
-## 4. Traducciones (DeepL Auto-translate)
+## 🔌 Traducciones (DeepL Auto-translate)
 
 ### Estrategia
-- Admin escribe en ES → validación → guarda en tabla principal → DeepL traduce a EN/PT **en paralelo** (`Promise.all`) → upsert en `entity_translations` → responde al cliente
-- La traducción es **síncrona** (completa antes de responder al cliente)
-- Si una traducción falla → `translation_status: 'failed'` + contenido ES como fallback en la tabla principal
-- Si fallan ambas → se responde con error parcial y se notifica al admin
 
-### Fallback de idioma
+1. Admin escribe en ES → validación
+2. Guarda en tabla principal
+3. DeepL traduce a EN/PT **en paralelo** (`Promise.all`)
+4. Upsert en `entity_translations`
+5. Responde al cliente
+
+**La traducción es síncrona** (completa antes de responder).
+
+### Fallback de Idioma
+
 ```sql
 SELECT p.id, p.slug, p.title,
   COALESCE((et.content->>'title'), p.title) AS title,
@@ -174,10 +224,13 @@ ORDER BY p.display_order;
 ```
 
 ### Reintento
-- Endpoint `POST /api/private/translations/retry` para reintentar traducciones fallidas manualmente
-- Se muestra contador en dashboard admin con enlace a retry
 
-## 5. Índices
+- Endpoint: `POST /api/private/translations/retry`
+- Reintenta traducciones fallidas (`translation_status = 'failed'`)
+- Dashboard muestra badge con conteo de fallidas
+
+## 🔧 Índices
+
 ```sql
 -- personal_info
 CREATE INDEX idx_personal_info_user_id ON personal_info(user_id);
@@ -218,29 +271,53 @@ CREATE INDEX idx_contact_messages_is_read ON contact_messages(is_read);
 CREATE INDEX idx_contact_messages_created_at ON contact_messages(created_at DESC);
 ```
 
-## 6. RLS
+## 🎯 RLS (Row Level Security)
 
-Todas las tablas con RLS habilitado.
+### Políticas de SELECT Público
 
-### Políticas de SELECT público
-- Todas las tablas permiten SELECT público EXCEPTO `contact_messages`
-- `projects` filtra por `status = 'active'` (no se muestran drafts/archived)
-- `entity_translations` permite SELECT público solo para `translation_status = 'completed'`
+| Tabla | Acceso Público | Condición |
+|-------|----------------|-----------|
+| personal_info | ✅ | Sin filtro |
+| skills | ✅ | Sin filtro |
+| projects | ✅ | `status = 'active'` |
+| technologies | ✅ | Sin filtro |
+| education | ✅ | Sin filtro |
+| services | ✅ | Sin filtro |
+| entity_translations | ✅ | `translation_status = 'completed'` |
+| contact_messages | ❌ | Solo service_role |
 
-### Escritura solo service_role
-- INSERT/UPDATE/DELETE en todas las tablas requieren `auth.role() = 'service_role'`
+### Escritura
+
+- INSERT/UPDATE/DELETE en todas las tablas: `auth.role() = 'service_role'`
 
 ### Storage RLS
-Tres buckets (`profile`, `projects`, `cv`) con políticas:
-- SELECT público para todos
-- INSERT/UPDATE/DELETE solo service_role
 
-## 7. Seed Data
+| Bucket | SELECT | INSERT/UPDATE/DELETE |
+|--------|--------|----------------------|
+| profile | Público | service_role |
+| projects | Público | service_role |
+| cv | Público | service_role |
+
+## 📝 Seed Data
+
 ```sql
 INSERT INTO personal_info (user_id, name, professional_title)
 VALUES ((SELECT id FROM auth.users LIMIT 1), 'Anthekira', 'Full-Stack Developer');
 ```
 
-## 8. Migración SQL
-Archivo completo en: `backend/supabase/migrations/001_initial_schema.sql`
-Incluye: CREATE TABLE (10 tablas, desde 14 originales), índices, RLS, triggers updated_at.
+## 📊 Migración SQL
+
+Archivo completo: `backend/supabase/migrations/001_initial_schema.sql`
+
+Contenido:
+- CREATE TABLE (10 tablas, desde 14 originales)
+- Índices
+- RLS policies
+- Triggers updated_at
+
+## 🚫 Restricciones
+
+- NO crear tablas sin documentar aquí primero
+- NO usar UUID v4 manual — usar `gen_random_uuid()`
+- SIempre incluir RLS en nuevas tablas
+- SI se necesita nueva relación N:M, crear tabla pivote explícita
