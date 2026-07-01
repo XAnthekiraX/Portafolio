@@ -1,3 +1,17 @@
+---
+doc_id: frontend-components
+version: 1.0.0
+last_updated: 2026-07-01
+owner: Anthekira
+type: api-reference
+dependencies: [frontend-overview]
+tags: [frontend, components, ui, crud, generic, admin, landing]
+ai_context:
+  primary_use: Reference for all UI components, landing sections, admin components, and CRUD generic system
+  key_constraints: [max component size 300 lines, split patterns, no external UI libraries]
+  target_audience: Frontend developers, AI agents implementing or modifying components
+---
+
 # 02-COMPONENTS.md — Anthekira.dev
 
 ## 1. UI Components (`src/components/ui/`) — Atómicos
@@ -109,10 +123,9 @@ const projectsConfig: ResourceConfig = {
         { value: 'saas', label: 'SaaS' },
       ],
     },
+    { name: 'repository_url', label: 'Repository URL', type: 'url' },
     { name: 'url', label: 'URL', type: 'url', showIf: (v) => v.type === 'saas' },
     { name: 'features', label: 'Features', type: 'tags', showIf: (v) => v.type === 'saas' },
-    { name: 'project_url', label: 'Project URL', type: 'url', showIf: (v) => v.type === 'project' },
-    { name: 'repository_url', label: 'Repository URL', type: 'url', showIf: (v) => v.type === 'project' },
     { name: 'image_url', label: 'Image', type: 'file', bucket: 'projects' },
     { name: 'skills', label: 'Skills', type: 'skills' },
     { name: 'status', label: 'Status', type: 'select', options: [

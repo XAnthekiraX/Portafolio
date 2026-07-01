@@ -1,3 +1,17 @@
+---
+doc_id: frontend-routes
+version: 1.0.0
+last_updated: 2026-07-01
+owner: Anthekira
+type: api-reference
+dependencies: [frontend-overview, frontend-layouts]
+tags: [frontend, routes, admin, public, middleware, i18n]
+ai_context:
+  primary_use: Reference for all frontend routes, public and admin, with SEO metadata and middleware
+  key_constraints: [i18n prefix for public routes, no i18n for admin, middleware protects /admin and /api/private]
+  target_audience: Frontend developers, AI agents implementing page routes
+---
+
 # 01-ROUTES.md — Anthekira.dev
 
 ## 1. Rutas Públicas (con i18n)

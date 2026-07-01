@@ -1,3 +1,18 @@
+---
+doc_id: backend-authentication
+version: 1.0.0
+last_updated: 2026-07-01
+owner: Anthekira
+type: guide
+dependencies: [backend-overview]
+tags: [authentication, supabase, security, csrf, rate-limiting, jwt]
+ai_context:
+  primary_use: Reference for authentication flow, login/logout, session management, CSRF protection, and security measures
+  key_constraints:
+    [single admin, JWT cookies httpOnly, CSRF double submit cookie, rate limiting 5/min/IP]
+  target_audience: Backend developers, AI agents implementing authentication
+---
+
 # 05-AUTHENTICATION.md — Anthekira.dev
 
 ## 1. Arquitectura

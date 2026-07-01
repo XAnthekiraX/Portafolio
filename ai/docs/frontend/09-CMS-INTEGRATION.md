@@ -1,3 +1,17 @@
+---
+doc_id: frontend-cms
+version: 1.0.0
+last_updated: 2026-07-01
+owner: Anthekira
+type: guide
+dependencies: [frontend-admin, backend-entities, backend-database]
+tags: [frontend, cms, supabase, deepl, storage, data-fetching, csrf]
+ai_context:
+  primary_use: CMS data flow, Supabase clients, data fetching patterns, auto-translation, file upload
+  key_constraints: [SC reads Supabase direct, CC uses fetch with CSRF, DeepL parallel translation, service_role for admin]
+  target_audience: Frontend developers, AI agents implementing CMS integration
+---
+
 # 09-CMS-INTEGRATION.md — Anthekira.dev
 
 ## 1. Arquitectura
@@ -37,16 +51,19 @@ const { data: projects } = await supabase
 async function getContentWithFallback<T>(
   table: string,
   entityType: EntityType,
-  locale: string
+  locale: string,
+  orderBy?: { column: string; ascending?: boolean }
 ): Promise<(T & { title?: string; description?: string })[]> {
   const supabase = createSupabaseServerClient();
+  const orderColumn = orderBy?.column ?? 'display_order';
+  const orderAsc = orderBy?.ascending ?? true;
   
   // Obtener datos principales (ES siempre disponible)
   const { data: items } = await supabase
     .from(table)
     .select('*')
     .eq('status', 'active')
-    .order('display_order');
+    .order(orderColumn, { ascending: orderAsc });
 
   if (!items || locale === 'es') return items;
 

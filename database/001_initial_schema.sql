@@ -24,14 +24,14 @@ CREATE TABLE personal_info (
   id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id             UUID NOT NULL UNIQUE REFERENCES auth.users(id) ON DELETE CASCADE,
   name                TEXT NOT NULL DEFAULT '',
-  professional_title  TEXT NOT NULL DEFAULT '',
-  bio                 TEXT NOT NULL DEFAULT '',
-  current_status      TEXT NOT NULL DEFAULT '',
+  professional_title  TEXT DEFAULT NULL,
+  bio                 TEXT DEFAULT NULL,
+  current_status      TEXT DEFAULT NULL,
   email               TEXT NOT NULL DEFAULT '' CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
-  location            TEXT NOT NULL DEFAULT '',
-  avatar_url          TEXT NOT NULL DEFAULT '',
-  social_links        JSONB NOT NULL DEFAULT '{}'::jsonb,
-  cv_url              TEXT NOT NULL DEFAULT '',
+  location            TEXT DEFAULT NULL,
+  avatar_url          TEXT DEFAULT NULL,
+  social_links        JSONB DEFAULT NULL,
+  cv_url              TEXT DEFAULT NULL,
   created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -59,10 +59,9 @@ CREATE TABLE projects (
   description     TEXT NOT NULL,
   slug            TEXT NOT NULL UNIQUE,
   type            TEXT NOT NULL DEFAULT 'project' CHECK (type IN ('project', 'saas')),
-  project_url     TEXT NOT NULL DEFAULT '',
-  repository_url  TEXT NOT NULL DEFAULT '',
-  url             TEXT NOT NULL DEFAULT '',
-  image_url       TEXT NOT NULL DEFAULT '',
+  repository_url  TEXT DEFAULT NULL,
+  url             TEXT DEFAULT NULL,
+  image_url       TEXT DEFAULT NULL,
   features        JSONB DEFAULT NULL CHECK (features IS NULL OR jsonb_typeof(features) = 'array'),
   status          TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'active', 'archived')),
   display_order   INTEGER NOT NULL DEFAULT 0,
@@ -90,7 +89,7 @@ CREATE INDEX idx_project_skills_skill ON project_skills(skill_id);
 -- 3.5 entity_translations (genérica — reemplaza 4 tablas individuales)
 CREATE TABLE entity_translations (
   id                  UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  entity_type         TEXT NOT NULL CHECK (entity_type IN ('project', 'personal_info', 'service')),
+  entity_type         TEXT NOT NULL CHECK (entity_type IN ('project', 'personal_info', 'service', 'education')),
   entity_id           UUID NOT NULL,
   locale              TEXT NOT NULL CHECK (locale IN ('en', 'pt')),
   content             JSONB NOT NULL DEFAULT '{}'::jsonb,
@@ -109,8 +108,8 @@ CREATE INDEX idx_entity_translations_status ON entity_translations(translation_s
 CREATE TABLE technologies (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name          TEXT NOT NULL UNIQUE,
-  icon_url      TEXT NOT NULL DEFAULT '',
-  website_url   TEXT NOT NULL DEFAULT '',
+  icon_url      TEXT DEFAULT NULL,
+  website_url   TEXT DEFAULT NULL,
   display_order INTEGER NOT NULL DEFAULT 0,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -124,22 +123,22 @@ CREATE TABLE education (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   institution   TEXT NOT NULL,
   degree        TEXT NOT NULL,
-  description   TEXT NOT NULL DEFAULT '',
-  website_url   TEXT NOT NULL DEFAULT '',
-  logo_url      TEXT NOT NULL DEFAULT '',
-  display_order INTEGER NOT NULL DEFAULT 0,
+  description   TEXT DEFAULT NULL,
+  website_url   TEXT DEFAULT NULL,
+  logo_url      TEXT DEFAULT NULL,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_education_display_order ON education(display_order);
+-- education
+-- (Sin display_order)
 
 -- 3.8 services
 CREATE TABLE services (
   id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title         TEXT NOT NULL,
   description   TEXT NOT NULL,
-  icon          TEXT NOT NULL DEFAULT 'Code',
+  icon          TEXT DEFAULT NULL,
   status        TEXT NOT NULL DEFAULT 'available' CHECK (status IN ('available', 'coming_soon')),
   display_order INTEGER NOT NULL DEFAULT 0,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -249,6 +248,66 @@ CREATE TRIGGER trg_education_updated_at
 CREATE TRIGGER trg_services_updated_at
   BEFORE UPDATE ON services
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- ============================================================
+-- RPC FUNCTIONS
+-- ============================================================
+
+-- upsert_entity_translations
+-- Inserta o actualiza traducciones en lote para una entidad.
+-- El backend traduce con DeepL y llama a este RPC para persistir.
+-- SECURITY DEFINER para operar con permisos del creador (bypass RLS).
+--
+-- Parámetros:
+--   p_entity_type   TEXT   — 'project' | 'personal_info' | 'service' | 'education'
+--   p_entity_id     UUID   — ID de la entidad en su tabla principal
+--   p_translations  JSONB  — Array de objetos:
+--     [{ locale: 'en', content: { title: '...', description: '...' }, translation_status: 'completed' }]
+--
+-- Uso desde backend:
+--   supabase.rpc('upsert_entity_translations', {
+--     p_entity_type: 'project',
+--     p_entity_id: 'uuid',
+--     p_translations: [{ locale: 'en', content: {...}, translation_status: 'completed' }, ...]
+--   })
+
+CREATE OR REPLACE FUNCTION upsert_entity_translations(
+  p_entity_type TEXT,
+  p_entity_id UUID,
+  p_translations JSONB
+)
+RETURNS SETOF entity_translations
+SECURITY DEFINER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  t JSONB;
+  result entity_translations;
+BEGIN
+  FOR t IN SELECT * FROM jsonb_array_elements(p_translations)
+  LOOP
+    INSERT INTO entity_translations (
+      entity_type, entity_id, locale, content, translation_status
+    ) VALUES (
+      p_entity_type,
+      p_entity_id,
+      t->>'locale',
+      COALESCE(t->'content', '{}'::jsonb),
+      COALESCE(t->>'translation_status', 'completed')
+    )
+    ON CONFLICT (entity_type, entity_id, locale)
+    DO UPDATE SET
+      content = entity_translations.content || EXCLUDED.content,
+      translation_status = EXCLUDED.translation_status,
+      updated_at = now()
+    RETURNING * INTO result;
+
+    RETURN NEXT result;
+  END LOOP;
+
+  RETURN;
+END;
+$$;
 
 -- ============================================================
 -- SEED DATA (ver 02-DATABASE.md §Seed Data)

@@ -1,3 +1,17 @@
+---
+doc_id: frontend-admin
+version: 1.0.0
+last_updated: 2026-07-01
+owner: Anthekira
+type: api-reference
+dependencies: [frontend-routes, frontend-components]
+tags: [frontend, admin, crud, dashboard, login, sidebar, resource-config]
+ai_context:
+  primary_use: Admin panel structure, CRUD generic configuration per resource, sidebar, dashboard, login flow
+  key_constraints: [all admin CC, no i18n admin, CRUD generic for 5 resources, exceptions for profile and contact]
+  target_audience: Frontend developers, AI agents implementing admin features
+---
+
 # 08-ADMIN-PANEL.md — Anthekira.dev
 
 ## 1. Sidebar
@@ -71,10 +85,9 @@ export const resourceConfigs: Record<string, ResourceConfig> = {
       { name: 'type', label: 'Type', type: 'select', required: true,
         options: [{ value: 'project', label: 'Project' }, { value: 'saas', label: 'SaaS' }] },
       // Campos condicionales según type:
+      { name: 'repository_url', label: 'Repository URL', type: 'url' },
       { name: 'url', label: 'URL', type: 'url', showIf: (v) => v.type === 'saas' },
       { name: 'features', label: 'Features', type: 'tags', showIf: (v) => v.type === 'saas' },
-      { name: 'project_url', label: 'Project URL', type: 'url', showIf: (v) => v.type === 'project' },
-      { name: 'repository_url', label: 'Repository URL', type: 'url', showIf: (v) => v.type === 'project' },
       { name: 'image_url', label: 'Image', type: 'file', bucket: 'projects' },
       { name: 'skills', label: 'Skills', type: 'skills' },
       { name: 'status', label: 'Status', type: 'select',
@@ -123,6 +136,7 @@ export const resourceConfigs: Record<string, ResourceConfig> = {
       { name: 'website_url', label: 'Website URL', type: 'url' },
       { name: 'logo_url', label: 'Logo', type: 'file', bucket: 'profile' },
     ],
+    translations: { entityType: 'education', fields: ['description'] },
   },
 
   technologies: {
@@ -182,10 +196,14 @@ export const resourceConfigs: Record<string, ResourceConfig> = {
 ## 5. Profile (`/admin/profile`)
 Sección personalizada (no usa CRUD genérico debido al merge parcial de `social_links`):
 - Personal Info (name, title, bio, location, email, avatar, status)
-- CV (upload PDF)
+- CVs por idioma (ES, EN, PT) — gestionados por separado de los datos personales
 - Social Links (GitHub, LinkedIn, Twitter, Website)
 
-**API:** `GET/PUT /api/private/personal-info` — merge parcial de `social_links`.
+**APIs:**
+- `GET /api/private/personal-info` — obtiene datos personales + URLs de CVs por idioma (`cv.es`, `cv.en`, `cv.pt`)
+- `PUT /api/private/personal-info` — actualiza datos personales (name, title, bio, etc.) con merge parcial de `social_links`
+- `POST /api/private/personal-info` — crea perfil inicial con auto-traducción de `professional_title` + `bio`
+- `PUT /api/private/personal-info/cv` — gestiona URLs de CVs: `{ cv: { es, en, pt } }`. ES se guarda en `personal_info.cv_url`. EN y PT se guardan en `entity_translations` vía RPC upsert.
 
 ## 6. Contact Messages (`/admin/contact`)
 Sección personalizada (no usa CRUD genérico porque los mensajes son de terceros):
@@ -199,12 +217,13 @@ Usado en Projects (para seleccionar skills N:M). Modal con checkboxes + búsqued
 ## 8. Resumen Endpoints
 | Recurso | GET | POST | PUT | DELETE |
 |---|---|---|---|---|
-| `/api/private/personal-info` | ✅ | — | ✅ | — |
+| `/api/private/personal-info` | ✅ | ✅ | ✅ | — |
 | `/api/private/projects` | ✅ | ✅ | ✅ | ✅ |
 | `/api/private/skills` | ✅ | ✅ | ✅ | ✅ |
 | `/api/private/education` | ✅ | ✅ | ✅ | ✅ |
 | `/api/private/technologies` | ✅ | ✅ | ✅ | ✅ |
 | `/api/private/services` | ✅ | ✅ | ✅ | ✅ |
+| `/api/private/personal-info/cv` | — | — | ✅ | — |
 | `/api/private/upload` | — | ✅ | — | — |
 | `/api/private/contact` | ✅ | — | ✅ (read) | ✅ |
 | `/api/private/stats/count` | ✅ | — | — | — |

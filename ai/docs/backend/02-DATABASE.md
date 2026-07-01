@@ -39,7 +39,8 @@ auth.users
 │   └── project_skills (N:M skills)
 ├── skills (1:N)
 ├── technologies (independiente)
-├── education (independiente)
+├── education (1:N)
+│   └── entity_translations (1:N, entity_type='education')
 ├── services (1:N)
 │   └── entity_translations (1:N, entity_type='service')
 └── contact_messages (independiente)
@@ -56,7 +57,7 @@ auth.users
 | `project_translations` | `entity_translations` | Tabla genérica |
 | `service_translations` | `entity_translations` | Tabla genérica |
 
-**Total:** 14 tablas → 9 tablas (10 tablas principales + 1 pivote N:M + 1 traducciones genérica)
+**Total:** 14 tablas → 9 tablas (7 tablas principales + 1 pivote N:M + 1 traducciones genérica)
 
 ## 📊 Tablas
 
@@ -99,9 +100,8 @@ auth.users
 | description | TEXT | |
 | slug | TEXT | UNIQUE |
 | type | TEXT | 'project' \| 'saas', default 'project' |
-| project_url | TEXT | Solo si type='project' |
-| repository_url | TEXT | Solo si type='project' |
-| url | TEXT | Solo si type='saas' |
+| repository_url | TEXT | Link al repositorio (project y saas) |
+| url | TEXT | Link al sitio vivo (solo si type='saas') |
 | image_url | TEXT | |
 | features | JSONB | Solo si type='saas'. CHECK: `features IS NULL OR jsonb_typeof(features) = 'array'` |
 | status | TEXT | CHECK IN ('draft','active','archived') |
@@ -125,7 +125,7 @@ auth.users
 | Columna | Tipo | Notas |
 |---------|------|-------|
 | id | UUID PK | |
-| entity_type | TEXT | CHECK IN ('project', 'personal_info', 'service') |
+| entity_type | TEXT | CHECK IN ('project', 'personal_info', 'service', 'education') |
 | entity_id | UUID | FK polimórfica (sin constraint FK) |
 | locale | TEXT | CHECK IN ('en', 'pt') |
 | content | JSONB | `{ title?, description?, bio? }` según entity_type |
@@ -141,8 +141,9 @@ auth.users
 | entity_type | content keys |
 |-------------|--------------|
 | `project` | `title`, `description` |
-| `personal_info` | `bio` |
+| `personal_info` | `professional_title`, `bio`, `cv_url` |
 | `service` | `title`, `description` |
+| `education` | `description` |
 
 ### technologies
 
@@ -166,7 +167,6 @@ auth.users
 | description | TEXT | |
 | website_url | TEXT | |
 | logo_url | TEXT | |
-| display_order | INTEGER | Default 0 |
 | created_at | TIMESTAMPTZ | |
 | updated_at | TIMESTAMPTZ | |
 
@@ -261,7 +261,7 @@ CREATE UNIQUE INDEX idx_technologies_name ON technologies(name);
 CREATE INDEX idx_technologies_display_order ON technologies(display_order);
 
 -- education
-CREATE INDEX idx_education_display_order ON education(display_order);
+-- (Sin display_order — se ordena alfabéticamente o por lógica de frontend)
 
 -- services
 CREATE INDEX idx_services_display_order ON services(display_order);
@@ -280,6 +280,7 @@ CREATE INDEX idx_contact_messages_created_at ON contact_messages(created_at DESC
 | personal_info | ✅ | Sin filtro |
 | skills | ✅ | Sin filtro |
 | projects | ✅ | `status = 'active'` |
+| project_skills | ✅ | Sin filtro |
 | technologies | ✅ | Sin filtro |
 | education | ✅ | Sin filtro |
 | services | ✅ | Sin filtro |
@@ -297,6 +298,53 @@ CREATE INDEX idx_contact_messages_created_at ON contact_messages(created_at DESC
 | profile | Público | service_role |
 | projects | Público | service_role |
 | cv | Público | service_role |
+
+## 🔌 RPC Functions
+
+### upsert_entity_translations
+
+Inserta o actualiza traducciones en lote para una entidad. El backend traduce con DeepL y llama a este RPC para persistir los resultados.
+
+```sql
+CREATE OR REPLACE FUNCTION upsert_entity_translations(
+  p_entity_type TEXT,
+  p_entity_id UUID,
+  p_translations JSONB
+)
+RETURNS SETOF entity_translations
+SECURITY DEFINER
+LANGUAGE plpgsql
+AS $$ ... $$;
+```
+
+**Parámetros:**
+
+| Parámetro | Tipo | Descripción |
+|-----------|------|-------------|
+| `p_entity_type` | TEXT | `'project'` \| `'personal_info'` \| `'service'` \| `'education'` |
+| `p_entity_id` | UUID | ID de la entidad en su tabla principal |
+| `p_translations` | JSONB | Array de objetos: `[{ locale, content, translation_status }]` |
+
+**Uso desde backend (TypeScript):**
+
+```typescript
+await supabaseAdmin.rpc('upsert_entity_translations', {
+  p_entity_type: 'project',
+  p_entity_id: createdProject.id,
+  p_translations: results.map(r => ({
+    locale: r.locale,
+    content: r.content,
+    translation_status: r.translation_status,
+  })),
+});
+```
+
+**Lógica SQL:**
+- Itera sobre el array JSONB con `jsonb_array_elements`
+- Para cada elemento, hace `INSERT ... ON CONFLICT (entity_type, entity_id, locale) DO UPDATE`
+- En el UPDATE, usa `content = entity_translations.content || EXCLUDED.content` (**merge JSONB**) — los campos nuevos se agregan sin reemplazar los existentes. Si se envía `{ cv_url: null }`, el merge lo aplica correctamente sobreescribiendo el valor anterior.
+- `SECURITY DEFINER` para operar con permisos del creador (bypass RLS, mismo nivel que service_role)
+- Retorna `SETOF entity_translations` para que el backend pueda verificar el resultado
 
 ## 📝 Seed Data
 

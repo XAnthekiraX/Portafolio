@@ -1,3 +1,17 @@
+---
+doc_id: frontend-layouts
+version: 1.0.0
+last_updated: 2026-07-01
+owner: Anthekira
+type: api-reference
+dependencies: [frontend-overview]
+tags: [frontend, layouts, root, landing, admin, authguard, responsive]
+ai_context:
+  primary_use: Layout hierarchy, RootLayout, LandingLayout, AdminLayout structure and behavior
+  key_constraints: [three layout levels, responsive breakpoints for sidebar, error.tsx and loading.tsx per segment]
+  target_audience: Frontend developers, AI agents implementing layout components
+---
+
 # 03-LAYOUTS.md — Anthekira.dev
 
 ## 1. Jerarquía

@@ -1,3 +1,17 @@
+---
+doc_id: frontend-overview
+version: 1.0.0
+last_updated: 2026-07-01
+owner: Anthekira
+type: configuration
+dependencies: []
+tags: [frontend, overview, stack, nextjs, tailwind, state-management]
+ai_context:
+  primary_use: Overview of frontend architecture, stack, state management, and conventions
+  key_constraints: [Server Components by default, no global state, Tailwind CSS only, dark mode only]
+  target_audience: Frontend developers, AI agents implementing UI components
+---
+
 # 00-FRONTEND.md — Anthekira.dev
 
 ## 1. Stack

@@ -1,3 +1,17 @@
+---
+doc_id: frontend-accessibility
+version: 1.0.0
+last_updated: 2026-07-01
+owner: Anthekira
+type: guide
+dependencies: [frontend-overview, frontend-ui-ux]
+tags: [frontend, accessibility, a11y, html-semantic, aria, contrast, keyboard]
+ai_context:
+  primary_use: Accessibility guidelines, HTML semantics, contrast ratios, ARIA attributes, and keyboard navigation
+  key_constraints: [WCAG AA contrast > 4.5:1, semantic HTML, form labels, skip-to-content, focus ring]
+  target_audience: Frontend developers, AI agents implementing accessible components
+---
+
 # 07-ACCESSIBILITY.md — Anthekira.dev
 
 ## 1. Nivel V1

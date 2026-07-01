@@ -1,3 +1,19 @@
+---
+doc_id: backend-business-logic
+version: 1.0.0
+last_updated: 2026-07-01
+owner: Anthekira
+type: guide
+dependencies: [backend-overview, entities, database]
+tags:
+  [business-logic, deepl, auto-translate, crud, slug, validation, errors]
+ai_context:
+  primary_use: Reference for core business logic including DeepL auto-translate, CRUD generic service, slug generation, error classes, rate limiting, and CSRF validation
+  key_constraints:
+    [DeepL free tier 500K chars/mo, timeout 8s, Promise.all parallel translations, Zod validation]
+  target_audience: Backend developers, AI agents implementing business logic
+---
+
 # 06-BUSINESS-LOGIC.md — Anthekira.dev
 
 ## 1. DeepL Auto-translate (Síncrono y Paralelo — ADR-017)
@@ -49,21 +65,16 @@ export async function autoTranslate(
     })
   );
 
-  // Guardar ambos resultados en la tabla genérica entity_translations
-  await Promise.all(
-    results.map(r =>
-      supabaseAdmin.from('entity_translations').upsert(
-        {
-          entity_type: entityType,
-          entity_id: entityId,
-          locale: r.locale,
-          content: r.content,
-          translation_status: r.translation_status,
-        },
-        { onConflict: 'entity_type,entity_id,locale' }
-      )
-    )
-  );
+  // Guardar ambos resultados vía RPC upsert_entity_translations (ver 02-DATABASE.md §RPC Functions)
+  await supabaseAdmin.rpc('upsert_entity_translations', {
+    p_entity_type: entityType,
+    p_entity_id: entityId,
+    p_translations: results.map(r => ({
+      locale: r.locale,
+      content: r.content,
+      translation_status: r.translation_status,
+    })),
+  });
 
   return results.map(r => ({ locale: r.locale, status: r.translation_status }));
 }
@@ -74,6 +85,7 @@ export async function autoTranslate(
 - ✅ **Síncrono:** Se completa antes de responder al cliente (no hay riesgo de pérdida por serverless termination)
 - ✅ **Timeout:** 8s por llamada DeepL para evitar bloqueos
 - ✅ **Estados simplificados:** Solo `completed` | `failed` (se eliminaron `pending` y `translating`)
+- ✅ **RPC centralizado:** Usa `upsert_entity_translations` en lugar de upsert directo desde el backend
 - ✅ **Tabla genérica:** Usa `entity_translations` en lugar de tablas específicas
 
 ### Estrategia de Reintento
@@ -93,6 +105,7 @@ export interface CrudConfig<T> {
   translations?: { entityType: EntityType; fields: string[] };
   slug?: { source: string; unique: boolean };
   searchFields?: string[];
+  orderBy?: { column: string; ascending?: boolean };  // default: { column: 'display_order', ascending: true }
 }
 
 export function createCrudService<T extends { id: string }>(table: string, config: CrudConfig<T>) {
@@ -100,7 +113,9 @@ export function createCrudService<T extends { id: string }>(table: string, confi
 
   return {
     async list(filters?: Record<string, any>): Promise<T[]> {
-      let query = supabase.from(table).select('*').order('display_order', { ascending: true });
+      const orderColumn = config.orderBy?.column ?? 'display_order';
+      const orderAsc = config.orderBy?.ascending ?? true;
+      let query = supabase.from(table).select('*').order(orderColumn, { ascending: orderAsc });
       if (filters) {
         for (const [key, value] of Object.entries(filters))
           if (value !== undefined) query = query.eq(key, value);

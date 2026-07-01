@@ -66,14 +66,17 @@ Aplica para: Projects (incluye SaaS vía `type: 'saas'`), Skills, Education, Tec
 ```
 Admin → /admin/education
   → GET /api/private/education → GenericDataTable (Institution, Degree, Actions)
+    → Cada registro incluye translations: { en: translation_status|null; pt: translation_status|null }
 
 Crear: Click "New" → GenericForm → institution, degree, description, website_url, logo_url → POST
+  → Si tiene description → DeepL traduce a EN+PT (Promise.all, síncrono)
+    → Guarda en entity_translations vía RPC
 
 Editar: Click "Edit" → GenericForm pre-poblado → PUT /api/private/education/[id]
+  → Si cambió description → re-ejecuta autoTranslate('education', id, { description })
 
 Eliminar: Click "Delete" → Modal confirmación → DELETE /api/private/education/[id]
 ```
-Sin auto-traducción ni relaciones N:M.
 
 ## 5. Flujo: Cambio de Idioma
 ```

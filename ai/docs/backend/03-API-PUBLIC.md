@@ -1,7 +1,7 @@
 ---
 doc_id: backend-api-public
 version: 1.0.0
-last_updated: 2026-06-28
+last_updated: 2026-07-01
 owner: Anthekira
 type: api-reference
 dependencies: [backend-overview, entities, database]
@@ -46,22 +46,26 @@ ai_context:
 {
   success: boolean;
   data: {
+    id: string;
     name: string;
-    professional_title: string;
-    bio: string;
-    avatar_url: string;
-    cv_url: string;
-    social_links: { github: string; linkedin: string };
-    current_status: string;
-    location: string;
+    professional_title: string | null;
+    bio: string | null;
+    avatar_url: string | null;
+    cv_url: string | null;
+    social_links: SocialLinks | null;
+    current_status: string | null;
+    location: string | null;
   };
 }
 ```
 
+> Ver `SocialLinks` en `01-ENTITIES.md`.
+
 **Business Logic:**
 1. Consulta `personal_info` table
 2. Busca `entity_translations` donde `entity_type='personal_info'`, `locale=?locale`, `translation_status='completed'`
-3. Fallback a español si no hay traducción
+3. `bio` se obtiene con COALESCE: traducción si existe, fallback al contenido en español
+4. Retorna 404 si no existe registro de personal_info
 
 **Error Handling:** `404` (no existe registro) · `500` (error inesperado)
 
@@ -81,10 +85,15 @@ ai_context:
   success: boolean;
   data: Array<{
     id: string;
-    name: string;
+    slug: string;
+    title: string;
     description: string;
-    type: "project" | "saas";
-    status: "active";
+    type: 'project' | 'saas';
+    status: 'active';
+    image_url: string | null;
+    repository_url: string | null;    // Link al repositorio (project y saas)
+    url: string | null;               // Link al sitio vivo (solo si type='saas')
+    features: string[] | null;        // Solo si type='saas'
     display_order: number;
     skills: Array<{ id: string; name: string }>;
   }>;
@@ -93,13 +102,15 @@ ai_context:
 
 **Business Logic:**
 1. Filtra `projects` donde `status='active'`
-2. JOIN `entity_translations` (entity_type='project') + `project_skills`
-3. Ordena por `display_order`
-4. Aplica filtro `type` si se especifica
+2. Left JOIN `entity_translations` (entity_type='project', locale=?locale, translation_status='completed')
+3. JOIN `project_skills` + `skills` para obtener `skills[]`
+4. `title` y `description` se obtienen con COALESCE desde traducciones, fallback a español
+5. Ordena por `display_order`
+6. Aplica filtro `type` si se especifica
 
-**Nota:** Unifica projects y saas. Campo `type` indica el tipo.
+**Nota:** Unifica projects y saas. Campo `type` indica el tipo. `repository_url` aplica para ambos tipos (link al código). `url` aplica solo si `type='saas'` (link al sitio desplegado).
 
-**Error Handling:** `404` (no hay proyectos) · `500` (error inesperado)
+**Error Handling:** `200` con array vacío si no hay proyectos · `500` (error inesperado)
 
 ---
 
@@ -141,17 +152,16 @@ ai_context:
     id: string;
     institution: string;
     degree: string;
-    field_of_study: string;
-    start_date: string;
-    end_date: string | null;
-    description: string;
+    description: string | null;
+    website_url: string | null;
+    logo_url: string | null;
   }>;
 }
 ```
 
-**Business Logic:** Consulta `education` table · Ordena por `start_date` descendente
+**Business Logic:** Consulta `education` table
 
-**Error Handling:** `404` (no hay registros) · `500` (error inesperado)
+**Error Handling:** `200` con array vacío si no hay registros · `500` (error inesperado)
 
 ---
 
@@ -166,15 +176,16 @@ ai_context:
   data: Array<{
     id: string;
     name: string;
-    version: string | null;
-    category: string;
+    icon_url: string | null;
+    website_url: string | null;
+    display_order: number;
   }>;
 }
 ```
 
-**Business Logic:** Consulta `technologies` table · Agrupa por categoría si es necesario
+**Business Logic:** Consulta `technologies` table · Ordena por `display_order` ascendente
 
-**Error Handling:** `500` (error inesperado)
+**Error Handling:** `200` con array vacío si no hay registros · `500` (error inesperado)
 
 ---
 
@@ -191,20 +202,22 @@ ai_context:
   success: boolean;
   data: Array<{
     id: string;
-    name: string;
+    title: string;
     description: string;
-    price: number | null;
-    features: string[];
+    icon: string | null;
+    status: ServiceStatus;
+    display_order: number;
   }>;
 }
 ```
 
 **Business Logic:**
 1. Consulta `services` table
-2. JOIN `entity_translations` (entity_type='service')
-3. Fallback a español si no hay traducción
+2. Left JOIN `entity_translations` (entity_type='service', locale=?locale, translation_status='completed')
+3. `title` y `description` se obtienen con COALESCE desde traducciones, fallback a español
+4. Ordena por `display_order` ascendente
 
-**Error Handling:** `404` (no hay servicios) · `500` (error inesperado)
+**Error Handling:** `200` con array vacío si no hay servicios · `500` (error inesperado)
 
 ---
 

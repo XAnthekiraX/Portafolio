@@ -1,7 +1,7 @@
 ---
 doc_id: backend-overview
 version: 1.0.0
-last_updated: 2026-06-28
+last_updated: 2026-07-01
 owner: Anthekira
 type: configuration
 dependencies: [frontend-overview, entities, database, api-public, api-private, authentication, business-logic]
@@ -44,7 +44,7 @@ backend/src/
 │   ├── skills.ts            # Skills: CRUD via createCrudService (sin traducciones)
 │   ├── technologies.ts      # Technologies: CRUD via createCrudService (sin traducciones)
 │   ├── services.ts          # Services: CRUD via createCrudService + traducción
-│   ├── education.ts         # Education: CRUD via createCrudService (sin traducciones)
+│   ├── education.ts         # Education: CRUD via createCrudService + traducción (description → EN/PT)
 │   ├── translations.ts      # Retry de traducciones fallidas (solo reintento)
 │   ├── contact.ts           # Messages: list, markAsRead, delete (gestión de terceros)
 │   ├── stats.ts             # Dashboard counts agregados (query-only, sin escritura)

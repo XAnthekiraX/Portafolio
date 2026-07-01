@@ -1,3 +1,17 @@
+---
+doc_id: frontend-ui-ux
+version: 1.0.0
+last_updated: 2026-07-01
+owner: Anthekira
+type: guide
+dependencies: [frontend-overview]
+tags: [frontend, ui, ux, design, colors, typography, animations, dark-mode]
+ai_context:
+  primary_use: Design system reference, colors, typography, glassmorphism, animations, and layout specifications
+  key_constraints: [dark mode only, Tailwind CSS-first design tokens, Lucide icons, no external design libraries]
+  target_audience: Frontend developers, AI agents implementing UI and visual design
+---
+
 # 06-UI-UX.md — Anthekira.dev
 
 ## 1. Principios

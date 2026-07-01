@@ -1,3 +1,17 @@
+---
+doc_id: frontend-seo
+version: 1.0.0
+last_updated: 2026-07-01
+owner: Anthekira
+type: guide
+dependencies: [frontend-routes]
+tags: [frontend, seo, metadata, opengraph, sitemap, json-ld]
+ai_context:
+  primary_use: SEO strategy, metadata by route, sitemap generation, JSON-LD, and technical SEO requirements
+  key_constraints: [generateMetadata per public page, canonical URLs per locale, LCP < 2.5s, semantic HTML]
+  target_audience: Frontend developers, AI agents implementing SEO features
+---
+
 # 05-SEO.md — Anthekira.dev
 
 ## 1. Estrategia
