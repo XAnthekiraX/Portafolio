@@ -12,7 +12,7 @@ export function Card({ children, className = "", ghost, hover = true, padding = 
   if (ghost) {
     return (
       <div
-        className={`border-2 border-dashed border-zinc-700 hover:border-red-500 hover:bg-red-500/10 rounded-xl ${padding ? "p-5" : ""} transition-all duration-200 cursor-pointer ${className}`}
+        className={`border-2 border-dashed border-zinc-700 hover:border-red-500 hover:bg-red-500/10 rounded-xl ${padding ? "p-6" : ""} transition-all duration-200 cursor-pointer ${className}`}
       >
         {children}
       </div>
@@ -20,7 +20,7 @@ export function Card({ children, className = "", ghost, hover = true, padding = 
   }
   return (
     <div
-      className={`bg-[var(--color-bg-secondary)] border border-zinc-700 rounded-xl ${padding ? "p-5" : ""} ${hover ? "hover:border-zinc-500 transition-all duration-200" : ""} ${className}`}
+      className={`bg-[var(--color-bg-secondary)] border border-zinc-700 rounded-xl ${padding ? "p-6" : ""} ${hover ? "hover:border-zinc-500 transition-all duration-200" : ""} ${className}`}
     >
       {children}
     </div>

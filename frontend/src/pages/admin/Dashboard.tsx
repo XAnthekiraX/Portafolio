@@ -77,48 +77,48 @@ export function Dashboard() {
 
   return (
     <div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
         {metrics.map((m) => (
           <Card key={m.label}>
-            <div className="flex items-center justify-between mb-3">
-              <span className="font-mono text-[11px] font-medium uppercase tracking-wider text-zinc-400">
+            <div className="flex items-center justify-between mb-4">
+              <span className="font-mono text-xs font-medium uppercase tracking-wider text-zinc-400">
                 {m.label}
               </span>
               <div
-                className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                   m.color === "red" ? "bg-red-500/15" : "bg-cyan-500/10"
                 }`}
               >
                 <m.icon
-                  className={`w-4 h-4 ${
+                  className={`w-5 h-5 ${
                     m.color === "red" ? "text-red-500" : "text-cyan-500"
                   }`}
                 />
               </div>
             </div>
-            <p className="font-heading text-2xl font-bold text-zinc-100">
+            <p className="font-heading text-3xl font-bold text-zinc-100">
               {m.value}
             </p>
 
             {"change" in m && m.change && (
-              <div className="flex items-center gap-1 mt-1">
+              <div className="flex items-center gap-1.5 mt-2">
                 <Badge variant="green">
-                  <TrendingUp className="w-3 h-3" /> {m.change}
+                  <TrendingUp className="w-3.5 h-3.5" /> {m.change}
                 </Badge>
-                <span className="text-[11px] text-zinc-400">
+                <span className="text-xs text-zinc-400">
                   {"trend" in m && m.trend === "up" ? "este mes" : "vs mes anterior"}
                 </span>
               </div>
             )}
 
             {"sparkline" in m && m.sparkline && (
-              <div className="mt-2">
+              <div className="mt-3">
                 <Sparkline values={m.sparkline} />
               </div>
             )}
 
             {"tags" in m && m.tags && (
-              <div className="flex gap-1 mt-2 flex-wrap">
+              <div className="flex gap-1.5 mt-3 flex-wrap">
                 {m.tags.map((t: string) => (
                   <Tag key={t} variant={t === "Frontend" ? "red" : t === "Backend" ? "cyan" : "default"}>
                     {t}
@@ -128,7 +128,7 @@ export function Dashboard() {
             )}
 
             <div
-              className={`h-0.5 rounded mt-3 ${
+              className={`h-0.5 rounded mt-4 ${
                 m.color === "red"
                   ? "bg-gradient-to-r from-red-600 to-transparent"
                   : "bg-gradient-to-r from-cyan-500 to-transparent"
@@ -141,11 +141,11 @@ export function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-heading font-semibold text-sm text-zinc-100">
+            <h2 className="font-heading font-semibold text-base text-zinc-100">
               Proyectos recientes
             </h2>
-            <button className="inline-flex items-center gap-1 text-xs text-zinc-400 hover:text-zinc-100 transition-colors bg-transparent border-none cursor-pointer">
-              Ver todos <ArrowRight className="w-3 h-3" />
+            <button className="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-100 transition-colors bg-transparent border-none cursor-pointer">
+              Ver todos <ArrowRight className="w-4 h-4" />
             </button>
           </div>
 
@@ -154,10 +154,10 @@ export function Dashboard() {
               {[1, 2, 3].map((i) => (
                 <Card key={i}>
                   <div className="flex items-center gap-4">
-                    <Skeleton className="w-20 h-14 rounded-lg flex-shrink-0" />
+                    <Skeleton className="w-24 h-16 rounded-lg flex-shrink-0" />
                     <div className="flex-1 space-y-2">
-                      <Skeleton className="h-4 w-3/4" />
-                      <Skeleton className="h-3 w-1/2" />
+                      <Skeleton className="h-5 w-3/4" />
+                      <Skeleton className="h-4 w-1/2" />
                     </div>
                   </div>
                 </Card>
@@ -171,13 +171,13 @@ export function Dashboard() {
                     <img
                       src={p.imageUrl}
                       alt=""
-                      className="w-20 h-14 rounded-lg object-cover flex-shrink-0"
+                      className="w-24 h-16 rounded-lg object-cover flex-shrink-0"
                     />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate text-zinc-100">
                         {p.title}
                       </p>
-                      <p className="text-xs mt-0.5 truncate text-zinc-400">
+                      <p className="text-sm mt-0.5 truncate text-zinc-400">
                         {p.description}
                       </p>
                     </div>
@@ -205,24 +205,24 @@ export function Dashboard() {
 
         <div className="space-y-6">
           <Card>
-            <h3 className="font-heading font-semibold text-sm mb-4 text-zinc-100">
+            <h3 className="font-heading font-semibold text-base mb-5 text-zinc-100">
               Estado del perfil
             </h3>
-            <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center gap-4 mb-5">
               <img
                 src="https://picsum.photos/seed/dev-avatar-cms/80/80.jpg"
                 alt=""
-                className="w-10 h-10 rounded-full object-cover"
+                className="w-12 h-12 rounded-full object-cover"
               />
               <div>
-                <p className="text-sm font-medium text-zinc-100">
+                <p className="text-base font-medium text-zinc-100">
                   Carlos Mendez
                 </p>
-                <p className="text-[11px] text-zinc-400">75% completo</p>
+                <p className="text-xs text-zinc-400">75% completo</p>
               </div>
             </div>
             <ProgressBar value={75} />
-            <div className="mt-3 space-y-1.5">
+            <div className="mt-4 space-y-2">
               {[
                 { label: "Foto de perfil", done: true },
                 { label: "Descripción", done: true },
@@ -231,13 +231,13 @@ export function Dashboard() {
               ].map((item) => (
                 <div
                   key={item.label}
-                  className="flex items-center justify-between text-[11px]"
+                  className="flex items-center justify-between text-xs"
                 >
                   <span className="text-zinc-400">{item.label}</span>
                   {item.done ? (
-                    <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
+                    <CheckCircle2 className="w-4 h-4 text-green-500" />
                   ) : (
-                    <Circle className="w-3.5 h-3.5 text-zinc-500" />
+                    <Circle className="w-4 h-4 text-zinc-500" />
                   )}
                 </div>
               ))}
@@ -245,42 +245,21 @@ export function Dashboard() {
           </Card>
 
           <Card>
-            <h3 className="font-heading font-semibold text-sm mb-4 text-zinc-100">
+            <h3 className="font-heading font-semibold text-base mb-5 text-zinc-100">
               Actividad reciente
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-4">
               {activities.map((a) => (
                 <div key={a.text} className="flex items-start gap-3">
                   <div
-                    className={`w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${dotColors[a.dot]}`}
+                    className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${dotColors[a.dot]}`}
                   />
                   <div>
-                    <p className="text-xs text-zinc-100">{a.text}</p>
-                    <p className="text-[11px] mt-0.5 text-zinc-400">{a.time}</p>
+                    <p className="text-sm text-zinc-100">{a.text}</p>
+                    <p className="text-xs mt-0.5 text-zinc-400">{a.time}</p>
                   </div>
                 </div>
               ))}
-            </div>
-          </Card>
-
-          <Card>
-            <h3 className="font-heading font-semibold text-sm mb-4 text-zinc-100">
-              Loading preview
-            </h3>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <Skeleton className="w-8 h-8 rounded-full flex-shrink-0" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-3 w-3/4 rounded" />
-                  <Skeleton className="h-2.5 w-1/2 rounded" />
-                </div>
-              </div>
-              <Skeleton className="h-16 w-full rounded-lg" />
-              <div className="flex gap-2">
-                <Skeleton className="h-6 w-16 rounded-md" />
-                <Skeleton className="h-6 w-16 rounded-md" />
-                <Skeleton className="h-6 w-20 rounded-md" />
-              </div>
             </div>
           </Card>
         </div>

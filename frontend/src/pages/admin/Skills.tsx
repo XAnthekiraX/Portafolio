@@ -18,24 +18,24 @@ export function Skills() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <p className="text-sm text-zinc-400">
+        <p className="text-base text-zinc-400">
           {skills.reduce((a, c) => a + c.technologies.length, 0)} skills organizadas en{" "}
           {skills.length} categorías
         </p>
         <Button>
-          <Plus className="w-3.5 h-3.5" /> Nueva skill
+          <Plus className="w-4 h-4" /> Nueva skill
         </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {skills.map((cat, i) => (
           <Card key={cat.id}>
-            <div className="flex items-center gap-2 mb-4">
-              <div className={`w-2 h-2 rounded-full ${dotColors[i % dotColors.length]}`} />
-              <h3 className="font-heading font-semibold text-sm text-zinc-100">
+            <div className="flex items-center gap-3 mb-4">
+              <div className={`w-2.5 h-2.5 rounded-full ${dotColors[i % dotColors.length]}`} />
+              <h3 className="font-heading font-semibold text-base text-zinc-100">
                 {cat.name}
               </h3>
-              <span className="font-mono text-[11px] ml-auto text-zinc-400">
+              <span className="font-mono text-xs ml-auto text-zinc-400">
                 {cat.technologies.length} skills
               </span>
             </div>

@@ -14,7 +14,7 @@ export function Tag({ variant = "default", children, onClick }: TagProps) {
   }
   return (
     <span
-      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-medium font-mono border transition-all duration-150 ${colors[variant]} ${onClick ? "cursor-pointer" : ""}`}
+      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium font-mono border transition-all duration-150 ${colors[variant]} ${onClick ? "cursor-pointer" : ""}`}
       onClick={onClick}
     >
       {children}

@@ -12,7 +12,7 @@ export function Badge({ variant = "green", children }: BadgeProps) {
     red: "bg-red-500/15 text-red-500",
   }
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${colors[variant]}`}>
+    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${colors[variant]}`}>
       {children}
     </span>
   )

@@ -44,15 +44,15 @@ export function Technologies() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <p className="text-sm text-zinc-400">
+        <p className="text-base text-zinc-400">
           {techs.length} tecnologías en tu catálogo
         </p>
         <Button>
-          <Plus className="w-3.5 h-3.5" /> Agregar
+          <Plus className="w-4 h-4" /> Agregar
         </Button>
       </div>
 
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
         {techs.map((t) => {
           const colors = iconColors[t.name] || {
             bg: "rgba(255,255,255,0.05)",
@@ -61,15 +61,15 @@ export function Technologies() {
           return (
             <div
               key={t.id}
-              className="flex flex-col items-center justify-center gap-2.5 p-5 bg-zinc-900 border border-zinc-700 rounded-xl cursor-pointer transition-all duration-200 hover:border-cyan-500 hover:bg-cyan-500/10 hover:-translate-y-0.5"
+              className="flex flex-col items-center justify-center gap-3 p-6 bg-zinc-900 border border-zinc-700 rounded-xl cursor-pointer transition-all duration-200 hover:border-cyan-500 hover:bg-cyan-500/10 hover:-translate-y-0.5"
             >
               <div
-                className="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-base"
+                className="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg"
                 style={{ background: colors.bg, color: colors.text }}
               >
                 {getInitials(t.name)}
               </div>
-              <span className="text-xs font-medium text-zinc-100">
+              <span className="text-sm font-medium text-zinc-100">
                 {t.name}
               </span>
             </div>
