@@ -1,0 +1,87 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root,
+  html.dark {
+    --color-page: #09090b;
+    --color-bg: #09090b;
+    --color-bg-secondary: #18181b;
+    --color-border: #27272a;
+    --color-border-light: #3f3f46;
+    --color-text: #f4f4f5;
+    --color-text-secondary: #a1a1aa;
+    --color-text-muted: #71717a;
+    --scrollbar-track: #09090b;
+    --scrollbar-thumb: #3f3f46;
+  }
+
+  html.light {
+    --color-page: #f8f9fa;
+    --color-bg: #ffffff;
+    --color-bg-secondary: #f0f1f3;
+    --color-border: #d4d6da;
+    --color-border-light: #d0d2d6;
+    --color-text: #1a1b2e;
+    --color-text-secondary: #5c5d6e;
+    --color-text-muted: #a1a2b0;
+    --scrollbar-track: #f0f1f3;
+    --scrollbar-thumb: #c5c7cd;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    font-family: "Inter", sans-serif;
+    background-color: var(--color-page);
+    color: var(--color-text);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
+    font-family: "Space Grotesk", sans-serif;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #dc2626;
+  }
+}
+
+.grid-bg {
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+
+html.light .grid-bg {
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+}
+
+.glow-red {
+  box-shadow: 0 0 80px -20px rgba(220, 38, 38, 0.5);
+}

@@ -1,0 +1,3295 @@
+<!doctype html>
+<html lang="es" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portfolio CMS — Mock UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            fontFamily: {
+              heading: ["Space Grotesk", "sans-serif"],
+              body: ["Inter", "sans-serif"],
+              mono: ["JetBrains Mono", "monospace"],
+            },
+            colors: {
+              surface: { DEFAULT: "var(--surface)", alt: "var(--surface-alt)" },
+              border: "var(--border)",
+              txt: { DEFAULT: "var(--text)", muted: "var(--text-muted)" },
+              accent: { red: "#DC2626", cyan: "#06B6D4" },
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      /* === Variables de tema === */
+      :root {
+        --bg: #09090b;
+        --surface: #18181b;
+        --surface-alt: #27272a;
+        --border: #3f3f46;
+        --text: #f4f4f5;
+        --text-muted: #a1a1aa;
+        --glow-red: rgba(220, 38, 38, 0.15);
+        --glow-cyan: rgba(6, 182, 212, 0.12);
+      }
+      html.light {
+        --bg: #fafafa;
+        --surface: #ffffff;
+        --surface-alt: #f4f4f5;
+        --border: #e4e4e7;
+        --text: #18181b;
+        --text-muted: #71717a;
+        --glow-red: rgba(220, 38, 38, 0.08);
+        --glow-cyan: rgba(6, 182, 212, 0.07);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        overflow: hidden;
+        height: 100vh;
+      }
+
+      /* === Scrollbar === */
+      ::-webkit-scrollbar {
+        width: 5px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--text-muted);
+      }
+
+      /* === Layout === */
+      .app-layout {
+        display: flex;
+        height: 100vh;
+      }
+      .sidebar {
+        width: 240px;
+        min-width: 240px;
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 40;
+      }
+      .main-wrapper {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-width: 0;
+      }
+      .topbar {
+        height: 60px;
+        min-height: 60px;
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        padding: 0 24px;
+        gap: 16px;
+      }
+      .content-area {
+        flex: 1;
+        overflow-y: auto;
+        padding: 32px;
+      }
+
+      /* === Sidebar nav items === */
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        color: var(--text-muted);
+        font-size: 13px;
+        font-weight: 500;
+        position: relative;
+      }
+      .nav-item:hover {
+        color: var(--text);
+        background: var(--surface-alt);
+      }
+      .nav-item.active {
+        color: var(--text);
+        background: var(--surface-alt);
+      }
+      .nav-item.active::before {
+        content: "";
+        position: absolute;
+        left: -12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 20px;
+        background: #dc2626;
+        border-radius: 0 3px 3px 0;
+      }
+
+      /* === Cards === */
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+        transition: all 0.2s ease;
+      }
+      .card:hover {
+        border-color: var(--text-muted);
+      }
+      .card-ghost {
+        background: transparent;
+        border: 1px dashed var(--border);
+        border-radius: 12px;
+        padding: 20px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+      }
+      .card-ghost:hover {
+        border-color: #dc2626;
+        background: var(--glow-red);
+      }
+
+      /* === Inputs === */
+      .input-mock {
+        width: 100%;
+        padding: 8px 12px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+        font-size: 13px;
+        outline: none;
+        transition: all 0.15s ease;
+      }
+      .input-mock:focus {
+        border-color: #dc2626;
+        box-shadow: 0 0 0 3px var(--glow-red);
+      }
+      .input-mock::placeholder {
+        color: var(--text-muted);
+      }
+      .label-mock {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 6px;
+        display: block;
+      }
+
+      /* === Buttons === */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-family: "Inter", sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+        transition: all 0.15s ease;
+        outline: none;
+      }
+      .btn:focus-visible {
+        box-shadow: 0 0 0 3px var(--glow-red);
+      }
+      .btn:active {
+        transform: scale(0.97);
+      }
+      .btn-primary {
+        background: #dc2626;
+        color: #fff;
+      }
+      .btn-primary:hover {
+        background: #b91c1c;
+      }
+      .btn-secondary {
+        background: var(--surface-alt);
+        color: var(--text);
+        border: 1px solid var(--border);
+      }
+      .btn-secondary:hover {
+        background: var(--border);
+      }
+      .btn-ghost {
+        background: transparent;
+        color: var(--text-muted);
+      }
+      .btn-ghost:hover {
+        color: var(--text);
+        background: var(--surface-alt);
+      }
+      .btn-cyan {
+        background: #06b6d4;
+        color: #fff;
+      }
+      .btn-cyan:hover {
+        background: #0891b2;
+      }
+
+      /* === Tags / Badges === */
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 10px;
+        border-radius: 6px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        font-weight: 500;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        background: var(--surface-alt);
+        transition: all 0.15s ease;
+      }
+      .tag:hover {
+        border-color: #06b6d4;
+        color: #06b6d4;
+      }
+      .tag-red {
+        border-color: rgba(220, 38, 38, 0.3);
+        color: #dc2626;
+        background: var(--glow-red);
+      }
+      .tag-cyan {
+        border-color: rgba(6, 182, 212, 0.3);
+        color: #06b6d4;
+        background: var(--glow-cyan);
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        border-radius: 99px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .badge-green {
+        background: rgba(34, 197, 94, 0.15);
+        color: #22c55e;
+      }
+      .badge-yellow {
+        background: rgba(234, 179, 8, 0.15);
+        color: #eab308;
+      }
+      .badge-red {
+        background: var(--glow-red);
+        color: #dc2626;
+      }
+
+      /* === Skeleton === */
+      .skeleton {
+        background: linear-gradient(
+          90deg,
+          var(--surface-alt) 25%,
+          var(--border) 50%,
+          var(--surface-alt) 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.8s infinite ease-in-out;
+        border-radius: 6px;
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: 200% 0;
+        }
+        100% {
+          background-position: -200% 0;
+        }
+      }
+
+      /* === Timeline === */
+      .timeline-item {
+        position: relative;
+        padding-left: 32px;
+        padding-bottom: 28px;
+      }
+      .timeline-item::before {
+        content: "";
+        position: absolute;
+        left: 5px;
+        top: 8px;
+        bottom: 0;
+        width: 1px;
+        background: var(--border);
+      }
+      .timeline-item:last-child::before {
+        display: none;
+      }
+      .timeline-dot {
+        position: absolute;
+        left: 0;
+        top: 6px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 2px solid #dc2626;
+        background: var(--bg);
+      }
+
+      /* === View sections === */
+      .view-section {
+        display: none;
+      }
+      .view-section.active {
+        display: block;
+        animation: fadeIn 0.25s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* === Modal === */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        z-index: 100;
+        display: none;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-overlay.active {
+        display: flex;
+        animation: fadeIn 0.2s ease;
+      }
+      .modal-content {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        width: 90%;
+        max-width: 640px;
+        max-height: 85vh;
+        overflow-y: auto;
+        padding: 28px;
+      }
+
+      /* === Mobile drawer === */
+      .drawer-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 50;
+        display: none;
+      }
+      .drawer-overlay.active {
+        display: block;
+      }
+
+      /* === Language selector === */
+      .lang-selector {
+        display: flex;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+      .lang-btn {
+        padding: 4px 10px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        transition: all 0.15s ease;
+      }
+      .lang-btn.active {
+        background: #dc2626;
+        color: #fff;
+      }
+      .lang-btn:hover:not(.active) {
+        color: var(--text);
+      }
+
+      /* === Theme toggle === */
+      .theme-toggle {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s ease;
+      }
+      .theme-toggle:hover {
+        color: var(--text);
+        background: var(--surface-alt);
+      }
+
+      /* === Metric card accent line === */
+      .metric-line {
+        height: 2px;
+        border-radius: 2px;
+        margin-top: 12px;
+      }
+
+      /* === Project card image === */
+      .project-img {
+        width: 100%;
+        aspect-ratio: 16/10;
+        object-fit: cover;
+        border-radius: 8px;
+        transition: transform 0.3s ease;
+      }
+      .project-card:hover .project-img {
+        transform: scale(1.02);
+      }
+
+      /* === Tech card === */
+      .tech-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 20px 12px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .tech-card:hover {
+        border-color: #06b6d4;
+        background: var(--glow-cyan);
+        transform: translateY(-2px);
+      }
+      .tech-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 16px;
+      }
+
+      /* === Service card === */
+      .service-card {
+        padding: 24px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      .service-card::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, #dc2626, #06b6d4);
+        opacity: 0;
+        transition: opacity 0.25s ease;
+      }
+      .service-card:hover {
+        border-color: var(--text-muted);
+        transform: translateY(-2px);
+      }
+      .service-card:hover::after {
+        opacity: 1;
+      }
+
+      /* === Responsive === */
+      @media (max-width: 1024px) {
+        .sidebar {
+          width: 64px;
+          min-width: 64px;
+        }
+        .sidebar .nav-label,
+        .sidebar .brand-text,
+        .sidebar .sidebar-footer-text {
+          display: none;
+        }
+        .sidebar .nav-item {
+          justify-content: center;
+          padding: 10px;
+        }
+        .sidebar .nav-item::before {
+          left: -1px !important;
+        }
+        .sidebar .brand-area {
+          justify-content: center;
+          padding: 16px 8px;
+        }
+        .sidebar .sidebar-section-label {
+          display: none;
+        }
+        .sidebar .sidebar-footer {
+          justify-content: center;
+        }
+        .content-area {
+          padding: 24px;
+        }
+      }
+      @media (max-width: 768px) {
+        .sidebar {
+          position: fixed;
+          left: -260px;
+          top: 0;
+          bottom: 0;
+          width: 240px;
+          z-index: 50;
+          transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sidebar.open {
+          left: 0;
+        }
+        .sidebar .nav-label,
+        .sidebar .brand-text,
+        .sidebar .sidebar-footer-text {
+          display: inline;
+        }
+        .sidebar .nav-item {
+          justify-content: flex-start;
+          padding: 8px 12px;
+        }
+        .sidebar .brand-area {
+          justify-content: flex-start;
+          padding: 16px 16px;
+        }
+        .sidebar .sidebar-section-label {
+          display: block;
+        }
+        .sidebar .sidebar-footer {
+          justify-content: flex-start;
+        }
+        .content-area {
+          padding: 16px;
+        }
+        .topbar {
+          padding: 0 16px;
+        }
+        .mobile-burger {
+          display: flex !important;
+        }
+      }
+      @media (min-width: 769px) {
+        .mobile-burger {
+          display: none !important;
+        }
+      }
+
+      /* === Viewport indicator (Figma-style detail) === */
+      .viewport-indicator {
+        position: fixed;
+        bottom: 12px;
+        right: 12px;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        font-weight: 500;
+        background: var(--surface-alt);
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        z-index: 200;
+        pointer-events: none;
+      }
+
+      /* === Subtle background pattern === */
+      .content-area {
+        background-image: radial-gradient(
+          circle at 1px 1px,
+          var(--border) 0.5px,
+          transparent 0
+        );
+        background-size: 32px 32px;
+        background-position: 16px 16px;
+      }
+
+      /* === Sparkline (CSS only visual) === */
+      .sparkline {
+        display: flex;
+        align-items: flex-end;
+        gap: 2px;
+        height: 32px;
+      }
+      .sparkline-bar {
+        width: 4px;
+        border-radius: 2px;
+        background: #dc2626;
+        opacity: 0.6;
+        transition: opacity 0.15s ease;
+      }
+      .card:hover .sparkline-bar {
+        opacity: 1;
+      }
+
+      /* === Progress bar === */
+      .progress-track {
+        width: 100%;
+        height: 6px;
+        background: var(--surface-alt);
+        border-radius: 99px;
+        overflow: hidden;
+      }
+      .progress-fill {
+        height: 100%;
+        border-radius: 99px;
+        background: linear-gradient(90deg, #dc2626, #06b6d4);
+        transition: width 0.5s ease;
+      }
+
+      /* === Empty state === */
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 48px 24px;
+        text-align: center;
+        color: var(--text-muted);
+      }
+      .empty-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        background: var(--surface-alt);
+        border: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+        color: var(--text-muted);
+      }
+
+      /* === Social row === */
+      .social-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 13px;
+      }
+      .social-row:last-child {
+        border-bottom: none;
+      }
+
+      /* === Table === */
+      .mock-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      .mock-table th {
+        text-align: left;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--border);
+      }
+      .mock-table td {
+        padding: 12px 16px;
+        font-size: 13px;
+        border-bottom: 1px solid var(--border);
+      }
+      .mock-table tr:last-child td {
+        border-bottom: none;
+      }
+      .mock-table tbody tr {
+        transition: background 0.1s ease;
+      }
+      .mock-table tbody tr:hover {
+        background: var(--surface-alt);
+      }
+
+      /* === Reduced motion === */
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-layout">
+      <!-- ========== SIDEBAR ========== -->
+      <aside class="sidebar" id="sidebar">
+        <!-- Brand -->
+        <div
+          class="brand-area flex items-center gap-3 px-4 py-5 border-b"
+          style="border-color: var(--border)"
+        >
+          <div
+            class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+            style="background: #dc2626"
+          >
+            <i data-lucide="code-2" class="w-4 h-4 text-white"></i>
+          </div>
+          <span
+            class="brand-text font-heading font-semibold text-sm"
+            style="color: var(--text)"
+            >FolioCMS</span
+          >
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 px-3 py-4 overflow-y-auto flex flex-col gap-1">
+          <p
+            class="sidebar-section-label font-mono text-[10px] font-semibold uppercase tracking-wider px-3 mb-2"
+            style="color: var(--text-muted)"
+          >
+            General
+          </p>
+          <div class="nav-item active" data-view="view-dashboard">
+            <i data-lucide="layout-dashboard" class="w-4 h-4 flex-shrink-0"></i>
+            <span class="nav-label">Dashboard</span>
+          </div>
+
+          <p
+            class="sidebar-section-label font-mono text-[10px] font-semibold uppercase tracking-wider px-3 mt-5 mb-2"
+            style="color: var(--text-muted)"
+          >
+            Profile
+          </p>
+          <div class="nav-item" data-view="view-profile">
+            <i data-lucide="user" class="w-4 h-4 flex-shrink-0"></i>
+            <span class="nav-label">Profile</span>
+          </div>
+          <div class="nav-item" data-view="view-skills">
+            <i data-lucide="zap" class="w-4 h-4 flex-shrink-0"></i>
+            <span class="nav-label">Skills</span>
+          </div>
+          <div class="nav-item" data-view="view-cv">
+            <i data-lucide="file-text" class="w-4 h-4 flex-shrink-0"></i>
+            <span class="nav-label">CV</span>
+          </div>
+          <div class="nav-item" data-view="view-education">
+            <i data-lucide="graduation-cap" class="w-4 h-4 flex-shrink-0"></i>
+            <span class="nav-label">Education</span>
+          </div>
+
+          <p
+            class="sidebar-section-label font-mono text-[10px] font-semibold uppercase tracking-wider px-3 mt-5 mb-2"
+            style="color: var(--text-muted)"
+          >
+            Content
+          </p>
+          <div class="nav-item" data-view="view-technologies">
+            <i data-lucide="cpu" class="w-4 h-4 flex-shrink-0"></i>
+            <span class="nav-label">Technologies</span>
+          </div>
+          <div class="nav-item" data-view="view-projects">
+            <i data-lucide="folder-kanban" class="w-4 h-4 flex-shrink-0"></i>
+            <span class="nav-label">Projects</span>
+          </div>
+          <div class="nav-item" data-view="view-services">
+            <i data-lucide="briefcase" class="w-4 h-4 flex-shrink-0"></i>
+            <span class="nav-label">Services</span>
+          </div>
+        </nav>
+
+        <!-- Footer -->
+        <div
+          class="sidebar-footer px-3 py-4 border-t flex items-center gap-3 px-4"
+          style="border-color: var(--border)"
+        >
+          <img
+            src="https://picsum.photos/seed/dev-avatar-cms/80/80.jpg"
+            alt="Avatar"
+            class="w-8 h-8 rounded-full object-cover flex-shrink-0"
+          />
+          <div class="sidebar-footer-text min-w-0">
+            <p class="text-xs font-medium truncate" style="color: var(--text)">
+              Carlos Mendez
+            </p>
+            <p class="text-[11px] truncate" style="color: var(--text-muted)">
+              carlos@dev.io
+            </p>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Mobile drawer overlay -->
+      <div class="drawer-overlay" id="drawer-overlay"></div>
+
+      <!-- ========== MAIN ========== -->
+      <div class="main-wrapper">
+        <!-- Topbar -->
+        <header class="topbar">
+          <button
+            class="mobile-burger theme-toggle"
+            id="burger-btn"
+            aria-label="Abrir menú"
+          >
+            <i data-lucide="menu" class="w-4 h-4"></i>
+          </button>
+          <h1
+            id="section-title"
+            class="font-heading font-semibold text-base"
+            style="color: var(--text)"
+          >
+            Dashboard
+          </h1>
+          <div class="flex-1"></div>
+
+          <!-- Language selector -->
+          <div class="lang-selector">
+            <button class="lang-btn active" data-lang="es">ES</button>
+            <button class="lang-btn" data-lang="en">EN</button>
+            <button class="lang-btn" data-lang="pt">PT</button>
+          </div>
+
+          <!-- Theme toggle -->
+          <button
+            class="theme-toggle"
+            id="theme-toggle"
+            aria-label="Cambiar tema"
+          >
+            <i data-lucide="moon" class="w-4 h-4 dark-icon"></i>
+            <i
+              data-lucide="sun"
+              class="w-4 h-4 light-icon"
+              style="display: none"
+            ></i>
+          </button>
+
+          <!-- Avatar -->
+          <img
+            src="https://picsum.photos/seed/dev-avatar-cms/80/80.jpg"
+            alt="Avatar"
+            class="w-8 h-8 rounded-full object-cover border"
+            style="border-color: var(--border)"
+          />
+        </header>
+
+        <!-- Content -->
+        <main class="content-area">
+          <!-- ==================== DASHBOARD ==================== -->
+          <section class="view-section active" id="view-dashboard">
+            <!-- Metrics -->
+            <div
+              class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+            >
+              <!-- Metric 1 -->
+              <div class="card">
+                <div class="flex items-center justify-between mb-3">
+                  <span
+                    class="font-mono text-[11px] font-medium uppercase tracking-wider"
+                    style="color: var(--text-muted)"
+                    >Projects</span
+                  >
+                  <div
+                    class="w-8 h-8 rounded-lg flex items-center justify-center"
+                    style="background: var(--glow-red)"
+                  >
+                    <i
+                      data-lucide="folder-kanban"
+                      class="w-4 h-4"
+                      style="color: #dc2626"
+                    ></i>
+                  </div>
+                </div>
+                <p
+                  class="font-heading text-2xl font-bold"
+                  style="color: var(--text)"
+                >
+                  12
+                </p>
+                <div class="flex items-center gap-1 mt-1">
+                  <span class="badge badge-green"
+                    ><i data-lucide="trending-up" class="w-3 h-3"></i> +3</span
+                  >
+                  <span class="text-[11px]" style="color: var(--text-muted)"
+                    >este mes</span
+                  >
+                </div>
+                <div
+                  class="metric-line"
+                  style="
+                    background: linear-gradient(90deg, #dc2626, transparent);
+                  "
+                ></div>
+              </div>
+              <!-- Metric 2 -->
+              <div class="card">
+                <div class="flex items-center justify-between mb-3">
+                  <span
+                    class="font-mono text-[11px] font-medium uppercase tracking-wider"
+                    style="color: var(--text-muted)"
+                    >Technologies</span
+                  >
+                  <div
+                    class="w-8 h-8 rounded-lg flex items-center justify-center"
+                    style="background: var(--glow-cyan)"
+                  >
+                    <i
+                      data-lucide="cpu"
+                      class="w-4 h-4"
+                      style="color: #06b6d4"
+                    ></i>
+                  </div>
+                </div>
+                <p
+                  class="font-heading text-2xl font-bold"
+                  style="color: var(--text)"
+                >
+                  18
+                </p>
+                <div class="sparkline mt-2">
+                  <div class="sparkline-bar" style="height: 40%"></div>
+                  <div class="sparkline-bar" style="height: 65%"></div>
+                  <div class="sparkline-bar" style="height: 45%"></div>
+                  <div class="sparkline-bar" style="height: 80%"></div>
+                  <div class="sparkline-bar" style="height: 55%"></div>
+                  <div class="sparkline-bar" style="height: 90%"></div>
+                  <div class="sparkline-bar" style="height: 70%"></div>
+                  <div
+                    class="sparkline-bar"
+                    style="height: 100%; background: #06b6d4"
+                  ></div>
+                </div>
+              </div>
+              <!-- Metric 3 -->
+              <div class="card">
+                <div class="flex items-center justify-between mb-3">
+                  <span
+                    class="font-mono text-[11px] font-medium uppercase tracking-wider"
+                    style="color: var(--text-muted)"
+                    >Skills</span
+                  >
+                  <div
+                    class="w-8 h-8 rounded-lg flex items-center justify-center"
+                    style="background: var(--glow-red)"
+                  >
+                    <i
+                      data-lucide="zap"
+                      class="w-4 h-4"
+                      style="color: #dc2626"
+                    ></i>
+                  </div>
+                </div>
+                <p
+                  class="font-heading text-2xl font-bold"
+                  style="color: var(--text)"
+                >
+                  24
+                </p>
+                <div class="flex gap-1 mt-2 flex-wrap">
+                  <span
+                    class="tag tag-red"
+                    style="font-size: 10px; padding: 2px 6px"
+                    >Frontend</span
+                  >
+                  <span
+                    class="tag tag-cyan"
+                    style="font-size: 10px; padding: 2px 6px"
+                    >Backend</span
+                  >
+                  <span class="tag" style="font-size: 10px; padding: 2px 6px"
+                    >DevOps</span
+                  >
+                </div>
+              </div>
+              <!-- Metric 4 -->
+              <div class="card">
+                <div class="flex items-center justify-between mb-3">
+                  <span
+                    class="font-mono text-[11px] font-medium uppercase tracking-wider"
+                    style="color: var(--text-muted)"
+                    >Visits</span
+                  >
+                  <div
+                    class="w-8 h-8 rounded-lg flex items-center justify-center"
+                    style="background: var(--glow-cyan)"
+                  >
+                    <i
+                      data-lucide="eye"
+                      class="w-4 h-4"
+                      style="color: #06b6d4"
+                    ></i>
+                  </div>
+                </div>
+                <p
+                  class="font-heading text-2xl font-bold"
+                  style="color: var(--text)"
+                >
+                  1.2k
+                </p>
+                <div class="flex items-center gap-1 mt-1">
+                  <span class="badge badge-green"
+                    ><i data-lucide="trending-up" class="w-3 h-3"></i>
+                    +18%</span
+                  >
+                  <span class="text-[11px]" style="color: var(--text-muted)"
+                    >vs mes anterior</span
+                  >
+                </div>
+                <div
+                  class="metric-line"
+                  style="
+                    background: linear-gradient(90deg, #06b6d4, transparent);
+                  "
+                ></div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <!-- Recent projects -->
+              <div class="lg:col-span-2">
+                <div class="flex items-center justify-between mb-4">
+                  <h2
+                    class="font-heading font-semibold text-sm"
+                    style="color: var(--text)"
+                  >
+                    Proyectos recientes
+                  </h2>
+                  <button class="btn btn-ghost text-xs">
+                    Ver todos <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                  </button>
+                </div>
+                <div class="space-y-3">
+                  <div class="card flex items-center gap-4 !p-4">
+                    <img
+                      src="https://picsum.photos/seed/proj-dash1/120/80.jpg"
+                      alt=""
+                      class="w-20 h-14 rounded-lg object-cover flex-shrink-0"
+                    />
+                    <div class="flex-1 min-w-0">
+                      <p
+                        class="text-sm font-medium truncate"
+                        style="color: var(--text)"
+                      >
+                        E-Commerce Platform
+                      </p>
+                      <p
+                        class="text-xs mt-0.5 truncate"
+                        style="color: var(--text-muted)"
+                      >
+                        Tienda online con Next.js y Stripe
+                      </p>
+                    </div>
+                    <span class="badge badge-green flex-shrink-0"
+                      >Publicado</span
+                    >
+                  </div>
+                  <div class="card flex items-center gap-4 !p-4">
+                    <img
+                      src="https://picsum.photos/seed/proj-dash2/120/80.jpg"
+                      alt=""
+                      class="w-20 h-14 rounded-lg object-cover flex-shrink-0"
+                    />
+                    <div class="flex-1 min-w-0">
+                      <p
+                        class="text-sm font-medium truncate"
+                        style="color: var(--text)"
+                      >
+                        Task Manager API
+                      </p>
+                      <p
+                        class="text-xs mt-0.5 truncate"
+                        style="color: var(--text-muted)"
+                      >
+                        REST API con Node.js y PostgreSQL
+                      </p>
+                    </div>
+                    <span class="badge badge-yellow flex-shrink-0"
+                      >Borrador</span
+                    >
+                  </div>
+                  <div class="card flex items-center gap-4 !p-4">
+                    <img
+                      src="https://picsum.photos/seed/proj-dash3/120/80.jpg"
+                      alt=""
+                      class="w-20 h-14 rounded-lg object-cover flex-shrink-0"
+                    />
+                    <div class="flex-1 min-w-0">
+                      <p
+                        class="text-sm font-medium truncate"
+                        style="color: var(--text)"
+                      >
+                        AI Chat Interface
+                      </p>
+                      <p
+                        class="text-xs mt-0.5 truncate"
+                        style="color: var(--text-muted)"
+                      >
+                        Interfaz de chat con OpenAI y React
+                      </p>
+                    </div>
+                    <span class="badge badge-green flex-shrink-0"
+                      >Publicado</span
+                    >
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right column -->
+              <div class="space-y-6">
+                <!-- Profile status -->
+                <div class="card">
+                  <h3
+                    class="font-heading font-semibold text-sm mb-4"
+                    style="color: var(--text)"
+                  >
+                    Estado del perfil
+                  </h3>
+                  <div class="flex items-center gap-3 mb-4">
+                    <img
+                      src="https://picsum.photos/seed/dev-avatar-cms/80/80.jpg"
+                      alt=""
+                      class="w-10 h-10 rounded-full object-cover"
+                    />
+                    <div>
+                      <p class="text-sm font-medium" style="color: var(--text)">
+                        Carlos Mendez
+                      </p>
+                      <p class="text-[11px]" style="color: var(--text-muted)">
+                        75% completo
+                      </p>
+                    </div>
+                  </div>
+                  <div class="progress-track">
+                    <div class="progress-fill" style="width: 75%"></div>
+                  </div>
+                  <div class="mt-3 space-y-1.5">
+                    <div class="flex items-center justify-between text-[11px]">
+                      <span style="color: var(--text-muted)"
+                        >Foto de perfil</span
+                      >
+                      <i
+                        data-lucide="check-circle-2"
+                        class="w-3.5 h-3.5"
+                        style="color: #22c55e"
+                      ></i>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px]">
+                      <span style="color: var(--text-muted)">Descripción</span>
+                      <i
+                        data-lucide="check-circle-2"
+                        class="w-3.5 h-3.5"
+                        style="color: #22c55e"
+                      ></i>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px]">
+                      <span style="color: var(--text-muted)">CV adjunto</span>
+                      <i
+                        data-lucide="check-circle-2"
+                        class="w-3.5 h-3.5"
+                        style="color: #22c55e"
+                      ></i>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px]">
+                      <span style="color: var(--text-muted)"
+                        >Redes sociales</span
+                      >
+                      <i
+                        data-lucide="circle"
+                        class="w-3.5 h-3.5"
+                        style="color: var(--text-muted)"
+                      ></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Recent activity -->
+                <div class="card">
+                  <h3
+                    class="font-heading font-semibold text-sm mb-4"
+                    style="color: var(--text)"
+                  >
+                    Actividad reciente
+                  </h3>
+                  <div class="space-y-3">
+                    <div class="flex items-start gap-3">
+                      <div
+                        class="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0"
+                        style="background: #dc2626"
+                      ></div>
+                      <div>
+                        <p class="text-xs" style="color: var(--text)">
+                          Proyecto "E-Commerce" publicado
+                        </p>
+                        <p
+                          class="text-[11px] mt-0.5"
+                          style="color: var(--text-muted)"
+                        >
+                          Hace 2 horas
+                        </p>
+                      </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                      <div
+                        class="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0"
+                        style="background: #06b6d4"
+                      ></div>
+                      <div>
+                        <p class="text-xs" style="color: var(--text)">
+                          Skill "TypeScript" actualizada
+                        </p>
+                        <p
+                          class="text-[11px] mt-0.5"
+                          style="color: var(--text-muted)"
+                        >
+                          Hace 5 horas
+                        </p>
+                      </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                      <div
+                        class="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0"
+                        style="background: var(--border)"
+                      ></div>
+                      <div>
+                        <p class="text-xs" style="color: var(--text)">
+                          CV actualizado
+                        </p>
+                        <p
+                          class="text-[11px] mt-0.5"
+                          style="color: var(--text-muted)"
+                        >
+                          Hace 1 día
+                        </p>
+                      </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                      <div
+                        class="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0"
+                        style="background: var(--border)"
+                      ></div>
+                      <div>
+                        <p class="text-xs" style="color: var(--text)">
+                          3 tecnologías añadidas
+                        </p>
+                        <p
+                          class="text-[11px] mt-0.5"
+                          style="color: var(--text-muted)"
+                        >
+                          Hace 2 días
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Skeleton preview -->
+                <div class="card">
+                  <h3
+                    class="font-heading font-semibold text-sm mb-4"
+                    style="color: var(--text)"
+                  >
+                    Loading preview
+                  </h3>
+                  <div class="space-y-3">
+                    <div class="flex items-center gap-3">
+                      <div
+                        class="skeleton w-8 h-8 rounded-full flex-shrink-0"
+                      ></div>
+                      <div class="flex-1 space-y-2">
+                        <div class="skeleton h-3 w-3/4 rounded"></div>
+                        <div class="skeleton h-2.5 w-1/2 rounded"></div>
+                      </div>
+                    </div>
+                    <div class="skeleton h-16 w-full rounded-lg"></div>
+                    <div class="flex gap-2">
+                      <div class="skeleton h-6 w-16 rounded-md"></div>
+                      <div class="skeleton h-6 w-16 rounded-md"></div>
+                      <div class="skeleton h-6 w-20 rounded-md"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==================== PROFILE ==================== -->
+          <section class="view-section" id="view-profile">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <!-- Left: Avatar & Info -->
+              <div class="card flex flex-col items-center text-center">
+                <div class="relative mb-4">
+                  <img
+                    src="https://picsum.photos/seed/dev-avatar-cms/200/200.jpg"
+                    alt="Avatar"
+                    class="w-28 h-28 rounded-2xl object-cover border-2"
+                    style="border-color: var(--border)"
+                  />
+                  <button
+                    class="absolute -bottom-2 -right-2 w-8 h-8 rounded-lg flex items-center justify-center border"
+                    style="background: #dc2626; border-color: #dc2626"
+                  >
+                    <i data-lucide="camera" class="w-3.5 h-3.5 text-white"></i>
+                  </button>
+                </div>
+                <h2
+                  class="font-heading font-bold text-lg"
+                  style="color: var(--text)"
+                >
+                  Carlos Mendez
+                </h2>
+                <p class="text-sm mt-1" style="color: #06b6d4">
+                  Full Stack Developer
+                </p>
+                <p
+                  class="text-xs mt-3 leading-relaxed max-w-[240px]"
+                  style="color: var(--text-muted)"
+                >
+                  Desarrollador full stack con 5+ años de experiencia
+                  construyendo aplicaciones web modernas y escalables.
+                </p>
+                <div
+                  class="flex items-center gap-1.5 mt-3 text-xs"
+                  style="color: var(--text-muted)"
+                >
+                  <i data-lucide="map-pin" class="w-3 h-3"></i>
+                  Madrid, España
+                </div>
+                <div
+                  class="flex items-center gap-1.5 mt-1 text-xs"
+                  style="color: var(--text-muted)"
+                >
+                  <i data-lucide="briefcase" class="w-3 h-3"></i>
+                  5 años de experiencia
+                </div>
+              </div>
+
+              <!-- Right: Form -->
+              <div class="lg:col-span-2 space-y-6">
+                <div class="card">
+                  <h3
+                    class="font-heading font-semibold text-sm mb-5"
+                    style="color: var(--text)"
+                  >
+                    Información personal
+                  </h3>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label class="label-mock">Nombre</label>
+                      <input
+                        type="text"
+                        class="input-mock"
+                        value="Carlos"
+                        readonly
+                      />
+                    </div>
+                    <div>
+                      <label class="label-mock">Apellido</label>
+                      <input
+                        type="text"
+                        class="input-mock"
+                        value="Mendez"
+                        readonly
+                      />
+                    </div>
+                    <div>
+                      <label class="label-mock">Título</label>
+                      <input
+                        type="text"
+                        class="input-mock"
+                        value="Full Stack Developer"
+                        readonly
+                      />
+                    </div>
+                    <div>
+                      <label class="label-mock">Email</label>
+                      <input
+                        type="email"
+                        class="input-mock"
+                        value="carlos@devfolio.io"
+                        readonly
+                      />
+                    </div>
+                    <div class="sm:col-span-2">
+                      <label class="label-mock">Descripción</label>
+                      <textarea
+                        class="input-mock"
+                        rows="3"
+                        readonly
+                        style="resize: none"
+                      >
+Desarrollador full stack con 5+ años de experiencia construyendo aplicaciones web modernas y escalables. Especializado en React, Node.js y arquitecturas cloud-native.</textarea
+                      >
+                    </div>
+                    <div>
+                      <label class="label-mock">Ubicación</label>
+                      <input
+                        type="text"
+                        class="input-mock"
+                        value="Madrid, España"
+                        readonly
+                      />
+                    </div>
+                    <div>
+                      <label class="label-mock">Experiencia</label>
+                      <input
+                        type="text"
+                        class="input-mock"
+                        value="5 años"
+                        readonly
+                      />
+                    </div>
+                  </div>
+                  <div
+                    class="flex justify-end gap-3 mt-5 pt-4"
+                    style="border-top: 1px solid var(--border)"
+                  >
+                    <button class="btn btn-secondary">Cancelar</button>
+                    <button class="btn btn-primary">Guardar cambios</button>
+                  </div>
+                </div>
+
+                <!-- Social links -->
+                <div class="card">
+                  <h3
+                    class="font-heading font-semibold text-sm mb-4"
+                    style="color: var(--text)"
+                  >
+                    Redes sociales
+                  </h3>
+                  <div class="social-row">
+                    <i
+                      data-lucide="github"
+                      class="w-4 h-4 flex-shrink-0"
+                      style="color: var(--text-muted)"
+                    ></i>
+                    <span
+                      class="font-mono text-xs"
+                      style="color: var(--text-muted); width: 70px"
+                      >GitHub</span
+                    >
+                    <span class="text-sm flex-1" style="color: var(--text)"
+                      >github.com/carlosmendez</span
+                    >
+                    <button class="btn btn-ghost !p-1">
+                      <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                  <div class="social-row">
+                    <i
+                      data-lucide="linkedin"
+                      class="w-4 h-4 flex-shrink-0"
+                      style="color: var(--text-muted)"
+                    ></i>
+                    <span
+                      class="font-mono text-xs"
+                      style="color: var(--text-muted); width: 70px"
+                      >LinkedIn</span
+                    >
+                    <span class="text-sm flex-1" style="color: var(--text)"
+                      >linkedin.com/in/carlosmendez</span
+                    >
+                    <button class="btn btn-ghost !p-1">
+                      <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                  <div class="social-row">
+                    <i
+                      data-lucide="twitter"
+                      class="w-4 h-4 flex-shrink-0"
+                      style="color: var(--text-muted)"
+                    ></i>
+                    <span
+                      class="font-mono text-xs"
+                      style="color: var(--text-muted); width: 70px"
+                      >Twitter</span
+                    >
+                    <span class="text-sm flex-1" style="color: var(--text)"
+                      >@carlosdev</span
+                    >
+                    <button class="btn btn-ghost !p-1">
+                      <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                  <div class="social-row">
+                    <i
+                      data-lucide="globe"
+                      class="w-4 h-4 flex-shrink-0"
+                      style="color: var(--text-muted)"
+                    ></i>
+                    <span
+                      class="font-mono text-xs"
+                      style="color: var(--text-muted); width: 70px"
+                      >Website</span
+                    >
+                    <span class="text-sm flex-1" style="color: #06b6d4"
+                      >carlosdev.io</span
+                    >
+                    <button class="btn btn-ghost !p-1">
+                      <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                  <button class="btn btn-secondary mt-4 w-full justify-center">
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar red
+                    social
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==================== SKILLS ==================== -->
+          <section class="view-section" id="view-skills">
+            <div class="flex items-center justify-between mb-6">
+              <p class="text-sm" style="color: var(--text-muted)">
+                24 skills organizadas en 4 categorías
+              </p>
+              <button class="btn btn-primary">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Nueva skill
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Frontend -->
+              <div class="card">
+                <div class="flex items-center gap-2 mb-4">
+                  <div
+                    class="w-2 h-2 rounded-full"
+                    style="background: #dc2626"
+                  ></div>
+                  <h3
+                    class="font-heading font-semibold text-sm"
+                    style="color: var(--text)"
+                  >
+                    Frontend
+                  </h3>
+                  <span
+                    class="font-mono text-[11px] ml-auto"
+                    style="color: var(--text-muted)"
+                    >8 skills</span
+                  >
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <span class="tag">React</span>
+                  <span class="tag">Next.js</span>
+                  <span class="tag">TypeScript</span>
+                  <span class="tag">Tailwind CSS</span>
+                  <span class="tag">Vue.js</span>
+                  <span class="tag">Framer Motion</span>
+                  <span class="tag">HTML5</span>
+                  <span class="tag">CSS3</span>
+                </div>
+              </div>
+              <!-- Backend -->
+              <div class="card">
+                <div class="flex items-center gap-2 mb-4">
+                  <div
+                    class="w-2 h-2 rounded-full"
+                    style="background: #06b6d4"
+                  ></div>
+                  <h3
+                    class="font-heading font-semibold text-sm"
+                    style="color: var(--text)"
+                  >
+                    Backend
+                  </h3>
+                  <span
+                    class="font-mono text-[11px] ml-auto"
+                    style="color: var(--text-muted)"
+                    >7 skills</span
+                  >
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <span class="tag">Node.js</span>
+                  <span class="tag">Express</span>
+                  <span class="tag">Python</span>
+                  <span class="tag">Django</span>
+                  <span class="tag">REST APIs</span>
+                  <span class="tag">GraphQL</span>
+                  <span class="tag">Prisma</span>
+                </div>
+              </div>
+              <!-- DevOps -->
+              <div class="card">
+                <div class="flex items-center gap-2 mb-4">
+                  <div
+                    class="w-2 h-2 rounded-full"
+                    style="background: #22c55e"
+                  ></div>
+                  <h3
+                    class="font-heading font-semibold text-sm"
+                    style="color: var(--text)"
+                  >
+                    DevOps
+                  </h3>
+                  <span
+                    class="font-mono text-[11px] ml-auto"
+                    style="color: var(--text-muted)"
+                    >5 skills</span
+                  >
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <span class="tag">Docker</span>
+                  <span class="tag">AWS</span>
+                  <span class="tag">Vercel</span>
+                  <span class="tag">CI/CD</span>
+                  <span class="tag">Linux</span>
+                </div>
+              </div>
+              <!-- Tools -->
+              <div class="card">
+                <div class="flex items-center gap-2 mb-4">
+                  <div
+                    class="w-2 h-2 rounded-full"
+                    style="background: #eab308"
+                  ></div>
+                  <h3
+                    class="font-heading font-semibold text-sm"
+                    style="color: var(--text)"
+                  >
+                    Tools
+                  </h3>
+                  <span
+                    class="font-mono text-[11px] ml-auto"
+                    style="color: var(--text-muted)"
+                    >4 skills</span
+                  >
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <span class="tag">Git</span>
+                  <span class="tag">Figma</span>
+                  <span class="tag">VS Code</span>
+                  <span class="tag">Postman</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==================== CV ==================== -->
+          <section class="view-section" id="view-cv">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div class="lg:col-span-2">
+                <div class="card">
+                  <div class="flex items-center justify-between mb-6">
+                    <div>
+                      <h3
+                        class="font-heading font-semibold text-sm"
+                        style="color: var(--text)"
+                      >
+                        Vista previa del CV
+                      </h3>
+                      <p class="text-xs mt-1" style="color: var(--text-muted)">
+                        Este es el documento que los visitantes podrán descargar
+                      </p>
+                    </div>
+                    <span class="badge badge-green"
+                      ><i data-lucide="check-circle-2" class="w-3 h-3"></i>
+                      Actualizado</span
+                    >
+                  </div>
+                  <!-- CV Preview mock -->
+                  <div
+                    class="rounded-lg border overflow-hidden"
+                    style="border-color: var(--border); background: var(--bg)"
+                  >
+                    <div
+                      class="p-6 border-b"
+                      style="border-color: var(--border)"
+                    >
+                      <div class="flex items-center gap-4">
+                        <div
+                          class="skeleton w-16 h-16 rounded-xl flex-shrink-0"
+                          style="
+                            animation: none;
+                            background: var(--surface-alt);
+                          "
+                        ></div>
+                        <div>
+                          <div
+                            class="skeleton h-5 w-48 rounded mb-2"
+                            style="
+                              animation: none;
+                              background: var(--surface-alt);
+                            "
+                          ></div>
+                          <div
+                            class="skeleton h-3 w-36 rounded"
+                            style="
+                              animation: none;
+                              background: var(--surface-alt);
+                            "
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="p-6 space-y-4">
+                      <div>
+                        <div
+                          class="skeleton h-3 w-20 rounded mb-3"
+                          style="
+                            animation: none;
+                            background: var(--surface-alt);
+                          "
+                        ></div>
+                        <div
+                          class="skeleton h-2.5 w-full rounded mb-1.5"
+                          style="
+                            animation: none;
+                            background: var(--surface-alt);
+                          "
+                        ></div>
+                        <div
+                          class="skeleton h-2.5 w-5/6 rounded mb-1.5"
+                          style="
+                            animation: none;
+                            background: var(--surface-alt);
+                          "
+                        ></div>
+                        <div
+                          class="skeleton h-2.5 w-4/6 rounded"
+                          style="
+                            animation: none;
+                            background: var(--surface-alt);
+                          "
+                        ></div>
+                      </div>
+                      <div>
+                        <div
+                          class="skeleton h-3 w-24 rounded mb-3"
+                          style="
+                            animation: none;
+                            background: var(--surface-alt);
+                          "
+                        ></div>
+                        <div class="flex gap-2 flex-wrap">
+                          <div
+                            class="skeleton h-6 w-16 rounded-md"
+                            style="
+                              animation: none;
+                              background: var(--surface-alt);
+                            "
+                          ></div>
+                          <div
+                            class="skeleton h-6 w-20 rounded-md"
+                            style="
+                              animation: none;
+                              background: var(--surface-alt);
+                            "
+                          ></div>
+                          <div
+                            class="skeleton h-6 w-14 rounded-md"
+                            style="
+                              animation: none;
+                              background: var(--surface-alt);
+                            "
+                          ></div>
+                          <div
+                            class="skeleton h-6 w-18 rounded-md"
+                            style="
+                              animation: none;
+                              background: var(--surface-alt);
+                            "
+                          ></div>
+                        </div>
+                      </div>
+                      <div>
+                        <div
+                          class="skeleton h-3 w-16 rounded mb-3"
+                          style="
+                            animation: none;
+                            background: var(--surface-alt);
+                          "
+                        ></div>
+                        <div class="space-y-2">
+                          <div class="flex gap-3">
+                            <div
+                              class="skeleton h-2.5 w-32 rounded"
+                              style="
+                                animation: none;
+                                background: var(--surface-alt);
+                              "
+                            ></div>
+                            <div
+                              class="skeleton h-2.5 w-20 rounded"
+                              style="
+                                animation: none;
+                                background: var(--surface-alt);
+                              "
+                            ></div>
+                          </div>
+                          <div class="flex gap-3">
+                            <div
+                              class="skeleton h-2.5 w-36 rounded"
+                              style="
+                                animation: none;
+                                background: var(--surface-alt);
+                              "
+                            ></div>
+                            <div
+                              class="skeleton h-2.5 w-16 rounded"
+                              style="
+                                animation: none;
+                                background: var(--surface-alt);
+                              "
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex gap-3 mt-5">
+                    <button class="btn btn-primary">
+                      <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                      Reemplazar CV
+                    </button>
+                    <button class="btn btn-secondary">
+                      <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                      Descargar
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- CV Info -->
+              <div class="space-y-6">
+                <div class="card">
+                  <h3
+                    class="font-heading font-semibold text-sm mb-4"
+                    style="color: var(--text)"
+                  >
+                    Información del archivo
+                  </h3>
+                  <div class="space-y-3">
+                    <div class="flex justify-between text-xs">
+                      <span style="color: var(--text-muted)">Nombre</span>
+                      <span class="font-mono" style="color: var(--text)"
+                        >cv-carlos-mendez.pdf</span
+                      >
+                    </div>
+                    <div class="flex justify-between text-xs">
+                      <span style="color: var(--text-muted)">Tamaño</span>
+                      <span class="font-mono" style="color: var(--text)"
+                        >245 KB</span
+                      >
+                    </div>
+                    <div class="flex justify-between text-xs">
+                      <span style="color: var(--text-muted)">Tipo</span>
+                      <span class="font-mono" style="color: var(--text)"
+                        >application/pdf</span
+                      >
+                    </div>
+                    <div class="flex justify-between text-xs">
+                      <span style="color: var(--text-muted)">Páginas</span>
+                      <span class="font-mono" style="color: var(--text)"
+                        >2</span
+                      >
+                    </div>
+                    <div class="flex justify-between text-xs">
+                      <span style="color: var(--text-muted)"
+                        >Última actualización</span
+                      >
+                      <span class="font-mono" style="color: var(--text)"
+                        >Hace 3 días</span
+                      >
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="card"
+                  style="
+                    border-color: rgba(6, 182, 212, 0.3);
+                    background: var(--glow-cyan);
+                  "
+                >
+                  <div class="flex items-start gap-3">
+                    <i
+                      data-lucide="info"
+                      class="w-4 h-4 flex-shrink-0 mt-0.5"
+                      style="color: #06b6d4"
+                    ></i>
+                    <div>
+                      <p class="text-xs font-medium" style="color: var(--text)">
+                        Formato recomendado
+                      </p>
+                      <p
+                        class="text-[11px] mt-1 leading-relaxed"
+                        style="color: var(--text-muted)"
+                      >
+                        Sube tu CV en formato PDF, máximo 5MB. Se mostrará como
+                        enlace de descarga en tu portafolio.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==================== EDUCATION ==================== -->
+          <section class="view-section" id="view-education">
+            <div class="flex items-center justify-between mb-6">
+              <p class="text-sm" style="color: var(--text-muted)">
+                Tu formación académica y certificaciones
+              </p>
+              <button class="btn btn-primary">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <h3
+                  class="font-mono text-[11px] font-semibold uppercase tracking-wider mb-5"
+                  style="color: var(--text-muted)"
+                >
+                  Formación académica
+                </h3>
+                <div class="timeline-item">
+                  <div class="timeline-dot"></div>
+                  <div class="card !p-4">
+                    <div class="flex items-start justify-between mb-1">
+                      <h4
+                        class="font-heading font-semibold text-sm"
+                        style="color: var(--text)"
+                      >
+                        Máster en Ingeniería de Software
+                      </h4>
+                      <button class="btn btn-ghost !p-1">
+                        <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                      </button>
+                    </div>
+                    <p class="text-xs mb-2" style="color: #06b6d4">
+                      Universidad Politécnica de Madrid
+                    </p>
+                    <p class="text-[11px]" style="color: var(--text-muted)">
+                      2020 — 2022
+                    </p>
+                    <p
+                      class="text-xs mt-2 leading-relaxed"
+                      style="color: var(--text-muted)"
+                    >
+                      Especialización en arquitectura de software y sistemas
+                      distribuidos.
+                    </p>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot"></div>
+                  <div class="card !p-4">
+                    <div class="flex items-start justify-between mb-1">
+                      <h4
+                        class="font-heading font-semibold text-sm"
+                        style="color: var(--text)"
+                      >
+                        Grado en Informática
+                      </h4>
+                      <button class="btn btn-ghost !p-1">
+                        <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                      </button>
+                    </div>
+                    <p class="text-xs mb-2" style="color: #06b6d4">
+                      Universidad Complutense de Madrid
+                    </p>
+                    <p class="text-[11px]" style="color: var(--text-muted)">
+                      2016 — 2020
+                    </p>
+                    <p
+                      class="text-xs mt-2 leading-relaxed"
+                      style="color: var(--text-muted)"
+                    >
+                      Grado en Ingeniería Informática con mención en tecnologías
+                      de la información.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3
+                  class="font-mono text-[11px] font-semibold uppercase tracking-wider mb-5"
+                  style="color: var(--text-muted)"
+                >
+                  Certificaciones
+                </h3>
+                <div class="timeline-item">
+                  <div class="timeline-dot" style="border-color: #06b6d4"></div>
+                  <div class="card !p-4">
+                    <div class="flex items-start justify-between mb-1">
+                      <h4
+                        class="font-heading font-semibold text-sm"
+                        style="color: var(--text)"
+                      >
+                        AWS Solutions Architect
+                      </h4>
+                      <span class="badge badge-green">Activo</span>
+                    </div>
+                    <p class="text-xs mb-2" style="color: #06b6d4">
+                      Amazon Web Services
+                    </p>
+                    <p class="text-[11px]" style="color: var(--text-muted)">
+                      Obtenido: Marzo 2024
+                    </p>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot" style="border-color: #06b6d4"></div>
+                  <div class="card !p-4">
+                    <div class="flex items-start justify-between mb-1">
+                      <h4
+                        class="font-heading font-semibold text-sm"
+                        style="color: var(--text)"
+                      >
+                        Meta Frontend Developer
+                      </h4>
+                      <span class="badge badge-green">Activo</span>
+                    </div>
+                    <p class="text-xs mb-2" style="color: #06b6d4">
+                      Meta (Coursera)
+                    </p>
+                    <p class="text-[11px]" style="color: var(--text-muted)">
+                      Obtenido: Enero 2023
+                    </p>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot" style="border-color: #06b6d4"></div>
+                  <div class="card !p-4">
+                    <div class="flex items-start justify-between mb-1">
+                      <h4
+                        class="font-heading font-semibold text-sm"
+                        style="color: var(--text)"
+                      >
+                        Docker Certified Associate
+                      </h4>
+                      <span class="badge badge-yellow">Próximo a expirar</span>
+                    </div>
+                    <p class="text-xs mb-2" style="color: #06b6d4">
+                      Docker Inc.
+                    </p>
+                    <p class="text-[11px]" style="color: var(--text-muted)">
+                      Obtenido: Junio 2022
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==================== TECHNOLOGIES ==================== -->
+          <section class="view-section" id="view-technologies">
+            <div class="flex items-center justify-between mb-6">
+              <p class="text-sm" style="color: var(--text-muted)">
+                18 tecnologías en tu catálogo
+              </p>
+              <button class="btn btn-primary">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Agregar
+              </button>
+            </div>
+
+            <div
+              class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3"
+            >
+              <div class="tech-card">
+                <div
+                  class="tech-icon"
+                  style="background: rgba(97, 218, 251, 0.15); color: #61dafb"
+                >
+                  Re
+                </div>
+                <span class="text-xs font-medium" style="color: var(--text)"
+                  >React</span
+                >
+              </div>
+              <div class="tech-card">
+                <div
+                  class="tech-icon"
+                  style="background: rgba(255, 255, 255, 0.1); color: #fff"
+                >
+                  Nx
+                </div>
+                <span class="text-xs font-medium" style="color: var(--text)"
+                  >Next.js</span
+                >
+              </div>
+              <div class="tech-card">
+                <div
+                  class="tech-icon"
+                  style="background: rgba(49, 120, 198, 0.15); color: #3178c6"
+                >
+                  Ts
+                </div>
+                <span class="text-xs font-medium" style="color: var(--text)"
+                  >TypeScript</span
+                >
+              </div>
+              <div class="tech-card">
+                <div
+                  class="tech-icon"
+                  style="background: rgba(104, 160, 99, 0.15); color: #68a063"
+                >
+                  No
+                </div>
+                <span class="text-xs font-medium" style="color: var(--text)"
+                  >Node.js</span
+                >
+              </div>
+              <div class="tech-card">
+                <div
+                  class="tech-icon"
+                  style="background: rgba(51, 103, 145, 0.15); color: #336791"
+                >
+                  Pg
+                </div>
+                <span class="text-xs font-medium" style="color: var(--text)"
+                  >PostgreSQL</span
+                >
+              </div>
+              <div class="tech-card">
+                <div
+                  class="tech-icon"
+                  style="background: rgba(56, 189, 248, 0.15); color: #38bdf8"
+                >
+                  Tw
+                </div>
+                <span class="text-xs font-medium" style="color: var(--text)"
+                  >Tailwind</span
+                >
+              </div>
+              <div class="tech-card">
+                <div
+                  class="tech-icon"
+                  style="background: rgba(249, 115, 22, 0.15); color: #f97316"
+                >
+                  Py
+                </div>
+                <span class="text-xs font-medium" style="color: var(--text)"
+                  >Python</span
+                >
+              </div>
+              <div class="tech-card">
+                <div
+                  class="tech-icon"
+                  style="background: rgba(16, 185, 129, 0.15); color: #10b981"
+                >
+                  Dj
+                </div>
+                <span class="text-xs font-medium" style="color: var(--text)"
+                  >Django</span
+                >
+              </div>
+              <div class="tech-card">
+                <div
+                  class="tech-icon"
+                  style="background: rgba(13, 183, 237, 0.15); color: #0db7ed"
+                >
+                  Dk
+                </div>
+                <span class="text-xs font-medium" style="color: var(--text)"
+                  >Docker</span
+                >
+              </div>
+              <div class="tech-card">
+                <div
+                  class="tech-icon"
+                  style="background: rgba(255, 153, 0, 0.15); color: #ff9900"
+                >
+                  AW
+                </div>
+                <span class="text-xs font-medium" style="color: var(--text)"
+                  >AWS</span
+                >
+              </div>
+              <div class="tech-card">
+                <div
+                  class="tech-icon"
+                  style="background: rgba(240, 80, 51, 0.15); color: #f05033"
+                >
+                  Gi
+                </div>
+                <span class="text-xs font-medium" style="color: var(--text)"
+                  >Git</span
+                >
+              </div>
+              <div class="tech-card">
+                <div
+                  class="tech-icon"
+                  style="background: rgba(255, 107, 53, 0.15); color: #ff6b35"
+                >
+                  Gq
+                </div>
+                <span class="text-xs font-medium" style="color: var(--text)"
+                  >GraphQL</span
+                >
+              </div>
+              <div class="tech-card">
+                <div
+                  class="tech-icon"
+                  style="background: rgba(65, 184, 131, 0.15); color: #41b883"
+                >
+                  Vu
+                </div>
+                <span class="text-xs font-medium" style="color: var(--text)"
+                  >Vue.js</span
+                >
+              </div>
+              <div class="tech-card">
+                <div
+                  class="tech-icon"
+                  style="background: rgba(128, 90, 213, 0.15); color: #805ad5"
+                >
+                  Pr
+                </div>
+                <span class="text-xs font-medium" style="color: var(--text)"
+                  >Prisma</span
+                >
+              </div>
+              <div class="tech-card">
+                <div
+                  class="tech-icon"
+                  style="background: rgba(0, 0, 0, 0.1); color: var(--text)"
+                >
+                  Ex
+                </div>
+                <span class="text-xs font-medium" style="color: var(--text)"
+                  >Express</span
+                >
+              </div>
+              <div class="tech-card">
+                <div
+                  class="tech-icon"
+                  style="background: rgba(242, 204, 68, 0.15); color: #f2cc44"
+                >
+                  Fg
+                </div>
+                <span class="text-xs font-medium" style="color: var(--text)"
+                  >Figma</span
+                >
+              </div>
+              <div class="tech-card">
+                <div
+                  class="tech-icon"
+                  style="
+                    background: rgba(255, 255, 255, 0.05);
+                    color: var(--text-muted);
+                  "
+                >
+                  Ve
+                </div>
+                <span class="text-xs font-medium" style="color: var(--text)"
+                  >Vercel</span
+                >
+              </div>
+              <div class="tech-card">
+                <div
+                  class="tech-icon"
+                  style="background: rgba(255, 87, 34, 0.15); color: #ff5722"
+                >
+                  Li
+                </div>
+                <span class="text-xs font-medium" style="color: var(--text)"
+                  >Linux</span
+                >
+              </div>
+            </div>
+          </section>
+
+          <!-- ==================== PROJECTS ==================== -->
+          <section class="view-section" id="view-projects">
+            <div class="flex items-center justify-between mb-6">
+              <p class="text-sm" style="color: var(--text-muted)">
+                12 proyectos en tu portafolio
+              </p>
+              <button class="btn btn-primary">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Nuevo proyecto
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              <!-- Project 1 -->
+              <div class="card project-card !p-0 overflow-hidden">
+                <div class="overflow-hidden rounded-t-xl">
+                  <img
+                    src="https://picsum.photos/seed/ecom-proj/600/380.jpg"
+                    alt=""
+                    class="project-img"
+                  />
+                </div>
+                <div class="p-5">
+                  <div class="flex items-center justify-between mb-2">
+                    <h4
+                      class="font-heading font-semibold text-sm"
+                      style="color: var(--text)"
+                    >
+                      E-Commerce Platform
+                    </h4>
+                    <button
+                      class="btn btn-ghost !p-1"
+                      onclick="
+                        document
+                          .getElementById('modal-edit-project')
+                          .classList.add('active')
+                      "
+                    >
+                      <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                  <p
+                    class="text-xs leading-relaxed mb-3"
+                    style="color: var(--text-muted)"
+                  >
+                    Tienda online completa con carrito, pagos con Stripe y panel
+                    de administración.
+                  </p>
+                  <div class="flex flex-wrap gap-1.5 mb-4">
+                    <span class="tag" style="font-size: 10px; padding: 2px 7px"
+                      >Next.js</span
+                    >
+                    <span class="tag" style="font-size: 10px; padding: 2px 7px"
+                      >Stripe</span
+                    >
+                    <span class="tag" style="font-size: 10px; padding: 2px 7px"
+                      >Prisma</span
+                    >
+                    <span class="tag" style="font-size: 10px; padding: 2px 7px"
+                      >PostgreSQL</span
+                    >
+                  </div>
+                  <div
+                    class="flex items-center justify-between pt-3"
+                    style="border-top: 1px solid var(--border)"
+                  >
+                    <span class="badge badge-green">Publicado</span>
+                    <div class="flex gap-2">
+                      <button class="btn btn-ghost !p-1.5">
+                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                      </button>
+                      <button class="btn btn-ghost !p-1.5">
+                        <i data-lucide="github" class="w-3.5 h-3.5"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Project 2 -->
+              <div class="card project-card !p-0 overflow-hidden">
+                <div class="overflow-hidden rounded-t-xl">
+                  <img
+                    src="https://picsum.photos/seed/task-api-proj/600/380.jpg"
+                    alt=""
+                    class="project-img"
+                  />
+                </div>
+                <div class="p-5">
+                  <div class="flex items-center justify-between mb-2">
+                    <h4
+                      class="font-heading font-semibold text-sm"
+                      style="color: var(--text)"
+                    >
+                      Task Manager API
+                    </h4>
+                    <button
+                      class="btn btn-ghost !p-1"
+                      onclick="
+                        document
+                          .getElementById('modal-edit-project')
+                          .classList.add('active')
+                      "
+                    >
+                      <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                  <p
+                    class="text-xs leading-relaxed mb-3"
+                    style="color: var(--text-muted)"
+                  >
+                    API RESTful para gestión de tareas con autenticación JWT y
+                    roles de usuario.
+                  </p>
+                  <div class="flex flex-wrap gap-1.5 mb-4">
+                    <span class="tag" style="font-size: 10px; padding: 2px 7px"
+                      >Node.js</span
+                    >
+                    <span class="tag" style="font-size: 10px; padding: 2px 7px"
+                      >Express</span
+                    >
+                    <span class="tag" style="font-size: 10px; padding: 2px 7px"
+                      >MongoDB</span
+                    >
+                  </div>
+                  <div
+                    class="flex items-center justify-between pt-3"
+                    style="border-top: 1px solid var(--border)"
+                  >
+                    <span class="badge badge-yellow">Borrador</span>
+                    <div class="flex gap-2">
+                      <button class="btn btn-ghost !p-1.5">
+                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                      </button>
+                      <button class="btn btn-ghost !p-1.5">
+                        <i data-lucide="github" class="w-3.5 h-3.5"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Project 3 -->
+              <div class="card project-card !p-0 overflow-hidden">
+                <div class="overflow-hidden rounded-t-xl">
+                  <img
+                    src="https://picsum.photos/seed/ai-chat-proj/600/380.jpg"
+                    alt=""
+                    class="project-img"
+                  />
+                </div>
+                <div class="p-5">
+                  <div class="flex items-center justify-between mb-2">
+                    <h4
+                      class="font-heading font-semibold text-sm"
+                      style="color: var(--text)"
+                    >
+                      AI Chat Interface
+                    </h4>
+                    <button
+                      class="btn btn-ghost !p-1"
+                      onclick="
+                        document
+                          .getElementById('modal-edit-project')
+                          .classList.add('active')
+                      "
+                    >
+                      <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                  <p
+                    class="text-xs leading-relaxed mb-3"
+                    style="color: var(--text-muted)"
+                  >
+                    Interfaz de conversación con IA generativa, streaming de
+                    respuestas en tiempo real.
+                  </p>
+                  <div class="flex flex-wrap gap-1.5 mb-4">
+                    <span class="tag" style="font-size: 10px; padding: 2px 7px"
+                      >React</span
+                    >
+                    <span class="tag" style="font-size: 10px; padding: 2px 7px"
+                      >OpenAI</span
+                    >
+                    <span class="tag" style="font-size: 10px; padding: 2px 7px"
+                      >Framer Motion</span
+                    >
+                  </div>
+                  <div
+                    class="flex items-center justify-between pt-3"
+                    style="border-top: 1px solid var(--border)"
+                  >
+                    <span class="badge badge-green">Publicado</span>
+                    <div class="flex gap-2">
+                      <button class="btn btn-ghost !p-1.5">
+                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                      </button>
+                      <button class="btn btn-ghost !p-1.5">
+                        <i data-lucide="github" class="w-3.5 h-3.5"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Project 4 -->
+              <div class="card project-card !p-0 overflow-hidden">
+                <div class="overflow-hidden rounded-t-xl">
+                  <img
+                    src="https://picsum.photos/seed/dashboard-proj/600/380.jpg"
+                    alt=""
+                    class="project-img"
+                  />
+                </div>
+                <div class="p-5">
+                  <div class="flex items-center justify-between mb-2">
+                    <h4
+                      class="font-heading font-semibold text-sm"
+                      style="color: var(--text)"
+                    >
+                      Analytics Dashboard
+                    </h4>
+                    <button class="btn btn-ghost !p-1">
+                      <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                  <p
+                    class="text-xs leading-relaxed mb-3"
+                    style="color: var(--text-muted)"
+                  >
+                    Panel de análisis de datos con gráficos interactivos y
+                    exportación de reportes.
+                  </p>
+                  <div class="flex flex-wrap gap-1.5 mb-4">
+                    <span class="tag" style="font-size: 10px; padding: 2px 7px"
+                      >Vue.js</span
+                    >
+                    <span class="tag" style="font-size: 10px; padding: 2px 7px"
+                      >D3.js</span
+                    >
+                    <span class="tag" style="font-size: 10px; padding: 2px 7px"
+                      >Python</span
+                    >
+                  </div>
+                  <div
+                    class="flex items-center justify-between pt-3"
+                    style="border-top: 1px solid var(--border)"
+                  >
+                    <span class="badge badge-green">Publicado</span>
+                    <div class="flex gap-2">
+                      <button class="btn btn-ghost !p-1.5">
+                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                      </button>
+                      <button class="btn btn-ghost !p-1.5">
+                        <i data-lucide="github" class="w-3.5 h-3.5"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Project 5 -->
+              <div class="card project-card !p-0 overflow-hidden">
+                <div class="overflow-hidden rounded-t-xl">
+                  <img
+                    src="https://picsum.photos/seed/landing-proj/600/380.jpg"
+                    alt=""
+                    class="project-img"
+                  />
+                </div>
+                <div class="p-5">
+                  <div class="flex items-center justify-between mb-2">
+                    <h4
+                      class="font-heading font-semibold text-sm"
+                      style="color: var(--text)"
+                    >
+                      SaaS Landing Page
+                    </h4>
+                    <button class="btn btn-ghost !p-1">
+                      <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
+                  <p
+                    class="text-xs leading-relaxed mb-3"
+                    style="color: var(--text-muted)"
+                  >
+                    Landing page de producto SaaS con animaciones avanzadas y
+                    diseño responsive.
+                  </p>
+                  <div class="flex flex-wrap gap-1.5 mb-4">
+                    <span class="tag" style="font-size: 10px; padding: 2px 7px"
+                      >Astro</span
+                    >
+                    <span class="tag" style="font-size: 10px; padding: 2px 7px"
+                      >Tailwind</span
+                    >
+                    <span class="tag" style="font-size: 10px; padding: 2px 7px"
+                      >GSAP</span
+                    >
+                  </div>
+                  <div
+                    class="flex items-center justify-between pt-3"
+                    style="border-top: 1px solid var(--border)"
+                  >
+                    <span class="badge badge-red">Oculto</span>
+                    <div class="flex gap-2">
+                      <button class="btn btn-ghost !p-1.5">
+                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                      </button>
+                      <button class="btn btn-ghost !p-1.5">
+                        <i data-lucide="github" class="w-3.5 h-3.5"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Empty state: Add new project -->
+              <div
+                class="card-ghost flex flex-col items-center justify-center text-center min-h-[320px]"
+              >
+                <div class="empty-icon mb-3">
+                  <i data-lucide="plus" class="w-6 h-6"></i>
+                </div>
+                <p class="text-sm font-medium" style="color: var(--text-muted)">
+                  Agregar proyecto
+                </p>
+                <p
+                  class="text-xs mt-1 max-w-[200px]"
+                  style="color: var(--text-muted); opacity: 0.7"
+                >
+                  Añade un nuevo proyecto a tu portafolio
+                </p>
+              </div>
+            </div>
+
+            <!-- Projects table -->
+            <div class="card mt-8 !p-0 overflow-hidden">
+              <div
+                class="px-5 py-4 border-b"
+                style="border-color: var(--border)"
+              >
+                <h3
+                  class="font-heading font-semibold text-sm"
+                  style="color: var(--text)"
+                >
+                  Todos los proyectos
+                </h3>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="mock-table">
+                  <thead>
+                    <tr>
+                      <th>Proyecto</th>
+                      <th>Estado</th>
+                      <th>Tecnologías</th>
+                      <th>Visitas</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="font-medium" style="color: var(--text)">
+                        E-Commerce Platform
+                      </td>
+                      <td><span class="badge badge-green">Publicado</span></td>
+                      <td>
+                        <div class="flex gap-1">
+                          <span
+                            class="tag"
+                            style="font-size: 10px; padding: 1px 6px"
+                            >Next.js</span
+                          ><span
+                            class="tag"
+                            style="font-size: 10px; padding: 1px 6px"
+                            >Stripe</span
+                          >
+                        </div>
+                      </td>
+                      <td
+                        class="font-mono text-xs"
+                        style="color: var(--text-muted)"
+                      >
+                        342
+                      </td>
+                      <td>
+                        <button class="btn btn-ghost !p-1">
+                          <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="font-medium" style="color: var(--text)">
+                        Task Manager API
+                      </td>
+                      <td><span class="badge badge-yellow">Borrador</span></td>
+                      <td>
+                        <div class="flex gap-1">
+                          <span
+                            class="tag"
+                            style="font-size: 10px; padding: 1px 6px"
+                            >Node.js</span
+                          ><span
+                            class="tag"
+                            style="font-size: 10px; padding: 1px 6px"
+                            >MongoDB</span
+                          >
+                        </div>
+                      </td>
+                      <td
+                        class="font-mono text-xs"
+                        style="color: var(--text-muted)"
+                      >
+                        —
+                      </td>
+                      <td>
+                        <button class="btn btn-ghost !p-1">
+                          <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="font-medium" style="color: var(--text)">
+                        AI Chat Interface
+                      </td>
+                      <td><span class="badge badge-green">Publicado</span></td>
+                      <td>
+                        <div class="flex gap-1">
+                          <span
+                            class="tag"
+                            style="font-size: 10px; padding: 1px 6px"
+                            >React</span
+                          ><span
+                            class="tag"
+                            style="font-size: 10px; padding: 1px 6px"
+                            >OpenAI</span
+                          >
+                        </div>
+                      </td>
+                      <td
+                        class="font-mono text-xs"
+                        style="color: var(--text-muted)"
+                      >
+                        518
+                      </td>
+                      <td>
+                        <button class="btn btn-ghost !p-1">
+                          <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="font-medium" style="color: var(--text)">
+                        Analytics Dashboard
+                      </td>
+                      <td><span class="badge badge-green">Publicado</span></td>
+                      <td>
+                        <div class="flex gap-1">
+                          <span
+                            class="tag"
+                            style="font-size: 10px; padding: 1px 6px"
+                            >Vue.js</span
+                          ><span
+                            class="tag"
+                            style="font-size: 10px; padding: 1px 6px"
+                            >D3.js</span
+                          >
+                        </div>
+                      </td>
+                      <td
+                        class="font-mono text-xs"
+                        style="color: var(--text-muted)"
+                      >
+                        276
+                      </td>
+                      <td>
+                        <button class="btn btn-ghost !p-1">
+                          <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="font-medium" style="color: var(--text)">
+                        SaaS Landing Page
+                      </td>
+                      <td><span class="badge badge-red">Oculto</span></td>
+                      <td>
+                        <div class="flex gap-1">
+                          <span
+                            class="tag"
+                            style="font-size: 10px; padding: 1px 6px"
+                            >Astro</span
+                          ><span
+                            class="tag"
+                            style="font-size: 10px; padding: 1px 6px"
+                            >GSAP</span
+                          >
+                        </div>
+                      </td>
+                      <td
+                        class="font-mono text-xs"
+                        style="color: var(--text-muted)"
+                      >
+                        —
+                      </td>
+                      <td>
+                        <button class="btn btn-ghost !p-1">
+                          <i data-lucide="more-horizontal" class="w-4 h-4"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==================== SERVICES ==================== -->
+          <section class="view-section" id="view-services">
+            <div class="flex items-center justify-between mb-6">
+              <p class="text-sm" style="color: var(--text-muted)">
+                Servicios que ofreces como profesional
+              </p>
+              <button class="btn btn-primary">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i> Nuevo servicio
+              </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              <div class="service-card">
+                <div
+                  class="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
+                  style="background: var(--glow-red)"
+                >
+                  <i
+                    data-lucide="code-2"
+                    class="w-5 h-5"
+                    style="color: #dc2626"
+                  ></i>
+                </div>
+                <h4
+                  class="font-heading font-semibold text-sm mb-2"
+                  style="color: var(--text)"
+                >
+                  Desarrollo Web
+                </h4>
+                <p
+                  class="text-xs leading-relaxed"
+                  style="color: var(--text-muted)"
+                >
+                  Creación de aplicaciones web completas con las últimas
+                  tecnologías. Desde landing pages hasta plataformas SaaS
+                  complejas.
+                </p>
+                <div
+                  class="flex items-center gap-2 mt-4 pt-3"
+                  style="border-top: 1px solid var(--border)"
+                >
+                  <span
+                    class="tag tag-red"
+                    style="font-size: 10px; padding: 2px 7px"
+                    >Popular</span
+                  >
+                  <button class="btn btn-ghost !p-1 ml-auto">
+                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="service-card">
+                <div
+                  class="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
+                  style="background: var(--glow-cyan)"
+                >
+                  <i
+                    data-lucide="smartphone"
+                    class="w-5 h-5"
+                    style="color: #06b6d4"
+                  ></i>
+                </div>
+                <h4
+                  class="font-heading font-semibold text-sm mb-2"
+                  style="color: var(--text)"
+                >
+                  Aplicaciones Móviles
+                </h4>
+                <p
+                  class="text-xs leading-relaxed"
+                  style="color: var(--text-muted)"
+                >
+                  Desarrollo de aplicaciones móviles multiplataforma con React
+                  Native y experiencia nativa optimizada.
+                </p>
+                <div
+                  class="flex items-center gap-2 mt-4 pt-3"
+                  style="border-top: 1px solid var(--border)"
+                >
+                  <span class="badge badge-green">Disponible</span>
+                  <button class="btn btn-ghost !p-1 ml-auto">
+                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="service-card">
+                <div
+                  class="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
+                  style="background: var(--glow-red)"
+                >
+                  <i
+                    data-lucide="server"
+                    class="w-5 h-5"
+                    style="color: #dc2626"
+                  ></i>
+                </div>
+                <h4
+                  class="font-heading font-semibold text-sm mb-2"
+                  style="color: var(--text)"
+                >
+                  Backend & APIs
+                </h4>
+                <p
+                  class="text-xs leading-relaxed"
+                  style="color: var(--text-muted)"
+                >
+                  Diseño e implementación de APIs RESTful y GraphQL,
+                  arquitecturas de microservicios y bases de datos.
+                </p>
+                <div
+                  class="flex items-center gap-2 mt-4 pt-3"
+                  style="border-top: 1px solid var(--border)"
+                >
+                  <span class="badge badge-green">Disponible</span>
+                  <button class="btn btn-ghost !p-1 ml-auto">
+                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="service-card">
+                <div
+                  class="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
+                  style="background: var(--glow-cyan)"
+                >
+                  <i
+                    data-lucide="palette"
+                    class="w-5 h-5"
+                    style="color: #06b6d4"
+                  ></i>
+                </div>
+                <h4
+                  class="font-heading font-semibold text-sm mb-2"
+                  style="color: var(--text)"
+                >
+                  UI/UX Design
+                </h4>
+                <p
+                  class="text-xs leading-relaxed"
+                  style="color: var(--text-muted)"
+                >
+                  Diseño de interfaces de usuario centradas en la experiencia,
+                  prototipos interactivos y sistemas de diseño.
+                </p>
+                <div
+                  class="flex items-center gap-2 mt-4 pt-3"
+                  style="border-top: 1px solid var(--border)"
+                >
+                  <span class="badge badge-green">Disponible</span>
+                  <button class="btn btn-ghost !p-1 ml-auto">
+                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div class="service-card">
+                <div
+                  class="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
+                  style="background: var(--glow-red)"
+                >
+                  <i
+                    data-lucide="cloud"
+                    class="w-5 h-5"
+                    style="color: #dc2626"
+                  ></i>
+                </div>
+                <h4
+                  class="font-heading font-semibold text-sm mb-2"
+                  style="color: var(--text)"
+                >
+                  DevOps & Cloud
+                </h4>
+                <p
+                  class="text-xs leading-relaxed"
+                  style="color: var(--text-muted)"
+                >
+                  Configuración de pipelines CI/CD, contenedores Docker,
+                  orquestación con Kubernetes y despliegues en AWS.
+                </p>
+                <div
+                  class="flex items-center gap-2 mt-4 pt-3"
+                  style="border-top: 1px solid var(--border)"
+                >
+                  <span class="badge badge-yellow">Bajo demanda</span>
+                  <button class="btn btn-ghost !p-1 ml-auto">
+                    <i data-lucide="pencil" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Empty state -->
+              <div
+                class="card-ghost flex flex-col items-center justify-center text-center min-h-[220px]"
+              >
+                <div class="empty-icon mb-3">
+                  <i data-lucide="plus" class="w-6 h-6"></i>
+                </div>
+                <p class="text-sm font-medium" style="color: var(--text-muted)">
+                  Agregar servicio
+                </p>
+                <p
+                  class="text-xs mt-1 max-w-[180px]"
+                  style="color: var(--text-muted); opacity: 0.7"
+                >
+                  Ofrece un nuevo servicio en tu portafolio
+                </p>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <!-- ========== MODAL: Edit Project ========== -->
+    <div class="modal-overlay" id="modal-edit-project">
+      <div class="modal-content">
+        <div class="flex items-center justify-between mb-6">
+          <h2
+            class="font-heading font-bold text-base"
+            style="color: var(--text)"
+          >
+            Editar proyecto
+          </h2>
+          <button
+            class="btn btn-ghost !p-1"
+            onclick="
+              document
+                .getElementById('modal-edit-project')
+                .classList.remove('active')
+            "
+          >
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <div>
+            <label class="label-mock">Título del proyecto</label>
+            <input
+              type="text"
+              class="input-mock"
+              value="E-Commerce Platform"
+              readonly
+            />
+          </div>
+          <div>
+            <label class="label-mock">Descripción</label>
+            <textarea class="input-mock" rows="3" readonly style="resize: none">
+Tienda online completa con carrito, pagos con Stripe y panel de administración.</textarea
+            >
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="label-mock">URL del proyecto</label>
+              <input
+                type="text"
+                class="input-mock"
+                value="https://ecom.carlosdev.io"
+                readonly
+              />
+            </div>
+            <div>
+              <label class="label-mock">Repositorio</label>
+              <input
+                type="text"
+                class="input-mock"
+                value="github.com/carlos/ecom"
+                readonly
+              />
+            </div>
+          </div>
+          <div>
+            <label class="label-mock">Imagen de preview</label>
+            <div
+              class="rounded-lg border-2 border-dashed p-4 text-center"
+              style="border-color: var(--border)"
+            >
+              <img
+                src="https://picsum.photos/seed/ecom-proj/400/200.jpg"
+                alt=""
+                class="w-full h-32 object-cover rounded-md mb-2"
+              />
+              <p class="text-[11px]" style="color: var(--text-muted)">
+                Arrastra una imagen o haz click para subir
+              </p>
+            </div>
+          </div>
+          <div>
+            <label class="label-mock">Tecnologías</label>
+            <div class="flex flex-wrap gap-2">
+              <span class="tag"
+                >Next.js <i data-lucide="x" class="w-3 h-3 ml-1 opacity-50"></i
+              ></span>
+              <span class="tag"
+                >Stripe <i data-lucide="x" class="w-3 h-3 ml-1 opacity-50"></i
+              ></span>
+              <span class="tag"
+                >Prisma <i data-lucide="x" class="w-3 h-3 ml-1 opacity-50"></i
+              ></span>
+              <span class="tag"
+                >PostgreSQL
+                <i data-lucide="x" class="w-3 h-3 ml-1 opacity-50"></i
+              ></span>
+              <button class="tag" style="border-style: dashed; cursor: pointer">
+                <i data-lucide="plus" class="w-3 h-3"></i>
+              </button>
+            </div>
+          </div>
+          <div>
+            <label class="label-mock">Estado</label>
+            <div class="flex gap-2">
+              <button
+                class="btn btn-secondary text-xs"
+                style="border-color: rgba(34, 197, 94, 0.5); color: #22c55e"
+              >
+                Publicado
+              </button>
+              <button class="btn btn-secondary text-xs">Borrador</button>
+              <button class="btn btn-secondary text-xs">Oculto</button>
+            </div>
+          </div>
+          <div>
+            <label class="label-mock">Orden de visualización</label>
+            <input type="text" class="input-mock" value="1" readonly />
+          </div>
+        </div>
+        <div
+          class="flex justify-end gap-3 mt-6 pt-4"
+          style="border-top: 1px solid var(--border)"
+        >
+          <button
+            class="btn btn-secondary"
+            onclick="
+              document
+                .getElementById('modal-edit-project')
+                .classList.remove('active')
+            "
+          >
+            Cancelar
+          </button>
+          <button class="btn btn-cyan">Guardar proyecto</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Viewport indicator (Figma-style detail) -->
+    <div class="viewport-indicator" id="viewport-indicator">Desktop</div>
+
+    <script>
+      // Inicializar iconos Lucide
+      lucide.createIcons();
+
+      // === Navegación entre vistas ===
+      const navItems = document.querySelectorAll("[data-view]");
+      const views = document.querySelectorAll(".view-section");
+      const sectionTitle = document.getElementById("section-title");
+
+      navItems.forEach((item) => {
+        item.addEventListener("click", () => {
+          const viewId = item.dataset.view;
+          navItems.forEach((n) => n.classList.remove("active"));
+          item.classList.add("active");
+          views.forEach((v) => v.classList.remove("active"));
+          document.getElementById(viewId).classList.add("active");
+          // Actualizar título del topbar
+          const label = item.querySelector(".nav-label");
+          if (label) sectionTitle.textContent = label.textContent;
+          // Cerrar drawer en mobile
+          sidebar.classList.remove("open");
+          drawerOverlay.classList.remove("active");
+          // Re-renderizar iconos en la nueva vista
+          lucide.createIcons();
+          // Scroll al inicio del contenido
+          document.querySelector(".content-area").scrollTop = 0;
+        });
+      });
+
+      // === Toggle de tema ===
+      const themeToggle = document.getElementById("theme-toggle");
+      const htmlEl = document.documentElement;
+      const darkIcons = document.querySelectorAll(".dark-icon");
+      const lightIcons = document.querySelectorAll(".light-icon");
+
+      themeToggle.addEventListener("click", () => {
+        const isDark = htmlEl.classList.contains("dark");
+        if (isDark) {
+          htmlEl.classList.remove("dark");
+          htmlEl.classList.add("light");
+          darkIcons.forEach((i) => (i.style.display = "none"));
+          lightIcons.forEach((i) => (i.style.display = "block"));
+        } else {
+          htmlEl.classList.remove("light");
+          htmlEl.classList.add("dark");
+          darkIcons.forEach((i) => (i.style.display = "block"));
+          lightIcons.forEach((i) => (i.style.display = "none"));
+        }
+        lucide.createIcons();
+      });
+
+      // === Selector de idioma (solo visual) ===
+      const langBtns = document.querySelectorAll(".lang-btn");
+      langBtns.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          langBtns.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+        });
+      });
+
+      // === Mobile drawer ===
+      const burgerBtn = document.getElementById("burger-btn");
+      const sidebar = document.getElementById("sidebar");
+      const drawerOverlay = document.getElementById("drawer-overlay");
+
+      burgerBtn.addEventListener("click", () => {
+        sidebar.classList.toggle("open");
+        drawerOverlay.classList.toggle("active");
+      });
+      drawerOverlay.addEventListener("click", () => {
+        sidebar.classList.remove("open");
+        drawerOverlay.classList.remove("active");
+      });
+
+      // === Cerrar modal con click en overlay ===
+      document
+        .getElementById("modal-edit-project")
+        .addEventListener("click", function (e) {
+          if (e.target === this) this.classList.remove("active");
+        });
+
+      // === Viewport indicator ===
+      const vpIndicator = document.getElementById("viewport-indicator");
+      function updateViewportIndicator() {
+        const w = window.innerWidth;
+        if (w > 1024) vpIndicator.textContent = "Desktop";
+        else if (w > 768) vpIndicator.textContent = "Tablet";
+        else vpIndicator.textContent = "Mobile";
+      }
+      updateViewportIndicator();
+      window.addEventListener("resize", updateViewportIndicator);
+    </script>
+  </body>
+</html>

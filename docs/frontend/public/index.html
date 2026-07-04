@@ -1,0 +1,1509 @@
+<!doctype html>
+<html lang="es" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Alex Doe — Senior Product Engineer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                DEFAULT: "#DC2626",
+                hover: "#EF4444",
+                active: "#B91C1C",
+              },
+              accent: {
+                DEFAULT: "#06B6D4",
+                hover: "#22D3EE",
+                active: "#0891B2",
+              },
+              dark: {
+                950: "#09090B",
+                900: "#18181B",
+                800: "#27272A",
+                700: "#3F3F46",
+                400: "#A1A1AA",
+                100: "#F4F4F5",
+              },
+              light: {
+                50: "#FFFFFF",
+                100: "#F4F4F5",
+                200: "#E4E4E7",
+                300: "#D4D4D8",
+                400: "#A1A1AA",
+                500: "#71717A",
+                800: "#27272A",
+                900: "#18181B",
+              },
+            },
+            fontFamily: {
+              display: ['"Space Grotesk"', "sans-serif"],
+              sans: ["Inter", "sans-serif"],
+              mono: ['"JetBrains Mono"', "monospace"],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #09090b;
+        color: #f4f4f5;
+        transition:
+          background-color 0.3s ease,
+          color 0.3s ease;
+      }
+      html.light body {
+        background-color: #ffffff;
+        color: #18181b;
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5 {
+        font-family: "Space Grotesk", sans-serif;
+      }
+      .mono {
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      /* Glassmorphism */
+      .glass {
+        background: rgba(24, 24, 27, 0.6);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid rgba(63, 63, 70, 0.5);
+      }
+      html.light .glass {
+        background: rgba(255, 255, 255, 0.7);
+        border-bottom: 1px solid rgba(228, 228, 231, 0.8);
+      }
+
+      /* Background Grid Hero */
+      .grid-bg {
+        background-size: 40px 40px;
+        background-image:
+          linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0.03) 1px,
+            transparent 1px
+          ),
+          linear-gradient(
+            to bottom,
+            rgba(255, 255, 255, 0.03) 1px,
+            transparent 1px
+          );
+      }
+      html.light .grid-bg {
+        background-image:
+          linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+      }
+
+      /* Glow Effects */
+      .glow-red {
+        box-shadow: 0 0 80px -20px rgba(220, 38, 38, 0.5);
+      }
+      .glow-cyan {
+        box-shadow: 0 0 80px -20px rgba(6, 182, 212, 0.4);
+      }
+
+      /* Scroll Reveal */
+      .reveal {
+        opacity: 0;
+        transform: translateY(30px);
+        transition:
+          opacity 0.8s ease-out,
+          transform 0.8s ease-out;
+      }
+      .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #09090b;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #3f3f46;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #dc2626;
+      }
+      html.light ::-webkit-scrollbar-track {
+        background: #f4f4f5;
+      }
+      html.light ::-webkit-scrollbar-thumb {
+        background: #d4d4d8;
+      }
+
+      /* Focus States */
+      .focus-ring:focus-visible {
+        outline: 2px solid #06b6d4;
+        outline-offset: 2px;
+      }
+
+      /* Animations */
+      @keyframes pulse-dot {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+        }
+        50% {
+          box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+        }
+      }
+      .status-dot {
+        animation: pulse-dot 2s infinite;
+      }
+
+      /* Hide scrollbar for language dropdown if needed */
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <!-- Navbar -->
+    <nav
+      id="navbar"
+      class="fixed top-0 w-full z-50 glass transition-all duration-300"
+    >
+      <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <!-- Logo -->
+          <a href="#" class="flex items-center gap-2 focus-ring rounded-lg">
+            <div
+              class="w-8 h-8 bg-primary rounded-md flex items-center justify-center"
+            >
+              <span class="text-white font-display font-bold text-lg">A</span>
+            </div>
+            <span class="font-display font-bold text-lg hidden sm:block"
+              >Alex Doe</span
+            >
+          </a>
+
+          <!-- Desktop Links -->
+          <div
+            class="hidden md:flex items-center gap-8 text-sm font-medium text-dark-400 dark:text-dark-400"
+          >
+            <a
+              href="#about"
+              class="hover:text-dark-100 dark:hover:text-dark-100 transition-colors focus-ring rounded-md"
+              >About</a
+            >
+            <a
+              href="#skills"
+              class="hover:text-dark-100 dark:hover:text-dark-100 transition-colors focus-ring rounded-md"
+              >Skills</a
+            >
+            <a
+              href="#projects"
+              class="hover:text-dark-100 dark:hover:text-dark-100 transition-colors focus-ring rounded-md"
+              >Projects</a
+            >
+            <a
+              href="#education"
+              class="hover:text-dark-100 dark:hover:text-dark-100 transition-colors focus-ring rounded-md"
+              >Education</a
+            >
+            <a
+              href="#services"
+              class="hover:text-dark-100 dark:hover:text-dark-100 transition-colors focus-ring rounded-md"
+              >Services</a
+            >
+          </div>
+
+          <!-- Right Section -->
+          <div class="flex items-center gap-2 md:gap-4">
+            <!-- Language Switcher -->
+            <div class="relative">
+              <button
+                id="lang-btn"
+                class="flex items-center gap-1 text-sm mono text-dark-400 hover:text-dark-100 transition-colors focus-ring rounded-md px-2 py-1"
+              >
+                <span>ES</span>
+                <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </button>
+              <div
+                id="lang-dropdown"
+                class="hidden absolute right-0 mt-2 w-24 glass rounded-lg shadow-xl py-1 border border-dark-700"
+              >
+                <a
+                  href="#"
+                  class="block px-4 py-2 text-sm mono text-dark-100 bg-primary/10 cursor-pointer"
+                  >ES</a
+                >
+                <a
+                  href="#"
+                  class="block px-4 py-2 text-sm mono text-dark-400 hover:bg-dark-800 cursor-pointer"
+                  >EN</a
+                >
+                <a
+                  href="#"
+                  class="block px-4 py-2 text-sm mono text-dark-400 hover:bg-dark-800 cursor-pointer"
+                  >PT</a
+                >
+              </div>
+            </div>
+
+            <!-- Theme Toggle -->
+            <button
+              id="theme-toggle"
+              class="p-2 rounded-md text-dark-400 hover:text-dark-100 hover:bg-dark-800 transition-colors focus-ring"
+            >
+              <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+              <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+            </button>
+
+            <!-- CTA Desktop -->
+            <a
+              href="#contact"
+              class="hidden md:inline-flex items-center justify-center px-4 py-2 bg-primary hover:bg-primary-hover active:bg-primary-active text-white text-sm font-medium rounded-md transition-colors focus-ring"
+            >
+              Contactar
+            </a>
+
+            <!-- Mobile Menu Button -->
+            <button
+              id="mobile-btn"
+              class="md:hidden p-2 rounded-md text-dark-100 hover:bg-dark-800 transition-colors focus-ring"
+            >
+              <i data-lucide="menu" class="w-6 h-6"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Drawer -->
+      <div
+        id="mobile-drawer"
+        class="hidden md:hidden absolute top-16 left-0 w-full h-[calc(100vh-4rem)] glass border-t border-dark-700"
+      >
+        <div class="flex flex-col p-6 gap-4 text-lg">
+          <a href="#about" class="mobile-link py-2 border-b border-dark-800"
+            >About</a
+          >
+          <a href="#skills" class="mobile-link py-2 border-b border-dark-800"
+            >Skills</a
+          >
+          <a href="#projects" class="mobile-link py-2 border-b border-dark-800"
+            >Projects</a
+          >
+          <a href="#education" class="mobile-link py-2 border-b border-dark-800"
+            >Education</a
+          >
+          <a href="#services" class="mobile-link py-2 border-b border-dark-800"
+            >Services</a
+          >
+          <a
+            href="#contact"
+            class="mobile-link mt-4 inline-flex items-center justify-center px-4 py-3 bg-primary text-white font-medium rounded-md"
+            >Contactar</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header
+      class="relative min-h-screen flex items-center pt-24 pb-12 overflow-hidden grid-bg"
+    >
+      <!-- Background Glows -->
+      <div
+        class="absolute top-1/4 -left-20 w-96 h-96 bg-primary/20 rounded-full blur-[120px] -z-10"
+      ></div>
+      <div
+        class="absolute bottom-1/4 -right-20 w-96 h-96 bg-accent/20 rounded-full blur-[120px] -z-10"
+      ></div>
+
+      <div class="max-w-7xl mx-auto px-6 lg:px-8 w-full">
+        <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+          <!-- Left Content -->
+          <div class="flex-1 text-center lg:text-left reveal">
+            <div
+              class="inline-flex items-center gap-2 px-3 py-1 bg-dark-800/80 border border-dark-700 rounded-full text-sm text-dark-400 mb-6 mono"
+            >
+              <span class="w-2 h-2 bg-green-500 rounded-full status-dot"></span>
+              Disponible para proyectos
+            </div>
+            <h1
+              class="text-5xl md:text-6xl lg:text-7xl font-bold mb-4 tracking-tight"
+            >
+              Alex Doe
+            </h1>
+            <h2 class="text-2xl md:text-3xl font-medium text-dark-400 mb-6">
+              Senior Product Engineer <span class="text-primary">&</span> UI/UX
+              Designer
+            </h2>
+            <p
+              class="text-lg text-dark-400 max-w-2xl mb-8 leading-relaxed mx-auto lg:mx-0"
+            >
+              Especializado en construir interfaces de usuario de alto
+              rendimiento y experiencias digitales premium. Transformo ideas
+              complejas en productos elegantes, funcionales y escalables.
+            </p>
+
+            <div
+              class="flex items-center justify-center lg:justify-start gap-4 mb-8 text-dark-400 text-sm mono"
+            >
+              <div class="flex items-center gap-2">
+                <i data-lucide="map-pin" class="w-4 h-4 text-accent"></i>
+                Madrid, España
+              </div>
+              <div class="w-1 h-1 bg-dark-700 rounded-full"></div>
+              <div class="flex items-center gap-2">
+                <i data-lucide="briefcase" class="w-4 h-4 text-accent"></i>
+                8+ años experiencia
+              </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center gap-4">
+              <a
+                href="#"
+                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary-hover active:bg-primary-active text-white font-medium rounded-md transition-colors focus-ring glow-red"
+              >
+                <i data-lucide="download" class="w-4 h-4"></i>
+                Descargar CV
+              </a>
+              <a
+                href="#contact"
+                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 border border-dark-700 hover:border-primary hover:text-primary text-dark-100 font-medium rounded-md transition-colors focus-ring"
+              >
+                <i data-lucide="mail" class="w-4 h-4"></i>
+                Contactar
+              </a>
+            </div>
+
+            <!-- Socials -->
+            <div
+              class="flex items-center justify-center lg:justify-start gap-6 mt-10"
+            >
+              <a
+                href="#"
+                class="text-dark-400 hover:text-primary transition-colors focus-ring rounded-md"
+                ><i data-lucide="github" class="w-6 h-6"></i
+              ></a>
+              <a
+                href="#"
+                class="text-dark-400 hover:text-primary transition-colors focus-ring rounded-md"
+                ><i data-lucide="linkedin" class="w-6 h-6"></i
+              ></a>
+              <a
+                href="#"
+                class="text-dark-400 hover:text-primary transition-colors focus-ring rounded-md"
+                ><i data-lucide="twitter" class="w-6 h-6"></i
+              ></a>
+              <a
+                href="#"
+                class="text-dark-400 hover:text-primary transition-colors focus-ring rounded-md"
+                ><i data-lucide="dribbble" class="w-6 h-6"></i
+              ></a>
+            </div>
+          </div>
+
+          <!-- Right Content (Avatar Visual) -->
+          <div class="flex-shrink-0 reveal">
+            <div class="relative w-64 h-64 md:w-80 md:h-80 group">
+              <!-- Geometric decorative elements -->
+              <div
+                class="absolute inset-0 border border-dark-700 rounded-3xl rotate-6 transition-transform group-hover:rotate-3 duration-500"
+              ></div>
+              <div
+                class="absolute inset-0 border border-accent/30 rounded-3xl -rotate-6 transition-transform group-hover:-rotate-3 duration-500"
+              ></div>
+              <!-- Avatar Placeholder -->
+              <div
+                class="absolute inset-2 rounded-2xl overflow-hidden bg-dark-800 border border-dark-700"
+              >
+                <img
+                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=1000&auto=format&fit=crop"
+                  alt="Alex Doe Avatar"
+                  class="w-full h-full object-cover filter grayscale hover:grayscale-0 transition-all duration-500"
+                />
+              </div>
+              <!-- Floating Badge -->
+              <div
+                class="absolute -bottom-4 -left-4 bg-dark-900 border border-dark-700 rounded-xl p-3 flex items-center gap-3 shadow-xl glow-cyan"
+              >
+                <div
+                  class="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center"
+                >
+                  <i data-lucide="code-2" class="w-5 h-5 text-accent"></i>
+                </div>
+                <div class="text-left">
+                  <p class="text-xs text-dark-400 mono">Stack</p>
+                  <p class="text-sm font-bold text-dark-100">React / Node</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scroll Indicator -->
+      <div
+        class="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-2 text-dark-400"
+      >
+        <span class="text-xs mono">Scroll</span>
+        <i data-lucide="chevron-down" class="w-4 h-4 animate-bounce"></i>
+      </div>
+    </header>
+
+    <!-- About Section -->
+    <section id="about" class="py-24 md:py-32">
+      <div class="max-w-4xl mx-auto px-6 lg:px-8">
+        <div class="reveal">
+          <span class="mono text-sm text-primary mb-4 block"
+            >// 01. Sobre mí</span
+          >
+          <h2 class="text-4xl md:text-5xl font-bold mb-10 tracking-tight">
+            Diseñando y construyendo el futuro digital.
+          </h2>
+          <div class="space-y-6 text-lg text-dark-400 leading-relaxed">
+            <p>
+              Mi enfoque se centra en la intersección entre el diseño y la
+              ingeniería. No solo creo interfaces que se ven bien; construyo
+              sistemas de diseño robustos y arquitecturas front-end escalables
+              que perduran.
+            </p>
+            <p>
+              A lo largo de mi carrera, he liderado equipos en la creación de
+              SaaS complejos, siempre priorizando la accesibilidad, el
+              rendimiento y una experiencia de usuario impecable. Mi filosofía
+              es simple: el detalle hace al producto premium.
+            </p>
+            <p>
+              Cuando no estoy programando o diseñando, estoy explorando nuevas
+              tecnologías, contribuyendo a proyectos open-source o escribiendo
+              sobre diseño de interfaces.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section
+      id="skills"
+      class="py-24 md:py-32 bg-dark-900/50 border-y border-dark-800"
+    >
+      <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="text-center mb-16 reveal">
+          <span class="mono text-sm text-primary mb-4 block"
+            >// 02. Habilidades</span
+          >
+          <h2 class="text-4xl md:text-5xl font-bold tracking-tight">
+            Stack Tecnológico & Expertise
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Frontend -->
+          <div
+            class="reveal bg-dark-950 border border-dark-800 rounded-2xl p-8 hover:border-dark-700 transition-colors"
+          >
+            <div class="flex items-center gap-4 mb-6">
+              <div
+                class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center"
+              >
+                <i
+                  data-lucide="layout-dashboard"
+                  class="w-6 h-6 text-primary"
+                ></i>
+              </div>
+              <h3 class="text-2xl font-semibold">Frontend</h3>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >React</span
+              >
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >Next.js</span
+              >
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >Vue 3</span
+              >
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >TypeScript</span
+              >
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >TailwindCSS</span
+              >
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >Framer Motion</span
+              >
+            </div>
+          </div>
+
+          <!-- Backend -->
+          <div
+            class="reveal bg-dark-950 border border-dark-800 rounded-2xl p-8 hover:border-dark-700 transition-colors"
+            style="transition-delay: 0.1s"
+          >
+            <div class="flex items-center gap-4 mb-6">
+              <div
+                class="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center"
+              >
+                <i data-lucide="server" class="w-6 h-6 text-accent"></i>
+              </div>
+              <h3 class="text-2xl font-semibold">Backend</h3>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >Node.js</span
+              >
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >Express</span
+              >
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >NestJS</span
+              >
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >PostgreSQL</span
+              >
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >Prisma</span
+              >
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >GraphQL</span
+              >
+            </div>
+          </div>
+
+          <!-- DevOps -->
+          <div
+            class="reveal bg-dark-950 border border-dark-800 rounded-2xl p-8 hover:border-dark-700 transition-colors"
+            style="transition-delay: 0.2s"
+          >
+            <div class="flex items-center gap-4 mb-6">
+              <div
+                class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center"
+              >
+                <i data-lucide="cloud" class="w-6 h-6 text-primary"></i>
+              </div>
+              <h3 class="text-2xl font-semibold">DevOps</h3>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >Docker</span
+              >
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >AWS</span
+              >
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >Vercel</span
+              >
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >GitHub Actions</span
+              >
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >Nginx</span
+              >
+            </div>
+          </div>
+
+          <!-- Tools -->
+          <div
+            class="reveal bg-dark-950 border border-dark-800 rounded-2xl p-8 hover:border-dark-700 transition-colors"
+          >
+            <div class="flex items-center gap-4 mb-6">
+              <div
+                class="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center"
+              >
+                <i data-lucide="wrench" class="w-6 h-6 text-accent"></i>
+              </div>
+              <h3 class="text-2xl font-semibold">Tools</h3>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >Figma</span
+              >
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >Git</span
+              >
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >Jira</span
+              >
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >Linear</span
+              >
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >Notion</span
+              >
+            </div>
+          </div>
+
+          <!-- Other / Design -->
+          <div
+            class="reveal bg-dark-950 border border-dark-800 rounded-2xl p-8 hover:border-dark-700 transition-colors"
+            style="transition-delay: 0.1s"
+          >
+            <div class="flex items-center gap-4 mb-6">
+              <div
+                class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center"
+              >
+                <i data-lucide="palette" class="w-6 h-6 text-primary"></i>
+              </div>
+              <h3 class="text-2xl font-semibold">Design & Other</h3>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >UI/UX</span
+              >
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >Design Systems</span
+              >
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >Accessibility</span
+              >
+              <span
+                class="px-3 py-1 bg-dark-800 text-dark-100 text-sm mono rounded-md"
+                >SEO</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Technologies Grid -->
+    <section class="py-24 md:py-32">
+      <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="text-center mb-16 reveal">
+          <span class="mono text-sm text-primary mb-4 block"
+            >// 03. Tecnologías</span
+          >
+          <h2 class="text-4xl md:text-5xl font-bold tracking-tight">
+            Herramientas diarias
+          </h2>
+        </div>
+
+        <div
+          class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4"
+        >
+          <!-- Tech Items -->
+          <div
+            class="reveal flex flex-col items-center justify-center p-6 bg-dark-900 border border-dark-800 rounded-xl hover:border-primary hover:-translate-y-1 transition-all cursor-pointer aspect-square"
+          >
+            <i data-lucide="github" class="w-8 h-8 text-dark-100 mb-2"></i>
+            <span class="text-xs mono text-dark-400">Github</span>
+          </div>
+          <div
+            class="reveal flex flex-col items-center justify-center p-6 bg-dark-900 border border-dark-800 rounded-xl hover:border-accent hover:-translate-y-1 transition-all cursor-pointer aspect-square"
+            style="transition-delay: 0.05s"
+          >
+            <i data-lucide="figma" class="w-8 h-8 text-dark-100 mb-2"></i>
+            <span class="text-xs mono text-dark-400">Figma</span>
+          </div>
+          <div
+            class="reveal flex flex-col items-center justify-center p-6 bg-dark-900 border border-dark-800 rounded-xl hover:border-primary hover:-translate-y-1 transition-all cursor-pointer aspect-square"
+            style="transition-delay: 0.1s"
+          >
+            <i data-lucide="database" class="w-8 h-8 text-dark-100 mb-2"></i>
+            <span class="text-xs mono text-dark-400">PostgreSQL</span>
+          </div>
+          <div
+            class="reveal flex flex-col items-center justify-center p-6 bg-dark-900 border border-dark-800 rounded-xl hover:border-accent hover:-translate-y-1 transition-all cursor-pointer aspect-square"
+            style="transition-delay: 0.15s"
+          >
+            <i data-lucide="cloud" class="w-8 h-8 text-dark-100 mb-2"></i>
+            <span class="text-xs mono text-dark-400">AWS</span>
+          </div>
+          <div
+            class="reveal flex flex-col items-center justify-center p-6 bg-dark-900 border border-dark-800 rounded-xl hover:border-primary hover:-translate-y-1 transition-all cursor-pointer aspect-square"
+            style="transition-delay: 0.2s"
+          >
+            <i data-lucide="terminal" class="w-8 h-8 text-dark-100 mb-2"></i>
+            <span class="text-xs mono text-dark-400">Bash</span>
+          </div>
+          <div
+            class="reveal flex flex-col items-center justify-center p-6 bg-dark-900 border border-dark-800 rounded-xl hover:border-accent hover:-translate-y-1 transition-all cursor-pointer aspect-square"
+            style="transition-delay: 0.25s"
+          >
+            <i data-lucide="git-branch" class="w-8 h-8 text-dark-100 mb-2"></i>
+            <span class="text-xs mono text-dark-400">Git</span>
+          </div>
+          <div
+            class="reveal flex flex-col items-center justify-center p-6 bg-dark-900 border border-dark-800 rounded-xl hover:border-primary hover:-translate-y-1 transition-all cursor-pointer aspect-square"
+            style="transition-delay: 0.3s"
+          >
+            <i data-lucide="boxes" class="w-8 h-8 text-dark-100 mb-2"></i>
+            <span class="text-xs mono text-dark-400">Docker</span>
+          </div>
+          <div
+            class="reveal flex flex-col items-center justify-center p-6 bg-dark-900 border border-dark-800 rounded-xl hover:border-accent hover:-translate-y-1 transition-all cursor-pointer aspect-square"
+            style="transition-delay: 0.35s"
+          >
+            <i data-lucide="zap" class="w-8 h-8 text-dark-100 mb-2"></i>
+            <span class="text-xs mono text-dark-400">Vercel</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section
+      id="projects"
+      class="py-24 md:py-32 bg-dark-900/50 border-y border-dark-800"
+    >
+      <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="text-center mb-16 reveal">
+          <span class="mono text-sm text-primary mb-4 block"
+            >// 04. Proyectos</span
+          >
+          <h2 class="text-4xl md:text-5xl font-bold tracking-tight">
+            Trabajo seleccionado
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <!-- Project 1: SaaS -->
+          <article
+            class="reveal group bg-dark-950 border border-dark-800 rounded-2xl overflow-hidden hover:border-primary/50 transition-all duration-300 flex flex-col"
+          >
+            <div class="relative h-64 bg-dark-800 overflow-hidden">
+              <div
+                class="absolute inset-0 bg-gradient-to-br from-primary/30 to-accent/30 mix-blend-overlay"
+              ></div>
+              <img
+                src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop"
+                alt="Project 1"
+                class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500"
+              />
+              <div
+                class="absolute top-4 right-4 px-3 py-1 bg-primary text-white text-xs mono rounded-full"
+              >
+                SaaS
+              </div>
+            </div>
+            <div class="p-8 flex-1 flex flex-col">
+              <h3
+                class="text-2xl font-bold mb-2 group-hover:text-primary transition-colors"
+              >
+                Analytics Pro
+              </h3>
+              <p class="text-dark-400 mb-6 flex-1">
+                Plataforma de analítica en tiempo real con dashboards
+                personalizables y seguimiento de métricas avanzado.
+              </p>
+
+              <div class="mb-6">
+                <p class="text-xs mono text-dark-400 mb-2">Features:</p>
+                <div class="flex flex-wrap gap-2">
+                  <span
+                    class="text-xs mono px-2 py-1 bg-dark-800 text-dark-100 rounded"
+                    >Real-time</span
+                  >
+                  <span
+                    class="text-xs mono px-2 py-1 bg-dark-800 text-dark-100 rounded"
+                    >Charts</span
+                  >
+                  <span
+                    class="text-xs mono px-2 py-1 bg-dark-800 text-dark-100 rounded"
+                    >Auth</span
+                  >
+                </div>
+              </div>
+
+              <div
+                class="flex items-center gap-4 pt-4 border-t border-dark-800"
+              >
+                <a
+                  href="#"
+                  class="flex items-center gap-2 text-sm text-dark-400 hover:text-accent transition-colors"
+                >
+                  <i data-lucide="github" class="w-4 h-4"></i> Repo
+                </a>
+                <a
+                  href="#"
+                  class="flex items-center gap-2 text-sm text-dark-400 hover:text-primary transition-colors ml-auto"
+                >
+                  <i data-lucide="external-link" class="w-4 h-4"></i> Demo
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- Project 2: Web App -->
+          <article
+            class="reveal group bg-dark-950 border border-dark-800 rounded-2xl overflow-hidden hover:border-accent/50 transition-all duration-300 flex flex-col"
+            style="transition-delay: 0.1s"
+          >
+            <div class="relative h-64 bg-dark-800 overflow-hidden">
+              <div
+                class="absolute inset-0 bg-gradient-to-br from-accent/30 to-primary/30 mix-blend-overlay"
+              ></div>
+              <img
+                src="https://images.unsplash.com/photo-1467232004584-a241de8bcf5d?q=80&w=1200&auto=format&fit=crop"
+                alt="Project 2"
+                class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500"
+              />
+              <div
+                class="absolute top-4 right-4 px-3 py-1 bg-accent text-white text-xs mono rounded-full"
+              >
+                Web App
+              </div>
+            </div>
+            <div class="p-8 flex-1 flex flex-col">
+              <h3
+                class="text-2xl font-bold mb-2 group-hover:text-accent transition-colors"
+              >
+                Task Flow
+              </h3>
+              <p class="text-dark-400 mb-6 flex-1">
+                Aplicación de gestión de proyectos con integraciones de IA para
+                automatización de flujos de trabajo.
+              </p>
+
+              <div class="mb-6">
+                <p class="text-xs mono text-dark-400 mb-2">Features:</p>
+                <div class="flex flex-wrap gap-2">
+                  <span
+                    class="text-xs mono px-2 py-1 bg-dark-800 text-dark-100 rounded"
+                    >AI</span
+                  >
+                  <span
+                    class="text-xs mono px-2 py-1 bg-dark-800 text-dark-100 rounded"
+                    >Kanban</span
+                  >
+                  <span
+                    class="text-xs mono px-2 py-1 bg-dark-800 text-dark-100 rounded"
+                    >Team</span
+                  >
+                </div>
+              </div>
+
+              <div
+                class="flex items-center gap-4 pt-4 border-t border-dark-800"
+              >
+                <a
+                  href="#"
+                  class="flex items-center gap-2 text-sm text-dark-400 hover:text-accent transition-colors"
+                >
+                  <i data-lucide="github" class="w-4 h-4"></i> Repo
+                </a>
+                <a
+                  href="#"
+                  class="flex items-center gap-2 text-sm text-dark-400 hover:text-primary transition-colors ml-auto"
+                >
+                  <i data-lucide="external-link" class="w-4 h-4"></i> Demo
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- Project 3: Mobile -->
+          <article
+            class="reveal group bg-dark-950 border border-dark-800 rounded-2xl overflow-hidden hover:border-primary/50 transition-all duration-300 flex flex-col"
+          >
+            <div class="relative h-64 bg-dark-800 overflow-hidden">
+              <div
+                class="absolute inset-0 bg-gradient-to-br from-primary/30 to-accent/30 mix-blend-overlay"
+              ></div>
+              <img
+                src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=1200&auto=format&fit=crop"
+                alt="Project 3"
+                class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500"
+              />
+              <div
+                class="absolute top-4 right-4 px-3 py-1 bg-dark-100 text-dark-950 text-xs mono rounded-full"
+              >
+                Mobile
+              </div>
+            </div>
+            <div class="p-8 flex-1 flex flex-col">
+              <h3
+                class="text-2xl font-bold mb-2 group-hover:text-primary transition-colors"
+              >
+                FinTrack
+              </h3>
+              <p class="text-dark-400 mb-6 flex-1">
+                App de finanzas personales con sincronización bancaria y
+                predicciones de gastos basadas en ML.
+              </p>
+
+              <div class="mb-6">
+                <p class="text-xs mono text-dark-400 mb-2">Features:</p>
+                <div class="flex flex-wrap gap-2">
+                  <span
+                    class="text-xs mono px-2 py-1 bg-dark-800 text-dark-100 rounded"
+                    >React Native</span
+                  >
+                  <span
+                    class="text-xs mono px-2 py-1 bg-dark-800 text-dark-100 rounded"
+                    >Charts</span
+                  >
+                  <span
+                    class="text-xs mono px-2 py-1 bg-dark-800 text-dark-100 rounded"
+                    >ML</span
+                  >
+                </div>
+              </div>
+
+              <div
+                class="flex items-center gap-4 pt-4 border-t border-dark-800"
+              >
+                <a
+                  href="#"
+                  class="flex items-center gap-2 text-sm text-dark-400 hover:text-accent transition-colors"
+                >
+                  <i data-lucide="github" class="w-4 h-4"></i> Repo
+                </a>
+                <a
+                  href="#"
+                  class="flex items-center gap-2 text-sm text-dark-400 hover:text-primary transition-colors ml-auto"
+                >
+                  <i data-lucide="external-link" class="w-4 h-4"></i> Demo
+                </a>
+              </div>
+            </div>
+          </article>
+
+          <!-- Project 4: E-commerce -->
+          <article
+            class="reveal group bg-dark-950 border border-dark-800 rounded-2xl overflow-hidden hover:border-accent/50 transition-all duration-300 flex flex-col"
+            style="transition-delay: 0.1s"
+          >
+            <div class="relative h-64 bg-dark-800 overflow-hidden">
+              <div
+                class="absolute inset-0 bg-gradient-to-br from-accent/30 to-primary/30 mix-blend-overlay"
+              ></div>
+              <img
+                src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=1200&auto=format&fit=crop"
+                alt="Project 4"
+                class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500"
+              />
+              <div
+                class="absolute top-4 right-4 px-3 py-1 bg-accent text-white text-xs mono rounded-full"
+              >
+                E-commerce
+              </div>
+            </div>
+            <div class="p-8 flex-1 flex flex-col">
+              <h3
+                class="text-2xl font-bold mb-2 group-hover:text-accent transition-colors"
+              >
+                Shop Swift
+              </h3>
+              <p class="text-dark-400 mb-6 flex-1">
+                Headless e-commerce de alta velocidad con Stripe, carrito
+                persistente y panel de admin completo.
+              </p>
+
+              <div class="mb-6">
+                <p class="text-xs mono text-dark-400 mb-2">Features:</p>
+                <div class="flex flex-wrap gap-2">
+                  <span
+                    class="text-xs mono px-2 py-1 bg-dark-800 text-dark-100 rounded"
+                    >Next.js</span
+                  >
+                  <span
+                    class="text-xs mono px-2 py-1 bg-dark-800 text-dark-100 rounded"
+                    >Stripe</span
+                  >
+                  <span
+                    class="text-xs mono px-2 py-1 bg-dark-800 text-dark-100 rounded"
+                    >Sanity</span
+                  >
+                </div>
+              </div>
+
+              <div
+                class="flex items-center gap-4 pt-4 border-t border-dark-800"
+              >
+                <a
+                  href="#"
+                  class="flex items-center gap-2 text-sm text-dark-400 hover:text-accent transition-colors"
+                >
+                  <i data-lucide="github" class="w-4 h-4"></i> Repo
+                </a>
+                <a
+                  href="#"
+                  class="flex items-center gap-2 text-sm text-dark-400 hover:text-primary transition-colors ml-auto"
+                >
+                  <i data-lucide="external-link" class="w-4 h-4"></i> Demo
+                </a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Education Timeline -->
+    <section id="education" class="py-24 md:py-32">
+      <div class="max-w-4xl mx-auto px-6 lg:px-8">
+        <div class="text-center mb-16 reveal">
+          <span class="mono text-sm text-primary mb-4 block"
+            >// 05. Educación</span
+          >
+          <h2 class="text-4xl md:text-5xl font-bold tracking-tight">
+            Trayectoria Académica
+          </h2>
+        </div>
+
+        <div class="relative">
+          <!-- Vertical Line -->
+          <div
+            class="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-dark-800"
+          ></div>
+
+          <!-- Item 1 -->
+          <div class="relative mb-12 reveal">
+            <div
+              class="absolute left-4 md:left-1/2 w-3 h-3 bg-primary rounded-full -translate-x-1/2 mt-2 ring-4 ring-dark-950"
+            ></div>
+            <div class="md:w-1/2 md:pr-12 pl-12 md:text-right">
+              <div
+                class="bg-dark-900 border border-dark-800 p-6 rounded-xl hover:border-primary/50 transition-colors"
+              >
+                <span class="mono text-xs text-accent">2018 - 2020</span>
+                <h3 class="text-xl font-bold mt-1">
+                  M.Sc. Human-Computer Interaction
+                </h3>
+                <p class="text-dark-400 mt-2 text-sm">Stanford University</p>
+                <p class="text-dark-400 mt-2 text-sm">
+                  Especialización en interfaces espaciales y usabilidad
+                  avanzada.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="relative mb-12 reveal">
+            <div
+              class="absolute left-4 md:left-1/2 w-3 h-3 bg-accent rounded-full -translate-x-1/2 mt-2 ring-4 ring-dark-950"
+            ></div>
+            <div class="md:w-1/2 md:ml-auto md:pl-12 pl-12">
+              <div
+                class="bg-dark-900 border border-dark-800 p-6 rounded-xl hover:border-accent/50 transition-colors"
+              >
+                <span class="mono text-xs text-primary">2014 - 2018</span>
+                <h3 class="text-xl font-bold mt-1">B.Sc. Computer Science</h3>
+                <p class="text-dark-400 mt-2 text-sm">MIT</p>
+                <p class="text-dark-400 mt-2 text-sm">
+                  Fundamentos de ingeniería de software, algoritmos y
+                  estructuras de datos.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Services Section -->
+    <section
+      id="services"
+      class="py-24 md:py-32 bg-dark-900/50 border-y border-dark-800"
+    >
+      <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="text-center mb-16 reveal">
+          <span class="mono text-sm text-primary mb-4 block"
+            >// 06. Servicios</span
+          >
+          <h2 class="text-4xl md:text-5xl font-bold tracking-tight">
+            Qué puedo hacer por ti
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <!-- Service 1 -->
+          <div
+            class="reveal group p-8 bg-dark-950 border border-dark-800 rounded-2xl hover:bg-dark-900 hover:border-primary transition-all duration-300"
+          >
+            <div
+              class="w-14 h-14 bg-primary/10 group-hover:bg-primary group-hover:text-white text-primary rounded-xl flex items-center justify-center mb-6 transition-all"
+            >
+              <i data-lucide="code" class="w-7 h-7"></i>
+            </div>
+            <h3 class="text-2xl font-bold mb-4">Web Development</h3>
+            <p class="text-dark-400 leading-relaxed">
+              Desarrollo de aplicaciones web rápidas, seguras y escalables
+              utilizando las últimas tecnologías del ecosistema.
+            </p>
+          </div>
+
+          <!-- Service 2 -->
+          <div
+            class="reveal group p-8 bg-dark-950 border border-dark-800 rounded-2xl hover:bg-dark-900 hover:border-accent transition-all duration-300"
+            style="transition-delay: 0.1s"
+          >
+            <div
+              class="w-14 h-14 bg-accent/10 group-hover:bg-accent group-hover:text-white text-accent rounded-xl flex items-center justify-center mb-6 transition-all"
+            >
+              <i data-lucide="pen-tool" class="w-7 h-7"></i>
+            </div>
+            <h3 class="text-2xl font-bold mb-4">UI/UX Design</h3>
+            <p class="text-dark-400 leading-relaxed">
+              Diseño de interfaces centradas en el usuario, creando prototipos
+              interactivos y sistemas de diseño consistentes.
+            </p>
+          </div>
+
+          <!-- Service 3 -->
+          <div
+            class="reveal group p-8 bg-dark-950 border border-dark-800 rounded-2xl hover:bg-dark-900 hover:border-primary transition-all duration-300"
+            style="transition-delay: 0.2s"
+          >
+            <div
+              class="w-14 h-14 bg-primary/10 group-hover:bg-primary group-hover:text-white text-primary rounded-xl flex items-center justify-center mb-6 transition-all"
+            >
+              <i data-lucide="rocket" class="w-7 h-7"></i>
+            </div>
+            <h3 class="text-2xl font-bold mb-4">Consulting</h3>
+            <p class="text-dark-400 leading-relaxed">
+              Auditoría de código, arquitectura y optimización de rendimiento
+              para equipos existentes y productos en producción.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="py-24 md:py-32">
+      <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="text-center mb-16 reveal">
+          <span class="mono text-sm text-primary mb-4 block"
+            >// 07. Contacto</span
+          >
+          <h2 class="text-4xl md:text-5xl font-bold tracking-tight">
+            Trabajemos juntos
+          </h2>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+          <!-- Left: Info -->
+          <div class="reveal space-y-8">
+            <p class="text-lg text-dark-400 leading-relaxed">
+              ¿Tienes un proyecto en mente o necesitas mejorar tu producto
+              actual? Rellena el formulario o contáctame directamente.
+            </p>
+
+            <div class="space-y-6">
+              <div class="flex items-center gap-4">
+                <div
+                  class="w-12 h-12 bg-dark-800 rounded-lg flex items-center justify-center border border-dark-700"
+                >
+                  <i data-lucide="mail" class="w-5 h-5 text-primary"></i>
+                </div>
+                <div>
+                  <p class="text-sm text-dark-400 mono">Email</p>
+                  <a
+                    href="mailto:hello@alexdoe.com"
+                    class="text-dark-100 hover:text-primary transition-colors"
+                    >hello@alexdoe.com</a
+                  >
+                </div>
+              </div>
+
+              <div class="flex items-center gap-4">
+                <div
+                  class="w-12 h-12 bg-dark-800 rounded-lg flex items-center justify-center border border-dark-700"
+                >
+                  <i data-lucide="map-pin" class="w-5 h-5 text-accent"></i>
+                </div>
+                <div>
+                  <p class="text-sm text-dark-400 mono">Ubicación</p>
+                  <p class="text-dark-100">Madrid, España (Remoto)</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-4">
+                <div
+                  class="w-12 h-12 bg-dark-800 rounded-lg flex items-center justify-center border border-dark-700"
+                >
+                  <span
+                    class="w-2 h-2 bg-green-500 rounded-full status-dot"
+                  ></span>
+                </div>
+                <div>
+                  <p class="text-sm text-dark-400 mono">Estado</p>
+                  <p class="text-dark-100">Disponible para proyectos</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-8 border-t border-dark-800">
+              <p className="text-sm text-dark-400 mb-4">Sígueme</p>
+              <div className="flex gap-4">
+                <a
+                  href="#"
+                  class="w-10 h-10 bg-dark-800 border border-dark-700 rounded-lg flex items-center justify-center text-dark-400 hover:text-primary hover:border-primary transition-colors"
+                  ><i data-lucide="github" class="w-5 h-5"></i
+                ></a>
+                <a
+                  href="#"
+                  class="w-10 h-10 bg-dark-800 border border-dark-700 rounded-lg flex items-center justify-center text-dark-400 hover:text-primary hover:border-primary transition-colors"
+                  ><i data-lucide="linkedin" class="w-5 h-5"></i
+                ></a>
+                <a
+                  href="#"
+                  class="w-10 h-10 bg-dark-800 border border-dark-700 rounded-lg flex items-center justify-center text-dark-400 hover:text-primary hover:border-primary transition-colors"
+                  ><i data-lucide="twitter" class="w-5 h-5"></i
+                ></a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Form -->
+          <form
+            class="reveal space-y-6 bg-dark-900 border border-dark-800 p-8 rounded-2xl"
+            id="contact-form"
+          >
+            <div>
+              <label
+                for="name"
+                class="block text-sm font-medium text-dark-400 mb-2 mono"
+                >Nombre</label
+              >
+              <input
+                type="text"
+                id="name"
+                name="name"
+                required
+                class="w-full px-4 py-3 bg-dark-950 border border-dark-700 rounded-lg text-dark-100 placeholder-dark-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                placeholder="John Doe"
+              />
+            </div>
+            <div>
+              <label
+                for="email"
+                class="block text-sm font-medium text-dark-400 mb-2 mono"
+                >Correo</label
+              >
+              <input
+                type="email"
+                id="email"
+                name="email"
+                required
+                class="w-full px-4 py-3 bg-dark-950 border border-dark-700 rounded-lg text-dark-100 placeholder-dark-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                placeholder="john@example.com"
+              />
+            </div>
+            <div>
+              <label
+                for="subject"
+                class="block text-sm font-medium text-dark-400 mb-2 mono"
+                >Asunto</label
+              >
+              <input
+                type="text"
+                id="subject"
+                name="subject"
+                required
+                class="w-full px-4 py-3 bg-dark-950 border border-dark-700 rounded-lg text-dark-100 placeholder-dark-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
+                placeholder="Proyecto de rediseño"
+              />
+            </div>
+            <div>
+              <label
+                for="message"
+                class="block text-sm font-medium text-dark-400 mb-2 mono"
+                >Mensaje</label
+              >
+              <textarea
+                id="message"
+                name="message"
+                rows="5"
+                required
+                class="w-full px-4 py-3 bg-dark-950 border border-dark-700 rounded-lg text-dark-100 placeholder-dark-700 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors resize-none"
+                placeholder="Cuéntame sobre tu proyecto..."
+              ></textarea>
+            </div>
+            <button
+              type="submit"
+              class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary-hover active:bg-primary-active text-white font-medium rounded-lg transition-colors focus-ring"
+            >
+              Enviar Mensaje
+              <i data-lucide="send" class="w-4 h-4"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-dark-800 py-12">
+      <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div
+          class="flex flex-col md:flex-row justify-between items-center gap-6"
+        >
+          <div class="flex items-center gap-2">
+            <div
+              class="w-8 h-8 bg-primary rounded-md flex items-center justify-center"
+            >
+              <span class="text-white font-display font-bold text-lg">A</span>
+            </div>
+            <span class="font-display font-bold text-lg">Alex Doe</span>
+          </div>
+
+          <div class="flex gap-6 text-sm text-dark-400">
+            <a href="#about" class="hover:text-dark-100 transition-colors"
+              >About</a
+            >
+            <a href="#projects" class="hover:text-dark-100 transition-colors"
+              >Projects</a
+            >
+            <a href="#contact" class="hover:text-dark-100 transition-colors"
+              >Contact</a
+            >
+          </div>
+
+          <div class="flex gap-4">
+            <a
+              href="#"
+              class="text-dark-400 hover:text-primary transition-colors"
+              ><i data-lucide="github" class="w-5 h-5"></i
+            ></a>
+            <a
+              href="#"
+              class="text-dark-400 hover:text-primary transition-colors"
+              ><i data-lucide="linkedin" class="w-5 h-5"></i
+            ></a>
+            <a
+              href="#"
+              class="text-dark-400 hover:text-primary transition-colors"
+              ><i data-lucide="twitter" class="w-5 h-5"></i
+            ></a>
+          </div>
+        </div>
+
+        <div
+          class="mt-8 pt-8 border-t border-dark-800 text-center text-sm text-dark-400"
+        >
+          <p>&copy; 2024 Alex Doe. Diseñado y construido con precisión.</p>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      // Initialize Lucide Icons
+      lucide.createIcons();
+
+      // Theme Toggle
+      const themeToggle = document.getElementById("theme-toggle");
+      const html = document.documentElement;
+
+      themeToggle.addEventListener("click", () => {
+        if (html.classList.contains("dark")) {
+          html.classList.remove("dark");
+          html.classList.add("light");
+        } else {
+          html.classList.remove("light");
+          html.classList.add("dark");
+        }
+        lucide.createIcons(); // Re-render icons
+      });
+
+      // Language Dropdown
+      const langBtn = document.getElementById("lang-btn");
+      const langDropdown = document.getElementById("lang-dropdown");
+
+      langBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        langDropdown.classList.toggle("hidden");
+      });
+
+      window.addEventListener("click", () => {
+        if (!langDropdown.classList.contains("hidden")) {
+          langDropdown.classList.add("hidden");
+        }
+      });
+
+      // Mobile Menu
+      const mobileBtn = document.getElementById("mobile-btn");
+      const mobileDrawer = document.getElementById("mobile-drawer");
+      const mobileLinks = document.querySelectorAll(".mobile-link");
+
+      mobileBtn.addEventListener("click", () => {
+        mobileDrawer.classList.toggle("hidden");
+      });
+
+      mobileLinks.forEach((link) => {
+        link.addEventListener("click", () => {
+          mobileDrawer.classList.add("hidden");
+        });
+      });
+
+      // Scroll Reveal Animation
+      const reveals = document.querySelectorAll(".reveal");
+
+      const revealOnScroll = () => {
+        reveals.forEach((reveal) => {
+          const windowHeight = window.innerHeight;
+          const elementTop = reveal.getBoundingClientRect().top;
+          const elementVisible = 100;
+
+          if (elementTop < windowHeight - elementVisible) {
+            reveal.classList.add("visible");
+          }
+        });
+      };
+
+      window.addEventListener("scroll", revealOnScroll);
+      // Trigger on load
+      revealOnScroll();
+
+      // Navbar scroll effect
+      const navbar = document.getElementById("navbar");
+      window.addEventListener("scroll", () => {
+        if (window.scrollY > 20) {
+          navbar.classList.add("shadow-lg");
+        } else {
+          navbar.classList.remove("shadow-lg");
+        }
+      });
+    </script>
+  </body>
+</html>
