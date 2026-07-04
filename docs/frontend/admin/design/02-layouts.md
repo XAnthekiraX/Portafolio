@@ -1,6 +1,29 @@
 # Layouts
 
-## Layout Principal (App Layout)
+La aplicación tiene dos layouts: **`PublicLayout`** (sitio público) y **`AdminLayout`** (panel de administración). La página de **login** es el único caso que no usa ningún layout — se renderiza como página standalone.
+
+## Layout Público (PublicLayout)
+
+```
++---------------------------------------------------+
+|  Navbar                                           |
+|  [logo] [nav-links] [lang-switcher] [theme-toggle] |
++---------------------------------------------------+
+|                                                    |
+|  <Outlet /> → HomePage (one-page scroll)           |
+|  (Hero, About, Skills, Technologies, Projects,     |
+|   Education, Services, Contact)                    |
+|                                                    |
++---------------------------------------------------+
+|  Footer                                            |
++---------------------------------------------------+
+```
+
+- Navbar fijo en la parte superior
+- Footer al final
+- El contenido se renderiza via `<Outlet />` de React Router
+
+## Layout Admin (AdminLayout)
 
 Estructura de dos columnas: Sidebar fijo a la izquierda + Main-wrapper a la derecha.
 

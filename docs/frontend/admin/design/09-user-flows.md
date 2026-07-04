@@ -1,5 +1,37 @@
 # User Flows
 
+## 0. Autenticación / Inicio de sesión
+
+1. Usuario navega a `/admin` (o cualquier ruta `/admin/*`)
+2. `ProtectedRoute` verifica si hay un token JWT válido en `localStorage`
+3. **Si no hay token:**
+   - Redirige automáticamente a `/admin/login`
+   - Se muestra `LoginPage` (standalone, sin sidebar ni topbar)
+   - Usuario ingresa email y password
+   - Presiona "Iniciar sesión"
+   - `POST /api/admin/auth/login` se envía al servidor
+   - **Éxito:** se guarda el token en `localStorage`, redirige a `/admin` (Dashboard)
+   - **Error:** se muestra mensaje de error en el formulario
+4. **Si hay token pero no se ha validado:**
+   - Se muestra un spinner/skeleton mientras se llama a `GET /api/admin/auth/me`
+   - **Token válido:** se renderiza `AdminLayout` con la vista solicitada
+   - **Token inválido/expirado:** se limpia el token, redirige a `/admin/login`
+5. **Si ya hay sesión activa y visita `/admin/login`:**
+   - Redirige automáticamente a `/admin`
+
+---
+
+## 11. Cerrar sesión
+
+1. Usuario hace click en "Cerrar sesión" (dropdown del avatar en sidebar o topbar)
+2. Se llama a `logout()` del contexto de autenticación
+3. `POST /api/admin/auth/logout` (fire-and-forget)
+4. Se elimina el token de `localStorage`
+5. Se redirige a `/admin/login`
+6. El `AdminLayout` se destruye completamente (no se ve sidebar ni topbar)
+
+---
+
 ## 1. Revisar Dashboard
 
 1. Usuario abre el panel

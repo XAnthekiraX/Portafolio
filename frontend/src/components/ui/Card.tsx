@@ -1,0 +1,28 @@
+import type { ReactNode } from "react"
+
+interface CardProps {
+  children: ReactNode
+  className?: string
+  ghost?: boolean
+  hover?: boolean
+  padding?: boolean
+}
+
+export function Card({ children, className = "", ghost, hover = true, padding = true }: CardProps) {
+  if (ghost) {
+    return (
+      <div
+        className={`border-2 border-dashed border-zinc-700 hover:border-red-500 hover:bg-red-500/10 rounded-xl ${padding ? "p-5" : ""} transition-all duration-200 cursor-pointer ${className}`}
+      >
+        {children}
+      </div>
+    )
+  }
+  return (
+    <div
+      className={`bg-[var(--color-bg-secondary)] border border-zinc-700 rounded-xl ${padding ? "p-5" : ""} ${hover ? "hover:border-zinc-500 transition-all duration-200" : ""} ${className}`}
+    >
+      {children}
+    </div>
+  )
+}

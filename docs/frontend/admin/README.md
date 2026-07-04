@@ -70,7 +70,50 @@ El panel tiene 8 vistas navegables desde la sidebar:
 
 El panel es privado. Todas las operaciones CRUD requieren autenticación JWT.
 
-Ver `api/03-authentication.md` para la especificación completa.
+### Rutas
+
+| Ruta | Layout | Auth requerida | Descripción |
+|---|---|---|---|
+| `/admin/login` | Standalone (sin sidebar ni topbar) | No | Formulario de inicio de sesión |
+| `/admin` | `AdminLayout` | Sí (JWT) | Dashboard con métricas |
+| `/admin/profile` | `AdminLayout` | Sí (JWT) | Editar perfil personal |
+| `/admin/skills` | `AdminLayout` | Sí (JWT) | Gestionar habilidades |
+| `/admin/cv` | `AdminLayout` | Sí (JWT) | Gestionar CV |
+| `/admin/education` | `AdminLayout` | Sí (JWT) | Formación y certificaciones |
+| `/admin/technologies` | `AdminLayout` | Sí (JWT) | Catálogo de tecnologías |
+| `/admin/projects` | `AdminLayout` | Sí (JWT) | CRUD de proyectos |
+| `/admin/services` | `AdminLayout` | Sí (JWT) | CRUD de servicios |
+
+### Flujo de guardia
+
+```
+Visitante navega a /admin/*
+         │
+         ▼
+  ¿Token válido en localStorage?
+         │
+    ┌────┴────┐
+    │         │
+   No        Sí
+    │         │
+    ▼         ▼
+  Redirect   Renderiza
+  a /admin/  AdminLayout
+  login      con vista
+             solicitada
+```
+
+- Si el usuario ya está autenticado y visita `/admin/login`, se redirige automáticamente a `/admin`.
+- `LoginPage` se renderiza **sin** `AdminLayout` (no tiene sidebar ni topbar).
+- El cierre de sesión redirige a `/admin/login`.
+
+### Componentes de autenticación
+
+- `AuthContext` (`src/context/AuthContext.tsx`) — provee `{ user, token, isAuthenticated, isLoading, login, logout }` a toda la app.
+- `ProtectedRoute` (`src/components/admin/ProtectedRoute.tsx`) — componente guard que verifica `isAuthenticated`; si está cargando muestra un spinner, si no hay sesión redirige a `/admin/login`.
+- `LoginPage` (`src/pages/admin/LoginPage.tsx`) — página standalone con formulario de email + password. Llama a `login()` del contexto al enviar.
+
+Ver `api/03-authentication.md` para la especificación completa de la API.
 
 ---
 

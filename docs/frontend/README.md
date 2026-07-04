@@ -70,20 +70,102 @@ export const Icon = ({ name, className, size = 24 }: IconProps) => {
 
 Si el nombre no existe en Lucide, no renderiza nada (no rompe).
 
+## Arquitectura de routing
+
+La aplicación tiene dos grupos de rutas bien diferenciados: **público** y **admin**.
+
+### Diagrama de componentes
+
+```
+main.tsx
+└── BrowserRouter
+    └── AuthProvider
+        └── Routes
+            ├── PublicLayout
+            │   └── / → HomePage
+            │
+            ├── /admin/login → LoginPage (standalone, sin layout admin)
+            │
+            └── ProtectedRoute (guarda auth)
+                └── AdminLayout
+                    ├── /admin → Dashboard
+                    ├── /admin/profile → Profile
+                    ├── /admin/skills → Skills
+                    ├── /admin/cv → CV
+                    ├── /admin/education → Education
+                    ├── /admin/technologies → Technologies
+                    ├── /admin/projects → Projects
+                    └── /admin/services → Services
+```
+
+### Flujo de autenticación
+
+```
+Visitante navega a /admin
+         │
+         ▼
+  ProtectedRoute verifica token
+         │
+    ┌────┴────┐
+    │         │
+   No        Sí
+    │         │
+    ▼         ▼
+  Redirect   Renderiza
+  a /admin/  AdminLayout
+  login      con vista
+    │         solicitada
+    ▼
+  LoginPage
+  (sin sidebar,
+   sin topbar)
+    │
+    ▼
+  POST /api/admin/auth/login
+    │
+    ├── Éxito → guarda token → redirect a /admin
+    └── Error → muestra mensaje en LoginPage
+```
+
+### Tabla de rutas
+
+| Ruta | Layout | Auth | Componente |
+|---|---|---|---|
+| `/` | `PublicLayout` | No | `HomePage` |
+| `/admin/login` | Ninguno (standalone) | No | `LoginPage` |
+| `/admin` | `AdminLayout` | Sí (JWT) | `Dashboard` |
+| `/admin/profile` | `AdminLayout` | Sí (JWT) | `Profile` |
+| `/admin/skills` | `AdminLayout` | Sí (JWT) | `Skills` |
+| `/admin/cv` | `AdminLayout` | Sí (JWT) | `CV` |
+| `/admin/education` | `AdminLayout` | Sí (JWT) | `Education` |
+| `/admin/technologies` | `AdminLayout` | Sí (JWT) | `Technologies` |
+| `/admin/projects` | `AdminLayout` | Sí (JWT) | `Projects` |
+| `/admin/services` | `AdminLayout` | Sí (JWT) | `Services` |
+
+### Comportamiento de guardia
+
+| Ruta visitada | Autenticado | Resultado |
+|---|---|---|
+| `/admin` | Sí | Renderiza Dashboard |
+| `/admin` | No | Redirige a `/admin/login` |
+| `/admin/login` | Sí | Redirige a `/admin` |
+| `/admin/login` | No | Renderiza LoginPage |
+
 ## Estructura del proyecto
 
 ```
 src/
-├── main.tsx                  # Entry point
-├── App.tsx                   # Router setup (public + admin)
+├── main.tsx                  # Entry point (BrowserRouter + AuthProvider)
+├── App.tsx                   # Router setup (public + admin routes)
 ├── index.css                 # Tailwind base
 ├── layouts/
-│   ├── PublicLayout.tsx      # Layout público (navbar, footer)
-│   └── AdminLayout.tsx       # Layout admin (sidebar, topbar)
+│   ├── PublicLayout.tsx      # Layout público (navbar, footer, <Outlet />)
+│   └── AdminLayout.tsx       # Layout admin (sidebar, topbar, <Outlet />)
 ├── pages/
 │   ├── public/
-│   │   └── Home.tsx          # One-page portfolio
+│   │   └── Home.tsx          # One-page portfolio (renamed from HomePage)
 │   └── admin/
+│       ├── LoginPage.tsx     # Login standalone (sin layout admin)
 │       ├── Dashboard.tsx
 │       ├── Profile.tsx
 │       ├── Skills.tsx
@@ -96,10 +178,12 @@ src/
 │   ├── ui/                   # Primitivas reutilizables (Button, Card, Modal…)
 │   ├── public/               # Componentes del sitio público
 │   └── admin/                # Componentes del panel admin
+│       └── ProtectedRoute.tsx # Guard que verifica auth y redirige
 ├── hooks/                    # Custom hooks
 ├── lib/                      # Utilidades, API client
 ├── types/                    # TypeScript interfaces
 ├── context/                  # Contextos (Theme, Auth, Language)
+│   └── AuthContext.tsx        # AuthProvider + useAuth hook
 └── services/                 # Funciones de API
 ```
 
