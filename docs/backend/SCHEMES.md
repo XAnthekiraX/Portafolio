@@ -190,6 +190,8 @@ contact_messages (independiente, solo escritura pública)
 | read_at | TIMESTAMPTZ | |
 | created_at | TIMESTAMPTZ | NOT NULL DEFAULT NOW() |
 
+**Auto-limpieza:** Los mensajes con `created_at < NOW() - INTERVAL '30 days'` se eliminan automáticamente (cron o trigger).
+
 ---
 
 ## Row-Level Security (RLS)
@@ -344,4 +346,4 @@ CREATE POLICY "admin_write_projects" ON storage.objects
 
 ## SQL completo de creación
 
-Ver `docs/database.md` para el SQL completo con todas las tablas, constraints, índices y DDL.
+Ver `docs/sql/01-schema.sql` para el SQL completo con todas las tablas, constraints, índices y DDL.

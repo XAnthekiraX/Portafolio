@@ -41,6 +41,7 @@ Todas las rutas requieren autenticación JWT excepto `/api/admin/auth/login`.
 | Technologies | `/api/admin/technologies` | Tecnologías del catálogo |
 | Projects | `/api/admin/projects` | Proyectos del portafolio |
 | Services | `/api/admin/services` | Servicios ofrecidos |
+| Contact | `/api/admin/contact` | Gestión de mensajes de contacto |
 
 ## Relación con Public API
 

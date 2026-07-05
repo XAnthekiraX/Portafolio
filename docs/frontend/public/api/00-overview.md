@@ -19,6 +19,7 @@ API REST que sirve los datos del portafolio personal de Anthony Bonilla. Proporc
 - Los endpoints de listado siempre devuelven un objeto con propiedad `data` que contiene un array.
 - Los endpoints de detalle devuelven un objeto con propiedad `data` que contiene el recurso.
 - Sin paginación (contenido estático de portfolio).
+- **Rate limiting**: `POST /api/contact` — máximo 3 solicitudes por hora por IP.
 
 ## Recursos identificados
 

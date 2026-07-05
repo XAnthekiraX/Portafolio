@@ -49,6 +49,7 @@ Error con detalles de validación:
 | `RESOURCE_NOT_FOUND` | 404 | El recurso solicitado no existe |
 | `METHOD_NOT_ALLOWED` | 405 | Método HTTP no soportado |
 | `CONFLICT` | 409 | Conflicto (ej. nombre de tecnología duplicado) |
+| `RATE_LIMIT_EXCEEDED` | 429 | Demasiadas solicitudes (ej. POST /api/contact) |
 | `INTERNAL_ERROR` | 500 | Error interno del servidor |
 
 ---

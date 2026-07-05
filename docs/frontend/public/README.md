@@ -23,8 +23,7 @@ public/
     ├── 03-authentication.md
     ├── 04-data-models.md
     ├── 05-validation.md
-    ├── 06-errors.md
-    └── 07-openapi.md
+    └── 06-errors.md
 ```
 
 ## Design

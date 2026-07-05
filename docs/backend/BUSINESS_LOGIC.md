@@ -21,6 +21,7 @@
 - **Icono Lucide.** El campo `icon` guarda el nombre del icono (ej. "Code2", "Server") que el frontend resuelve en runtime.
 - **Ordenable.** `display_order` define la posición.
 - **Tecnologías embebidas.** Se almacenan en `skill_technologies` como strings planos (no referencian a la tabla `technologies`).
+- **Gestión granular.** El admin puede crear/editar/eliminar tecnologías individuales dentro de una categoría. Al enviar un array `technologies` en POST/PATCH, el backend reemplaza todo el conjunto (delete + insert).
 
 ### Technologies
 
@@ -69,11 +70,13 @@
 
 - **Solo escritura pública.** El anónimo puede INSERT, nunca leer.
 - **Spam protection.** Rate limiting en `/api/contact` (máx. 3 por IP por hora).
+- **Auto-limpieza.** Los mensajes con más de 30 días de antigüedad se eliminan automáticamente (cron job diario o trigger en la DB).
 - **Estados internos:**
   - `unread` — Recién llegado.
   - `read` — Visto por el admin.
   - `replied` — Respondido.
-- **El admin** lee, marca como leído, y gestiona desde el panel.
+- **El admin** puede listar, ver detalle, marcar como leído/replied, y eliminar mensajes desde el panel.
+- **Conteo.** Endpoint `GET /api/admin/contact/count` devuelve totales agrupados por estado.
 
 ---
 
@@ -97,6 +100,25 @@ El admin ve y gestiona todos los registros independientemente de su estado.
 | `avatars` | `{user_id}/avatar.{ext}` | Se sobrescribe en cada PUT |
 | `cv` | `{user_id}/cv.pdf` | Se sobrescribe en cada POST |
 | `projects` | `{project_id}/image.{ext}` | Se sobrescribe en cada PATCH |
+
+### Rate Limiting
+
+| Endpoint | Límite | Ventana | Almacenamiento |
+|---|---|---|---|
+| `POST /api/contact` | 3 | 1 hora por IP | En memoria (o Redis si se escala) |
+
+Respuesta al exceder el límite:
+
+```json
+{
+  "error": {
+    "code": "RATE_LIMIT_EXCEEDED",
+    "message": "Too many requests. Please try again later."
+  }
+}
+```
+
+HTTP Status: **429 Too Many Requests**
 
 ### Validaciones comunes (Zod)
 

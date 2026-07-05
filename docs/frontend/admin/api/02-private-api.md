@@ -104,6 +104,7 @@ Obtiene el perfil completo del portafolio incluyendo sus redes sociales.
     "description": "string",
     "location": "string",
     "experienceYears": "integer",
+    "isAvailable": "boolean",
     "email": "string",
     "avatarUrl": "string",
     "socialLinks": [
@@ -133,6 +134,7 @@ Reemplaza todos los campos del perfil. Envío como `multipart/form-data`.
 | description | string | sí |
 | location | string | sí |
 | experienceYears | integer | sí |
+| isAvailable | boolean | no |
 | email | string | sí |
 | avatar | file | no (imagen, reemplaza avatarUrl) |
 
@@ -148,6 +150,7 @@ Reemplaza todos los campos del perfil. Envío como `multipart/form-data`.
     "description": "string",
     "location": "string",
     "experienceYears": "integer",
+    "isAvailable": "boolean",
     "email": "string",
     "avatarUrl": "string"
   }
@@ -258,6 +261,7 @@ Obtiene todas las categorías de habilidades con sus tecnologías.
     {
       "id": "string",
       "name": "string",
+      "icon": "string",
       "technologies": ["string"]
     }
   ]
@@ -275,6 +279,7 @@ Crea una nueva categoría de habilidad.
 ```json
 {
   "name": "string",
+  "icon": "string",
   "technologies": ["string"]
 }
 ```
@@ -286,6 +291,7 @@ Crea una nueva categoría de habilidad.
   "data": {
     "id": "string",
     "name": "string",
+    "icon": "string",
     "technologies": ["string"]
   }
 }
@@ -302,6 +308,7 @@ Actualiza una categoría de habilidad.
 ```json
 {
   "name": "string",
+  "icon": "string",
   "technologies": ["string"]
 }
 ```
@@ -313,6 +320,7 @@ Actualiza una categoría de habilidad.
   "data": {
     "id": "string",
     "name": "string",
+    "icon": "string",
     "technologies": ["string"]
   }
 }
@@ -338,19 +346,14 @@ Elimina una categoría de habilidad.
 
 ## GET /api/admin/cv
 
-Obtiene los metadatos del CV y su URL de descarga.
+Obtiene la URL del CV almacenada en el perfil.
 
 **Response — 200 OK**
 
 ```json
 {
   "data": {
-    "id": "string",
-    "fileName": "string",
-    "fileSize": "integer",
-    "fileType": "string",
-    "pages": "integer",
-    "downloadUrl": "string",
+    "cvUrl": "string",
     "lastUpdated": "string"
   }
 }
@@ -371,27 +374,20 @@ Obtiene los metadatos del CV y su URL de descarga.
 
 ## POST /api/admin/cv
 
-Guarda o actualiza la URL del archivo CV.
+Guarda o actualiza la URL del archivo CV. Envío como `multipart/form-data`.
 
-**Request Body**
+**Request (multipart/form-data)**
 
-```json
-{
-  "url": "string"
-}
-```
+| Campo | Tipo | Requerido |
+|---|---|---|
+| file | file | sí (PDF) |
 
 **Response — 200 OK**
 
 ```json
 {
   "data": {
-    "id": "string",
-    "fileName": "string",
-    "fileSize": "integer",
-    "fileType": "string",
-    "pages": "integer",
-    "downloadUrl": "string",
+    "cvUrl": "string",
     "lastUpdated": "string"
   }
 }
@@ -401,7 +397,7 @@ Guarda o actualiza la URL del archivo CV.
 
 ## DELETE /api/admin/cv
 
-Elimina el CV del portafolio.
+Elimina el CV del portafolio (setea `cv_url = NULL`).
 
 **Response — 200 OK**
 
@@ -546,7 +542,8 @@ Obtiene el catálogo de tecnologías.
   "data": [
     {
       "id": "string",
-      "name": "string"
+      "name": "string",
+      "icon": "string"
     }
   ]
 }
@@ -562,7 +559,8 @@ Crea una nueva tecnología.
 
 ```json
 {
-  "name": "string"
+  "name": "string",
+  "icon": "string"
 }
 ```
 
@@ -572,7 +570,8 @@ Crea una nueva tecnología.
 {
   "data": {
     "id": "string",
-    "name": "string"
+    "name": "string",
+    "icon": "string"
   }
 }
 ```
@@ -587,7 +586,8 @@ Actualiza una tecnología existente.
 
 ```json
 {
-  "name": "string"
+  "name": "string",
+  "icon": "string"
 }
 ```
 
@@ -597,7 +597,8 @@ Actualiza una tecnología existente.
 {
   "data": {
     "id": "string",
-    "name": "string"
+    "name": "string",
+    "icon": "string"
   }
 }
 ```
@@ -758,6 +759,7 @@ Obtiene todos los servicios ofrecidos.
       "id": "string",
       "title": "string",
       "description": "string",
+      "icon": "string",
       "status": "popular" | "available" | "ondemand",
       "displayOrder": "integer"
     }
@@ -777,6 +779,7 @@ Crea un nuevo servicio.
 {
   "title": "string",
   "description": "string",
+  "icon": "string",
   "status": "popular" | "available" | "ondemand",
   "displayOrder": "integer"
 }
@@ -790,6 +793,7 @@ Crea un nuevo servicio.
     "id": "string",
     "title": "string",
     "description": "string",
+    "icon": "string",
     "status": "popular" | "available" | "ondemand",
     "displayOrder": "integer"
   }
@@ -808,6 +812,7 @@ Actualiza un servicio existente.
 {
   "title": "string",
   "description": "string",
+  "icon": "string",
   "status": "popular" | "available" | "ondemand",
   "displayOrder": "integer"
 }
@@ -821,6 +826,7 @@ Actualiza un servicio existente.
     "id": "string",
     "title": "string",
     "description": "string",
+    "icon": "string",
     "status": "popular" | "available" | "ondemand",
     "displayOrder": "integer"
   }
@@ -832,6 +838,117 @@ Actualiza un servicio existente.
 ## DELETE /api/admin/services/:id
 
 Elimina un servicio.
+
+**Response — 200 OK**
+
+```json
+{
+  "data": {
+    "status": "deleted"
+  }
+}
+```
+
+---
+
+## GET /api/admin/contact/count
+
+Obtiene el conteo de mensajes de contacto agrupados por estado.
+
+**Response — 200 OK**
+
+```json
+{
+  "data": {
+    "total": "integer",
+    "unread": "integer",
+    "read": "integer",
+    "replied": "integer"
+  }
+}
+```
+
+---
+
+## GET /api/admin/contact
+
+Obtiene la lista de mensajes de contacto.
+
+**Response — 200 OK**
+
+```json
+{
+  "data": [
+    {
+      "id": "string",
+      "name": "string",
+      "email": "string",
+      "subject": "string",
+      "status": "unread" | "read" | "replied",
+      "createdAt": "string"
+    }
+  ]
+}
+```
+
+---
+
+## GET /api/admin/contact/:id
+
+Obtiene el detalle de un mensaje de contacto.
+
+**Response — 200 OK**
+
+```json
+{
+  "data": {
+    "id": "string",
+    "name": "string",
+    "email": "string",
+    "subject": "string",
+    "message": "string",
+    "status": "unread" | "read" | "replied",
+    "readAt": "string",
+    "createdAt": "string"
+  }
+}
+```
+
+---
+
+## PATCH /api/admin/contact/:id
+
+Actualiza el estado de un mensaje de contacto.
+
+**Request Body**
+
+```json
+{
+  "status": "read" | "replied"
+}
+```
+
+**Response — 200 OK**
+
+```json
+{
+  "data": {
+    "id": "string",
+    "name": "string",
+    "email": "string",
+    "subject": "string",
+    "status": "unread" | "read" | "replied",
+    "readAt": "string",
+    "createdAt": "string"
+  }
+}
+```
+
+---
+
+## DELETE /api/admin/contact/:id
+
+Elimina un mensaje de contacto.
 
 **Response — 200 OK**
 

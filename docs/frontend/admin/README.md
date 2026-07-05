@@ -46,6 +46,7 @@ docs/frontend/admin/
 | Tecnologías | `01-pages.md` (Technologies) | `02-private-api.md` → `/api/admin/technologies` |
 | Proyectos | `01-pages.md` (Projects) | `02-private-api.md` → `/api/admin/projects` |
 | Servicios | `01-pages.md` (Services) | `02-private-api.md` → `/api/admin/services` |
+| Mensajes de contacto | — | `02-private-api.md` → `/api/admin/contact` |
 
 ---
 

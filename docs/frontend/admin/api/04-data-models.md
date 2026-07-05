@@ -27,6 +27,7 @@ Representa la información del dueño del portafolio.
   "description": "string",
   "location": "string",
   "experienceYears": "integer",
+  "isAvailable": "boolean",
   "email": "string",
   "avatarUrl": "string",
   "socialLinks": [
@@ -48,6 +49,7 @@ Representa la información del dueño del portafolio.
 | description | string | Biografía o resumen profesional |
 | location | string | Ubicación geográfica |
 | experienceYears | integer | Años de experiencia |
+| isAvailable | boolean | Disponibilidad para proyectos |
 | email | string | Correo electrónico |
 | avatarUrl | string | URL de la foto de perfil (generada tras upload) |
 | socialLinks | array[SocialLink] | Lista de redes sociales |
@@ -78,6 +80,7 @@ Representa la información del dueño del portafolio.
 {
   "id": "string",
   "name": "string",
+  "icon": "string",
   "technologies": ["string"]
 }
 ```
@@ -86,32 +89,25 @@ Representa la información del dueño del portafolio.
 |---|---|---|
 | id | string | Identificador único |
 | name | string | Nombre de la categoría (ej. "Frontend", "Backend") |
+| icon | string | Nombre del icono Lucide (ej. "Code2", "Server") |
 | technologies | array[string] | Lista de nombres de tecnologías en la categoría |
 
 ---
 
 ## CV
 
+El CV se almacena como URL en `profiles.cv_url`. No existe una tabla separada.
+
 ```json
 {
-  "id": "string",
-  "fileName": "string",
-  "fileSize": "integer",
-  "fileType": "string",
-  "pages": "integer",
-  "downloadUrl": "string",
+  "cvUrl": "string",
   "lastUpdated": "string"
 }
 ```
 
 | Campo | Tipo | Descripción |
 |---|---|---|
-| id | string | Identificador único |
-| fileName | string | Nombre del archivo (ej. "cv-carlos-mendez.pdf") |
-| fileSize | integer | Tamaño en bytes |
-| fileType | string | Tipo MIME (ej. "application/pdf") |
-| pages | integer | Número de páginas |
-| downloadUrl | string | URL de descarga del archivo |
+| cvUrl | string | URL pública del archivo PDF en Supabase Storage |
 | lastUpdated | string | Fecha ISO 8601 de la última actualización |
 
 ---
@@ -151,7 +147,8 @@ Representa la información del dueño del portafolio.
 ```json
 {
   "id": "string",
-  "name": "string"
+  "name": "string",
+  "icon": "string"
 }
 ```
 
@@ -159,6 +156,7 @@ Representa la información del dueño del portafolio.
 |---|---|---|
 | id | string | Identificador único |
 | name | string | Nombre de la tecnología (ej. "React", "Docker") |
+| icon | string | Nombre del icono Lucide (ej. "ReactIcon", "Server") |
 
 ---
 
@@ -205,6 +203,7 @@ Representa la información del dueño del portafolio.
   "id": "string",
   "title": "string",
   "description": "string",
+  "icon": "string",
   "status": "popular" | "available" | "ondemand",
   "displayOrder": "integer"
 }
@@ -215,8 +214,37 @@ Representa la información del dueño del portafolio.
 | id | string | Identificador único |
 | title | string | Nombre del servicio |
 | description | string | Descripción del servicio |
+| icon | string | Nombre del icono Lucide (ej. "Globe", "Server") |
 | status | enum | "popular", "available", "ondemand" |
 | displayOrder | integer | Orden de visualización (ascendente) |
+
+---
+
+## ContactMessage
+
+```json
+{
+  "id": "string",
+  "name": "string",
+  "email": "string",
+  "subject": "string",
+  "message": "string",
+  "status": "unread" | "read" | "replied",
+  "readAt": "string",
+  "createdAt": "string"
+}
+```
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| id | string | Identificador único |
+| name | string | Nombre del remitente |
+| email | string | Correo electrónico del remitente |
+| subject | string | Asunto del mensaje |
+| message | string | Cuerpo del mensaje |
+| status | enum | "unread", "read", "replied" |
+| readAt | string | Fecha ISO 8601 de lectura (nullable) |
+| createdAt | string | Fecha ISO 8601 de creación |
 
 ---
 
@@ -228,3 +256,4 @@ Representa la información del dueño del portafolio.
 | EducationStatus | `active`, `expiring`, `expired` | Estado de certificación |
 | ProjectStatus | `published`, `draft`, `hidden` | Estado del proyecto |
 | ServiceStatus | `popular`, `available`, `ondemand` | Estado del servicio |
+| ContactStatus | `unread`, `read`, `replied` | Estado del mensaje de contacto |

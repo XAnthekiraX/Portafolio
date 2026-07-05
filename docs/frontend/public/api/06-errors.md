@@ -27,6 +27,7 @@ Todos los errores siguen la misma estructura:
 | `VALIDATION_ERROR` | 400 | Uno o más campos no pasaron validación |
 | `RESOURCE_NOT_FOUND` | 404 | El recurso solicitado no existe |
 | `METHOD_NOT_ALLOWED` | 405 | Método HTTP no soportado para el endpoint |
+| `RATE_LIMIT_EXCEEDED` | 429 | Demasiadas solicitudes (POST /api/contact) |
 | `INTERNAL_ERROR` | 500 | Error interno del servidor |
 
 ## Escenarios por endpoint

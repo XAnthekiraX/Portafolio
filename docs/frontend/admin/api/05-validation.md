@@ -25,6 +25,7 @@ La validación aplica a todos los endpoints de escritura. Los errores se devuelv
 | description | string | sí | 1-2000 caracteres |
 | location | string | sí | 1-200 caracteres |
 | experienceYears | integer | sí | 0-100 |
+| isAvailable | boolean | no | Default: true |
 | email | string | sí | Formato email válido, 1-254 caracteres |
 | avatar | file | no | Imagen. Formatos: jpg, png, webp. Máximo 5MB |
 
@@ -50,6 +51,7 @@ Mismas reglas que POST.
 | Campo | Tipo | Requerido | Reglas |
 |---|---|---|---|
 | name | string | sí | 1-100 caracteres |
+| icon | string | no | Nombre de icono Lucide |
 | technologies | array[string] | sí | Mínimo 1 elemento. Cada string: 1-100 caracteres |
 
 ---
@@ -94,6 +96,7 @@ Mismas reglas que POST. Todos los campos son opcionales (merge parcial).
 | Campo | Tipo | Requerido | Reglas |
 |---|---|---|---|
 | name | string | sí | 1-100 caracteres. Debe ser único |
+| icon | string | no | Nombre de icono Lucide |
 
 ---
 
@@ -102,6 +105,7 @@ Mismas reglas que POST. Todos los campos son opcionales (merge parcial).
 | Campo | Tipo | Requerido | Reglas |
 |---|---|---|---|
 | name | string | sí | 1-100 caracteres. Debe ser único |
+| icon | string | no | Nombre de icono Lucide |
 
 ---
 
@@ -132,6 +136,7 @@ Mismas reglas que POST. Todos los campos son opcionales (merge parcial).
 |---|---|---|---|
 | title | string | sí | 1-200 caracteres |
 | description | string | sí | 1-2000 caracteres |
+| icon | string | no | Nombre de icono Lucide |
 | status | enum | no | "popular", "available" o "ondemand". Default: "available" |
 | displayOrder | integer | no | Entero positivo |
 
@@ -140,6 +145,20 @@ Mismas reglas que POST. Todos los campos son opcionales (merge parcial).
 ## PATCH /api/admin/services/:id
 
 Mismas reglas que POST. Todos los campos son opcionales (merge parcial).
+
+---
+
+## POST /api/admin/contact — Solo público (POST /api/contact)
+
+Ver `docs/frontend/public/api/05-validation.md`.
+
+---
+
+## PATCH /api/admin/contact/:id
+
+| Campo | Tipo | Requerido | Reglas |
+|---|---|---|---|
+| status | enum | sí | "read" o "replied" |
 
 ---
 
@@ -155,3 +174,22 @@ Campos de texto:
 
 - **Technology.name**: debe ser único a nivel global.
 - **SocialLink.platform**: debe ser único por perfil (no se pueden tener dos enlaces de "github").
+
+## Rate Limiting
+
+| Endpoint | Límite | Ventana |
+|---|---|---|
+| `POST /api/contact` | 3 solicitudes | 1 hora por IP |
+
+Si se excede el límite:
+
+```json
+{
+  "error": {
+    "code": "RATE_LIMIT_EXCEEDED",
+    "message": "Too many requests. Please try again later."
+  }
+}
+```
+
+HTTP Status: **429 Too Many Requests**

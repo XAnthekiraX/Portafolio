@@ -36,6 +36,8 @@ backend/
 └── drizzle.config.ts
 ```
 
+Nota: `contact-message.service.ts` expone tanto el `insert` público (POST /api/contact) como los métodos privados (list, getById, updateStatus, delete, getCount) para el panel admin.
+
 ## Convenciones de código
 
 - **Idioma**: Código y comentarios en español.

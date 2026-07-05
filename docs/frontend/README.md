@@ -191,7 +191,7 @@ src/
 
 ### `docs/frontend/public/`
 
-Sitio público del portafolio — single-page application con scroll nativo, 8 secciones (Hero, About, Skills, Technologies, Projects, Education, Services, Contact), modo oscuro/claro y selector de idioma (ES/EN/PT).
+Sitio público del portafolio — single-page application con scroll nativo, 8 secciones (Hero, About, Skills, Technologies, Projects, Education, Services, Contact), modo oscuro/claro y selector de idioma (ES/EN/PT — las traducciones se implementarán en el futuro).
 
 - **`api/`** — Contrato REST público de solo lectura. Endpoints: `GET /api/profile`, `GET /api/skills`, `GET /api/technologies`, `GET /api/projects`, `GET /api/education`, `GET /api/services`, `GET /api/cv`, `POST /api/contact`. Sin autenticación.
 - **`design/`** — Documentación UX/UI extraída del prototipo HTML (`index.html`). Cubre páginas, layouts, secciones, componentes, sistema de diseño, navegación, formularios, responsive y flujos de usuario.

@@ -116,7 +116,7 @@ Si el token falta o es inválido → `401`.
 | POST | `/api/admin/auth/logout` | `signOut` | Cerrar sesión |
 | GET | `/api/admin/auth/me` | `getUser` | Verificar sesión |
 
-Estos endpoints los maneja directamente Supabase Auth (no hay ruta custom).
+Estos endpoints delegan en Supabase Auth. El backend actúa como proxy: recibe la petición, llama a `supabase.auth.signInWithPassword()` / `signOut()` / `getUser()` y devuelve la respuesta.
 
 ### Profile
 
@@ -189,6 +189,16 @@ Campos de profile: `firstName`, `lastName`, `title`, `description`, `location`, 
 | PATCH | `/api/admin/services/:id` | UPDATE |
 | DELETE | `/api/admin/services/:id` | DELETE |
 
+### Contact Messages
+
+| Método | Endpoint | Operación |
+|--------|----------|-----------|
+| GET | `/api/admin/contact/count` | SELECT COUNT agrupado por status |
+| GET | `/api/admin/contact` | SELECT (listado) |
+| GET | `/api/admin/contact/:id` | SELECT (detalle) |
+| PATCH | `/api/admin/contact/:id` | UPDATE status |
+| DELETE | `/api/admin/contact/:id` | DELETE |
+
 ---
 
 ## Errores comunes
@@ -199,6 +209,7 @@ Campos de profile: `firstName`, `lastName`, `title`, `description`, `location`, 
 | 401 | `UNAUTHORIZED` | Token faltante, inválido o expirado |
 | 401 | `INVALID_CREDENTIALS` | Email/password incorrectos (Supabase Auth) |
 | 404 | `RESOURCE_NOT_FOUND` | Recurso no existe |
+| 429 | `RATE_LIMIT_EXCEEDED` | Demasiadas solicitudes (POST /api/contact) |
 | 500 | `INTERNAL_ERROR` | Error del servidor |
 
 Todos los errores siguen el formato:

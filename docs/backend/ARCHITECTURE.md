@@ -42,12 +42,13 @@ routes/
     ├── auth.ts          → POST login/logout, GET me (delega a Supabase)
     ├── profile.ts       → GET/PUT profile
     ├── social.ts        → CRUD social_links
-    ├── skills.ts        → CRUD skill_categories
+    ├── skills.ts        → CRUD skill_categories + skill_technologies
     ├── cv.ts            → GET/POST/DELETE cv_url
     ├── education.ts     → CRUD education_items
     ├── technologies.ts  → CRUD technologies
     ├── projects.ts      → CRUD projects
-    └── services.ts      → CRUD services
+    ├── services.ts      → CRUD services
+    └── contact.ts       → List, detail, count, update status, delete
 ```
 
 ### 2. Middleware
@@ -57,7 +58,7 @@ routes/
 | `auth.ts` | Verifica JWT con `supabase.auth.getUser()`. Inserta `req.user`. |
 | `validate.ts` | Valida request body/params contra schema Zod. |
 | `error-handler.ts` | Captura errores, devuelve formato `{ error }`. |
-| `rate-limit.ts` | Límite de peticiones (especialmente POST /api/contact). |
+| `rate-limit.ts` | Límite de peticiones. `POST /api/contact`: 3 solicitudes por hora por IP. |
 
 ### 3. Services
 
