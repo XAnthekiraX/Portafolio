@@ -25,6 +25,7 @@ import adminProjectsRouter from "./routes/admin/projects";
 import adminServicesRouter from "./routes/admin/services";
 import adminContactRouter from "./routes/admin/contact";
 import adminDashboardRouter from "./routes/admin/dashboard";
+import adminNotificationsRouter from "./routes/admin/notifications";
 
 const app = express();
 
@@ -55,6 +56,7 @@ app.use("/api/admin/projects", authMiddleware, adminProjectsRouter);
 app.use("/api/admin/services", authMiddleware, adminServicesRouter);
 app.use("/api/admin/contact", authMiddleware, adminContactRouter);
 app.use("/api/admin/dashboard", authMiddleware, adminDashboardRouter);
+app.use("/api/admin/notifications", authMiddleware, adminNotificationsRouter);
 
 app.use(errorHandler);
 

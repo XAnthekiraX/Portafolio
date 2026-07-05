@@ -43,6 +43,7 @@ Todas las rutas requieren autenticación JWT excepto `/api/admin/auth/login`.
 | Services | `/api/admin/services` | Servicios ofrecidos |
 | Contact | `/api/admin/contact` | Gestión de mensajes de contacto |
 | Dashboard | `/api/admin/dashboard` | Métricas agregadas (conteos) |
+| Notifications | `/api/admin/notifications` | Notificaciones de mensajes no leídos |
 
 ## Relación con Public API
 

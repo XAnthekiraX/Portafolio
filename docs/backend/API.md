@@ -195,6 +195,12 @@ Campos de profile: `firstName`, `lastName`, `title`, `description`, `location`, 
 |--------|----------|-----------|
 | GET | `/api/admin/dashboard` | COUNT de projects, skill_categories, technologies, contact_messages |
 
+### Notifications
+
+| Método | Endpoint | Operación |
+|--------|----------|-----------|
+| GET | `/api/admin/notifications` | Mensajes no leídos recientes + conteos |
+
 ### Contact Messages
 
 | Método | Endpoint | Operación |

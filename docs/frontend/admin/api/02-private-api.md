@@ -965,6 +965,33 @@ Obtiene métricas agregadas del portafolio (conteos).
 
 ---
 
+## GET /api/admin/notifications
+
+Obtiene los mensajes de contacto no leídos recientes con conteos.
+
+**Response — 200 OK**
+
+```json
+{
+  "data": {
+    "unreadCount": "integer",
+    "todayCount": "integer",
+    "recent": [
+      {
+        "id": "string",
+        "name": "string",
+        "email": "string",
+        "subject": "string",
+        "message": "string (truncado a 100 chars)",
+        "createdAt": "string"
+      }
+    ]
+  }
+}
+```
+
+---
+
 ## DELETE /api/admin/contact/:id
 
 Elimina un mensaje de contacto.

@@ -49,7 +49,8 @@ routes/
     ├── projects.ts      → CRUD projects
     ├── services.ts      → CRUD services
     ├── contact.ts       → List, detail, count, update status, delete
-    └── dashboard.ts     → GET /api/admin/dashboard (counts)
+    ├── dashboard.ts     → GET /api/admin/dashboard (counts)
+    └── notifications.ts → GET /api/admin/notifications
 ```
 
 ### 2. Middleware
@@ -76,7 +77,8 @@ services/
 ├── cv.service.ts
 ├── service.service.ts       # Servicios profesionales
 ├── contact-message.service.ts
-└── dashboard.service.ts     # Métricas y conteos agregados
+├── dashboard.service.ts     # Métricas y conteos agregados
+└── notification.service.ts  # Notificaciones de mensajes no leídos
 ```
 
 ### 4. Database (Drizzle ORM)
