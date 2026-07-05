@@ -6,7 +6,7 @@ export function errorHandler(err: Error, _req: Request, res: Response, _next: Ne
     res.status(400).json({
       error: {
         code: "VALIDATION_ERROR",
-        message: "Formato de archivo no soportado. Solo se acepta webp.",
+        message: "Formato de archivo no soportado. Solo se acepta webp (imágenes) o PDF.",
       },
     });
     return;
