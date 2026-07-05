@@ -1,7 +1,7 @@
-import { Bell, Menu } from "lucide-react"
-import { useState } from "react"
+import { Bell, Menu, Mail, Clock } from "lucide-react"
+import { useState, useEffect, useCallback } from "react"
 import { useAuth } from "../../context/AuthContext"
-import { useNotification } from "../../context/NotificationContext"
+import { getNotifications, markContactRead, type NotificationsResponse } from "../../services/admin"
 
 interface TopbarProps {
   title: string
@@ -10,10 +10,16 @@ interface TopbarProps {
 
 export function Topbar({ title, onToggleSidebar }: TopbarProps) {
   const { user } = useAuth()
-  const { notifications, removeNotification, markAllRead } = useNotification()
   const [showNotifications, setShowNotifications] = useState(false)
+  const [notifData, setNotifData] = useState<NotificationsResponse | null>(null)
 
-  const unreadCount = notifications.filter((n) => !n.read).length
+  const refresh = useCallback(() => {
+    getNotifications()
+      .then((res) => setNotifData(res.data))
+      .catch(() => {})
+  }, [])
+
+  useEffect(() => { refresh() }, [refresh])
 
   return (
     <header className="h-16 min-h-16 bg-zinc-900 border-b border-zinc-700 flex items-center px-6 gap-5 max-md:px-4">
@@ -38,9 +44,9 @@ export function Topbar({ title, onToggleSidebar }: TopbarProps) {
           aria-label="Notificaciones"
         >
           <Bell className="w-5 h-5" />
-          {unreadCount > 0 && (
+          {(notifData?.unreadCount ?? 0) > 0 && (
             <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-600 text-white text-[11px] font-bold rounded-full flex items-center justify-center">
-              {unreadCount}
+              {notifData!.unreadCount}
             </span>
           )}
         </button>
@@ -51,35 +57,50 @@ export function Topbar({ title, onToggleSidebar }: TopbarProps) {
             <div className="absolute right-0 top-full mt-2 w-80 bg-zinc-800 border border-zinc-700 rounded-xl shadow-2xl z-50 max-h-96 overflow-hidden flex flex-col">
               <div className="flex items-center justify-between px-5 py-3.5 border-b border-zinc-700">
                 <h3 className="text-sm font-semibold text-zinc-100">Notificaciones</h3>
-                <button
-                  className="text-xs text-red-400 hover:text-red-300 cursor-pointer bg-transparent border-none"
-                  onClick={markAllRead}
-                >
-                  Marcar todas leídas
-                </button>
+                {notifData && notifData.todayCount > 0 && (
+                  <span className="text-xs text-cyan-400">
+                    {notifData.todayCount} hoy
+                  </span>
+                )}
               </div>
               <div className="overflow-y-auto flex-1">
-                {notifications.length === 0 ? (
+                {!notifData || notifData.recent.length === 0 ? (
                   <p className="text-sm text-zinc-500 text-center py-8">Sin notificaciones</p>
                 ) : (
-                  notifications.map((n) => (
-                    <div
+                  notifData.recent.map((n) => (
+                    <button
                       key={n.id}
-                      className={`px-5 py-3.5 border-b border-zinc-700/50 flex items-start gap-3 transition-colors ${
-                        n.read ? "opacity-60" : "bg-zinc-800"
-                      }`}
+                      onClick={async () => {
+                        await markContactRead(n.id).catch(() => {})
+                        refresh()
+                        window.location.href = `mailto:${n.email}?subject=Re: ${n.subject}`
+                      }}
+                      className="w-full text-left block px-5 py-3.5 border-b border-zinc-700/50 flex items-start gap-3 bg-zinc-800 hover:bg-zinc-700/50 transition-colors cursor-pointer border-none"
                     >
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm text-zinc-200">{n.message}</p>
-                        <p className="text-xs text-zinc-500 mt-0.5">{n.time}</p>
+                      <div className="w-7 h-7 rounded-lg bg-cyan-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <Mail className="w-3.5 h-3.5 text-cyan-500" />
                       </div>
-                      <button
-                        className="text-zinc-500 hover:text-zinc-300 cursor-pointer bg-transparent border-none shrink-0"
-                        onClick={() => removeNotification(n.id)}
-                      >
-                        ×
-                      </button>
-                    </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-zinc-100 truncate">
+                          {n.subject}
+                        </p>
+                        <p className="text-xs text-zinc-400 mt-0.5">
+                          {n.name} &lt;{n.email}&gt;
+                        </p>
+                        <p className="text-xs text-zinc-500 mt-1 leading-relaxed">
+                          {n.message}
+                        </p>
+                        <p className="text-[11px] text-zinc-600 mt-1.5 flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {new Date(n.createdAt).toLocaleString("es-ES", {
+                            day: "numeric",
+                            month: "short",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                      </div>
+                    </button>
                   ))
                 )}
               </div>

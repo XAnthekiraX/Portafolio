@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react"
+import { http } from "../lib/http"
 import type { Admin } from "../types/admin"
 
 interface AuthState {
@@ -17,6 +18,11 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 
 const TOKEN_KEY = "folio-cms-token"
 
+interface LoginResponse {
+  user: { id: string; email: string }
+  session?: { access_token: string }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({
     user: null,
@@ -31,16 +37,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setState((s) => ({ ...s, isLoading: false }))
       return
     }
-    fetch("/api/admin/auth/me", {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Invalid token")
-        return res.json()
-      })
-      .then((json) => {
+    http.get<{ id: string; email: string }>("/api/admin/auth/me")
+      .then((data) => {
         setState({
-          user: json.data,
+          user: { id: data.id, firstName: "", lastName: "", email: data.email },
           token,
           isAuthenticated: true,
           isLoading: false,
@@ -52,30 +52,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
   }, [])
 
-  // TODO: Eliminar esta validación falsa cuando las APIs estén habilitadas.
-  // Reemplazar con el fetch real a /api/admin/auth/login
   const login = useCallback(async (email: string, password: string) => {
-    if (email !== "alexbalverde123@gmail.com" || password !== "12345") {
-      throw new Error("Credenciales inválidas")
-    }
+    const data = await http.post<LoginResponse>("/api/admin/auth/login", { email, password })
+    const accessToken = data.session?.access_token ?? data.user?.id ?? ""
     const admin: Admin = {
-      id: "1",
-      firstName: "Alex",
-      lastName: "Balverde",
-      email: "alexbalverde123@gmail.com",
+      id: data.user.id,
+      firstName: "",
+      lastName: "",
+      email: data.user.email,
     }
-    const token = "mock-jwt-token-folio-cms"
-    localStorage.setItem(TOKEN_KEY, token)
-    setState({ user: admin, token, isAuthenticated: true, isLoading: false })
+    localStorage.setItem(TOKEN_KEY, accessToken)
+    setState({ user: admin, token: accessToken, isAuthenticated: true, isLoading: false })
   }, [])
 
   const logout = useCallback(() => {
     const token = state.token
     if (token) {
-      fetch("/api/admin/auth/logout", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      }).catch(() => {})
+      http.post("/api/admin/auth/logout").catch(() => {})
     }
     localStorage.removeItem(TOKEN_KEY)
     setState({ user: null, token: null, isAuthenticated: false, isLoading: false })

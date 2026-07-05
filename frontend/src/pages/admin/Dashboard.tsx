@@ -3,8 +3,7 @@ import {
   FolderKanban,
   Cpu,
   Zap,
-  Eye,
-  TrendingUp,
+  Mail,
   CheckCircle2,
   Circle,
   ArrowRight,
@@ -15,65 +14,64 @@ import { Tag } from "../../components/ui/Tag"
 import { Sparkline } from "../../components/ui/Sparkline"
 import { ProgressBar } from "../../components/ui/ProgressBar"
 import { Skeleton } from "../../components/ui/Skeleton"
-import type { Project } from "../../types/admin"
-import { getProjects } from "../../services/admin"
+import type { Project, Profile } from "../../types/admin"
+import { getDashboard, getProjects, getProfile } from "../../services/admin"
 
-const metrics = [
-  {
-    label: "Projects",
-    value: "12",
-    change: "+3",
-    trend: "up",
-    color: "red",
-    icon: FolderKanban,
-  },
-  {
-    label: "Technologies",
-    value: "18",
-    sparkline: [40, 65, 45, 80, 55, 90, 70, 100],
-    color: "cyan",
-    icon: Cpu,
-  },
-  {
-    label: "Skills",
-    value: "24",
-    tags: ["Frontend", "Backend", "DevOps"],
-    color: "red",
-    icon: Zap,
-  },
-  {
-    label: "Visits",
-    value: "1.2k",
-    change: "+18%",
-    trend: "up",
-    color: "cyan",
-    icon: Eye,
-  },
-]
-
-const activities = [
-  { text: 'Proyecto "E-Commerce" publicado', time: "Hace 2 horas", dot: "red" },
-  { text: 'Skill "TypeScript" actualizada', time: "Hace 5 horas", dot: "cyan" },
-  { text: "CV actualizado", time: "Hace 1 día", dot: "gray" },
-  { text: "3 tecnologías añadidas", time: "Hace 2 días", dot: "gray" },
-]
-
-const dotColors: Record<string, string> = {
-  red: "bg-red-600",
-  cyan: "bg-cyan-500",
-  gray: "bg-zinc-500",
+interface Metric {
+  label: string;
+  value: string;
+  color: string;
+  icon: typeof FolderKanban;
+  sparkline?: number[];
+  tags?: string[];
 }
 
 export function Dashboard() {
+  const [counts, setCounts] = useState<{ totalProjects: number; totalSkillCategories: number; totalTechnologies: number; unreadMessages: number } | null>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
   const [recentProjects, setRecentProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    getProjects().then((res) => {
-      setRecentProjects(res.data.slice(0, 3))
-      setLoading(false)
-    })
+    Promise.all([
+      getDashboard(),
+      getProjects(),
+      getProfile(),
+    ]).then(([dash, proj, prof]) => {
+      setCounts(dash.data)
+      setRecentProjects(proj.data.slice(0, 3))
+      setProfile(prof.data)
+    }).finally(() => setLoading(false))
   }, [])
+
+  const metrics: Metric[] = [
+    {
+      label: "Projects",
+      value: String(counts?.totalProjects ?? "—"),
+      color: "red",
+      icon: FolderKanban,
+    },
+    {
+      label: "Technologies",
+      value: String(counts?.totalTechnologies ?? "—"),
+      sparkline: [40, 65, 45, 80, 55, 90, 70, 100],
+      color: "cyan",
+      icon: Cpu,
+    },
+    {
+      label: "Skills",
+      value: String(counts?.totalSkillCategories ?? "—"),
+      tags: ["Frontend", "Backend", "DevOps"],
+      color: "red",
+      icon: Zap,
+    },
+    {
+      label: "Messages",
+      value: String(counts?.unreadMessages ?? "—"),
+      color: "cyan",
+      icon: Mail,
+    },
+  ]
 
   return (
     <div>
@@ -99,17 +97,6 @@ export function Dashboard() {
             <p className="font-heading text-3xl font-bold text-zinc-100">
               {m.value}
             </p>
-
-            {"change" in m && m.change && (
-              <div className="flex items-center gap-1.5 mt-2">
-                <Badge variant="green">
-                  <TrendingUp className="w-3.5 h-3.5" /> {m.change}
-                </Badge>
-                <span className="text-xs text-zinc-400">
-                  {"trend" in m && m.trend === "up" ? "este mes" : "vs mes anterior"}
-                </span>
-              </div>
-            )}
 
             {"sparkline" in m && m.sparkline && (
               <div className="mt-3">
@@ -210,13 +197,13 @@ export function Dashboard() {
             </h3>
             <div className="flex items-center gap-4 mb-5">
               <img
-                src="https://picsum.photos/seed/dev-avatar-cms/80/80.jpg"
+                src={profile?.avatarUrl || "https://picsum.photos/seed/dev-avatar-cms/80/80.jpg"}
                 alt=""
                 className="w-12 h-12 rounded-full object-cover"
               />
               <div>
                 <p className="text-base font-medium text-zinc-100">
-                  Carlos Mendez
+                  {profile ? `${profile.firstName} ${profile.lastName}` : "—"}
                 </p>
                 <p className="text-xs text-zinc-400">75% completo</p>
               </div>
@@ -224,10 +211,10 @@ export function Dashboard() {
             <ProgressBar value={75} />
             <div className="mt-4 space-y-2">
               {[
-                { label: "Foto de perfil", done: true },
-                { label: "Descripción", done: true },
-                { label: "CV adjunto", done: true },
-                { label: "Redes sociales", done: false },
+                { label: "Foto de perfil", done: !!profile?.avatarUrl },
+                { label: "Descripción", done: !!profile?.description },
+                { label: "CV adjunto", done: false },
+                { label: "Redes sociales", done: (profile?.socialLinks?.length ?? 0) > 0 },
               ].map((item) => (
                 <div
                   key={item.label}
@@ -239,25 +226,6 @@ export function Dashboard() {
                   ) : (
                     <Circle className="w-4 h-4 text-zinc-500" />
                   )}
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          <Card>
-            <h3 className="font-heading font-semibold text-base mb-5 text-zinc-100">
-              Actividad reciente
-            </h3>
-            <div className="space-y-4">
-              {activities.map((a) => (
-                <div key={a.text} className="flex items-start gap-3">
-                  <div
-                    className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${dotColors[a.dot]}`}
-                  />
-                  <div>
-                    <p className="text-sm text-zinc-100">{a.text}</p>
-                    <p className="text-xs mt-0.5 text-zinc-400">{a.time}</p>
-                  </div>
                 </div>
               ))}
             </div>
