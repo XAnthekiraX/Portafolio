@@ -7,6 +7,12 @@ import { skillCategoryService } from "../../services/skill-category.service";
 import { validate } from "../../middleware/validate";
 import { createSkillCategorySchema, updateSkillCategorySchema } from "../../validators/skill.validator";
 
+function normalizeTechs(techs: (string | { name: string; displayOrder?: number })[]) {
+  return techs.map((t) =>
+    typeof t === "string" ? { name: t } : t,
+  );
+}
+
 const router = Router();
 
 router.get("/", async (_req, res, next) => {
@@ -24,7 +30,7 @@ router.post("/", validate(createSkillCategorySchema), async (req, res, next) => 
     const category = await skillCategoryService.create(data);
 
     if (techs?.length) {
-      await skillCategoryService.replaceTechnologies(category.id, techs);
+      await skillCategoryService.replaceTechnologies(category.id, normalizeTechs(techs));
     }
 
     const result = await skillCategoryService.getAll();
@@ -41,7 +47,7 @@ router.patch("/:id", validate(updateSkillCategorySchema), async (req, res, next)
     const category = await skillCategoryService.update(p(req.params.id), data);
 
     if (techs) {
-      await skillCategoryService.replaceTechnologies(p(req.params.id), techs);
+      await skillCategoryService.replaceTechnologies(p(req.params.id), normalizeTechs(techs));
     }
 
     const result = await skillCategoryService.getAll();
