@@ -7,9 +7,25 @@ import { uploadAvatar } from "../../config/multer";
 import { validate } from "../../middleware/validate";
 import { updateProfileSchema } from "../../validators/profile.validator";
 import { createSocialLinkSchema, updateSocialLinkSchema } from "../../validators/social.validator";
+import type { ZodError } from "zod";
 
 function p(val: string | string[]): string {
   return Array.isArray(val) ? val[0] : val;
+}
+
+function parseProfileBody(body: Record<string, unknown>) {
+  const data: Record<string, unknown> = {};
+  const fields = ["firstName", "lastName", "title", "description", "location", "email"] as const;
+  for (const field of fields) {
+    if (body[field] !== undefined) data[field] = body[field];
+  }
+  if (body.experienceYears !== undefined) {
+    data.experienceYears = parseInt(body.experienceYears as string, 10);
+  }
+  if (body.isAvailable !== undefined) {
+    data.isAvailable = body.isAvailable === "true" || body.isAvailable === true;
+  }
+  return data;
 }
 
 const router = Router();
@@ -34,18 +50,22 @@ router.put("/", uploadAvatar.single("avatar"), async (req, res, next) => {
       return;
     }
 
-    const data: Record<string, unknown> = {};
+    const parsed = parseProfileBody(req.body);
 
-    const fields = ["firstName", "lastName", "title", "description", "location", "email"];
-    for (const field of fields) {
-      if (req.body[field] !== undefined) data[field] = req.body[field];
+    const result = updateProfileSchema.safeParse(parsed);
+    if (!result.success) {
+      const zodErr = result.error as ZodError;
+      res.status(400).json({
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Datos de perfil inválidos",
+          details: zodErr.errors.map((e) => ({ path: e.path.join("."), message: e.message })),
+        },
+      });
+      return;
     }
-    if (req.body.experienceYears !== undefined) {
-      data.experienceYears = parseInt(req.body.experienceYears as string, 10);
-    }
-    if (req.body.isAvailable !== undefined) {
-      data.isAvailable = req.body.isAvailable === "true";
-    }
+
+    const data = result.data as Record<string, unknown>;
 
     if (req.file) {
       const publicUrl = await uploadService.uploadFile(
@@ -57,7 +77,8 @@ router.put("/", uploadAvatar.single("avatar"), async (req, res, next) => {
       data.avatarUrl = publicUrl;
     }
 
-    const profile = await profileService.update(req.user.id, data);
+    await profileService.update(req.user.id, data);
+    const profile = await profileService.getAdmin();
     res.json({ data: profile });
   } catch (err) {
     next(err);
@@ -118,7 +139,7 @@ router.patch("/social/:id", validate(updateSocialLinkSchema), async (req, res, n
 router.delete("/social/:id", async (req, res, next) => {
   try {
     await socialLinkService.remove(p(req.params.id));
-    res.status(204).send();
+    res.json({ data: { status: "deleted" } });
   } catch (err) {
     next(err);
   }

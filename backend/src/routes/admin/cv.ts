@@ -1,4 +1,7 @@
 import { Router } from "express";
+import { eq } from "drizzle-orm";
+import { db } from "../../db";
+import { profiles } from "../../db/schema";
 import { profileService } from "../../services/profile.service";
 import { uploadService } from "../../services/upload.service";
 import { uploadCv } from "../../config/multer";
@@ -8,7 +11,16 @@ const router = Router();
 router.get("/", async (_req, res, next) => {
   try {
     const url = await profileService.getCvUrl();
-    res.json({ data: { url } });
+    if (!url) {
+      res.status(404).json({ error: { code: "RESOURCE_NOT_FOUND", message: "CV no disponible" } });
+      return;
+    }
+    const [profile] = await db
+      .select({ cvUpdatedAt: profiles.cvUpdatedAt })
+      .from(profiles)
+      .limit(1);
+
+    res.json({ data: { cvUrl: url, lastUpdated: profile?.cvUpdatedAt ?? null } });
   } catch (err) {
     next(err);
   }
@@ -34,7 +46,14 @@ router.post("/", uploadCv.single("file"), async (req, res, next) => {
     );
 
     await profileService.updateCvUrl(req.user.id, publicUrl);
-    res.status(201).json({ data: { url: publicUrl } });
+
+    const [profile] = await db
+      .select({ cvUrl: profiles.cvUrl, cvUpdatedAt: profiles.cvUpdatedAt })
+      .from(profiles)
+      .where(eq(profiles.id, req.user.id))
+      .limit(1);
+
+    res.status(200).json({ data: { cvUrl: profile?.cvUrl ?? publicUrl, lastUpdated: profile?.cvUpdatedAt ?? null } });
   } catch (err) {
     next(err);
   }
@@ -47,7 +66,7 @@ router.delete("/", async (req, res, next) => {
       return;
     }
     await profileService.clearCvUrl(req.user.id);
-    res.status(204).send();
+    res.json({ data: { status: "deleted" } });
   } catch (err) {
     next(err);
   }

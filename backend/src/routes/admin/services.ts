@@ -39,7 +39,7 @@ router.patch("/:id", validate(updateServiceSchema), async (req, res, next) => {
 router.delete("/:id", async (req, res, next) => {
   try {
     await serviceService.remove(p(req.params.id));
-    res.status(204).send();
+    res.json({ data: { status: "deleted" } });
   } catch (err) {
     next(err);
   }

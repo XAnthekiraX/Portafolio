@@ -8,8 +8,7 @@ export const profileService = {
     const result = await db
       .select()
       .from(profiles)
-      .leftJoin(socialLinks, eq(profiles.id, socialLinks.profileId))
-      .limit(1);
+      .leftJoin(socialLinks, eq(profiles.id, socialLinks.profileId));
 
     if (!result.length) return null;
 

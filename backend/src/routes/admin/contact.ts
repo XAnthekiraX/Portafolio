@@ -49,10 +49,10 @@ router.patch("/:id", validate(updateContactStatusSchema), async (req, res, next)
   }
 });
 
-  router.delete("/:id", async (req, res, next) => {
-    try {
-      await contactMessageService.remove(p(req.params.id));
-    res.status(204).send();
+router.delete("/:id", async (req, res, next) => {
+  try {
+    await contactMessageService.remove(p(req.params.id));
+    res.json({ data: { status: "deleted" } });
   } catch (err) {
     next(err);
   }
