@@ -124,6 +124,7 @@ Estos endpoints delegan en Supabase Auth. El backend actúa como proxy: recibe l
 |--------|----------|-------|-----------|
 | GET | `/api/admin/profile` | `profiles` + `social_links` | SELECT (JOIN) |
 | PUT | `/api/admin/profile` | `profiles` | UPDATE (multipart) |
+| GET | `/api/admin/profile/completion` | — | Porcentaje de perfil completado |
 
 Campos de profile: `firstName`, `lastName`, `title`, `description`, `location`, `experienceYears`, `email`, `avatar` (file opcional).
 

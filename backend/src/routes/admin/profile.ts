@@ -1,13 +1,14 @@
 import { Router } from "express";
+import { profileService } from "../../services/profile.service";
+import { socialLinkService } from "../../services/social-link.service";
+import { profileCompletionService } from "../../services/profile-completion.service";
+import { validate } from "../../middleware/validate";
+import { updateProfileSchema } from "../../validators/profile.validator";
+import { createSocialLinkSchema, updateSocialLinkSchema } from "../../validators/social.validator";
 
 function p(val: string | string[]): string {
   return Array.isArray(val) ? val[0] : val;
 }
-import { profileService } from "../../services/profile.service";
-import { socialLinkService } from "../../services/social-link.service";
-import { validate } from "../../middleware/validate";
-import { updateProfileSchema } from "../../validators/profile.validator";
-import { createSocialLinkSchema, updateSocialLinkSchema } from "../../validators/social.validator";
 
 const router = Router();
 
@@ -32,6 +33,19 @@ router.put("/", validate(updateProfileSchema), async (req, res, next) => {
     }
     const profile = await profileService.update(req.user.id, req.body);
     res.json({ data: profile });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get("/completion", async (req, res, next) => {
+  try {
+    if (!req.user) {
+      res.status(401).json({ error: { code: "UNAUTHORIZED", message: "No autenticado" } });
+      return;
+    }
+    const result = await profileCompletionService.getCompletion(req.user.id);
+    res.json({ data: result });
   } catch (err) {
     next(err);
   }

@@ -248,6 +248,24 @@ El CV se almacena como URL en `profiles.cv_url`. No existe una tabla separada.
 
 ---
 
+## ProfileCompletion
+
+```json
+{
+  "percentage": 75,
+  "checks": [
+    { "label": "string", "done": "boolean" }
+  ]
+}
+```
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| percentage | integer | Porcentaje de perfil completado (0-100) |
+| checks | array | Lista de items evaluados con su estado |
+
+---
+
 ## Dashboard
 
 ```json

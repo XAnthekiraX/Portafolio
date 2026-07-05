@@ -159,6 +159,35 @@ Reemplaza todos los campos del perfil. Envío como `multipart/form-data`.
 
 ---
 
+## GET /api/admin/profile/completion
+
+Obtiene el porcentaje de completitud del perfil y una lista de checks.
+
+**Response — 200 OK**
+
+```json
+{
+  "data": {
+    "percentage": 75,
+    "checks": [
+      { "label": "Foto de perfil", "done": true },
+      { "label": "Descripción profesional", "done": true },
+      { "label": "CV adjunto", "done": false },
+      { "label": "Redes sociales", "done": true },
+      { "label": "Título profesional", "done": true },
+      { "label": "Ubicación", "done": false }
+    ]
+  }
+}
+```
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| percentage | integer | 0-100, redondeado |
+| checks | array | Lista de items con label y done |
+
+---
+
 ## GET /api/admin/profile/social
 
 Lista todas las redes sociales del perfil.
