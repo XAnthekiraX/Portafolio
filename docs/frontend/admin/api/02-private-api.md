@@ -946,6 +946,25 @@ Actualiza el estado de un mensaje de contacto.
 
 ---
 
+## GET /api/admin/dashboard
+
+Obtiene métricas agregadas del portafolio (conteos).
+
+**Response — 200 OK**
+
+```json
+{
+  "data": {
+    "totalProjects": "integer",
+    "totalSkillCategories": "integer",
+    "totalTechnologies": "integer",
+    "unreadMessages": "integer"
+  }
+}
+```
+
+---
+
 ## DELETE /api/admin/contact/:id
 
 Elimina un mensaje de contacto.

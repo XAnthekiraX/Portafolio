@@ -248,6 +248,26 @@ El CV se almacena como URL en `profiles.cv_url`. No existe una tabla separada.
 
 ---
 
+## Dashboard
+
+```json
+{
+  "totalProjects": "integer",
+  "totalSkillCategories": "integer",
+  "totalTechnologies": "integer",
+  "unreadMessages": "integer"
+}
+```
+
+| Campo | Tipo | Descripción |
+|---|---|---|
+| totalProjects | integer | Total de proyectos (todos los status) |
+| totalSkillCategories | integer | Total de categorías de habilidades |
+| totalTechnologies | integer | Total de tecnologías en el catálogo |
+| unreadMessages | integer | Mensajes de contacto no leídos |
+
+---
+
 ## Enums globales
 
 | Enum | Valores | Uso |

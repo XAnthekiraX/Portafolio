@@ -189,6 +189,12 @@ Campos de profile: `firstName`, `lastName`, `title`, `description`, `location`, 
 | PATCH | `/api/admin/services/:id` | UPDATE |
 | DELETE | `/api/admin/services/:id` | DELETE |
 
+### Dashboard
+
+| Método | Endpoint | Operación |
+|--------|----------|-----------|
+| GET | `/api/admin/dashboard` | COUNT de projects, skill_categories, technologies, contact_messages |
+
 ### Contact Messages
 
 | Método | Endpoint | Operación |
