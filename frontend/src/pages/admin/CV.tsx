@@ -1,16 +1,53 @@
-import { Upload, Download, CheckCircle2, Info } from "lucide-react"
-import { useQuery } from "@tanstack/react-query"
+import { useEffect, useState, useRef } from "react"
+import { Upload, Download, Trash2, FileText, Info, Loader2 } from "lucide-react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Card } from "../../components/ui/Card"
 import { Button } from "../../components/ui/Button"
-import { Skeleton } from "../../components/ui/Skeleton"
-import { getCV } from "../../services/admin"
+import { getCV, uploadCv, deleteCv } from "../../services/admin"
 import { queryKeys } from "../../lib/queryKeys"
+import { useNotification } from "../../context/NotificationContext"
 
 export function CV() {
+  const queryClient = useQueryClient()
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const { notify } = useNotification()
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+
   const { data: cv } = useQuery({
     queryKey: queryKeys.cv,
     queryFn: () => getCV().then((r) => r.data),
     staleTime: 5 * 60 * 1000,
+  })
+
+  useEffect(() => {
+    if (cv?.downloadUrl) setPreviewUrl(cv.downloadUrl)
+  }, [cv])
+
+  const uploadMutation = useMutation({
+    mutationFn: uploadCv,
+    onSuccess: (res) => {
+      notify("CV subido correctamente", "success")
+      setPreviewUrl(res.data.url)
+      queryClient.invalidateQueries({ queryKey: queryKeys.cv })
+    },
+    onError: (error) => {
+      const msg = typeof error === "object" && error !== null && "message" in error
+        ? String(error.message)
+        : "Error al subir CV"
+      notify(msg, "error")
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteCv,
+    onSuccess: () => {
+      notify("CV eliminado", "success")
+      setPreviewUrl(null)
+      queryClient.invalidateQueries({ queryKey: queryKeys.cv })
+    },
+    onError: () => {
+      notify("Error al eliminar CV", "error")
+    },
   })
 
   return (
@@ -23,55 +60,106 @@ export function CV() {
                 Vista previa del CV
               </h3>
               <p className="text-sm mt-1 text-zinc-400">
-                Este es el documento que los visitantes podrán descargar
+                {cv
+                  ? "Este es el documento que los visitantes podrán descargar"
+                  : "Aún no has subido ningún CV"}
               </p>
             </div>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-green-500/15 text-green-500">
-              <CheckCircle2 className="w-3.5 h-3.5" /> Actualizado
-            </span>
+            {cv && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-green-500/15 text-green-500">
+                <Upload className="w-3.5 h-3.5" /> Subido
+              </span>
+            )}
           </div>
 
           <div className="rounded-lg border border-zinc-700 overflow-hidden bg-zinc-950">
             <div className="p-8 border-b border-zinc-700">
               <div className="flex items-center gap-5">
-                <Skeleton noAnimation className="w-20 h-20 rounded-xl flex-shrink-0 bg-zinc-800" />
+                <div className="w-20 h-20 rounded-xl flex items-center justify-center bg-zinc-800 flex-shrink-0">
+                  <FileText className="w-8 h-8 text-zinc-400" />
+                </div>
                 <div>
-                  <Skeleton noAnimation className="h-6 w-56 rounded mb-2 bg-zinc-800" />
-                  <Skeleton noAnimation className="h-4 w-40 rounded bg-zinc-800" />
+                  <p className="text-base font-medium text-zinc-100">
+                    {cv?.fileName || "Ningún archivo seleccionado"}
+                  </p>
+                  <p className="text-sm text-zinc-400 mt-1">
+                    {cv ? `${(cv.fileSize / 1024).toFixed(0)} KB · PDF` : "Subí tu CV en formato PDF"}
+                  </p>
                 </div>
               </div>
             </div>
-            <div className="p-8 space-y-5">
-              {[1, 2, 3].map((section) => (
-                <div key={section}>
-                  <Skeleton noAnimation className="h-4 w-24 rounded mb-3 bg-zinc-800" />
-                  <div className="space-y-2">
-                    <Skeleton noAnimation className="h-3 w-full rounded bg-zinc-800" />
-                    <Skeleton noAnimation className="h-3 w-5/6 rounded bg-zinc-800" />
-                    <Skeleton noAnimation className="h-3 w-4/6 rounded bg-zinc-800" />
-                  </div>
+            <div className="p-4">
+              {previewUrl ? (
+                <iframe
+                  src={previewUrl}
+                  className="w-full h-[500px] rounded-lg border-0"
+                  title="Vista previa del CV"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center py-16 text-zinc-500">
+                  <FileText className="w-12 h-12 mb-3 text-zinc-600" />
+                  <p className="text-sm">Sin vista previa disponible</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
           <div className="flex gap-3 mt-6">
-            <Button>
-              <Upload className="w-4 h-4" /> Reemplazar CV
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,application/pdf"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (!file) return
+                if (file.type !== "application/pdf") {
+                  notify("Solo se acepta formato PDF", "error")
+                  e.target.value = ""
+                  return
+                }
+                uploadMutation.mutate(file)
+                e.target.value = ""
+              }}
+            />
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadMutation.isPending}
+            >
+              {uploadMutation.isPending ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Subiendo...</>
+              ) : (
+                <><Upload className="w-4 h-4" /> {cv ? "Reemplazar CV" : "Subir CV"}</>
+              )}
             </Button>
-            <Button variant="secondary">
-              <Download className="w-4 h-4" /> Descargar
-            </Button>
+            {previewUrl && (
+              <Button
+                variant="secondary"
+                onClick={() => window.open(previewUrl, "_blank")}
+              >
+                <Download className="w-4 h-4" /> Descargar
+              </Button>
+            )}
+            {cv && (
+              <Button
+                variant="secondary"
+                className="!text-red-400 hover:!bg-red-500/10 hover:!text-red-400"
+                onClick={() => deleteMutation.mutate()}
+                disabled={deleteMutation.isPending}
+              >
+                <Trash2 className="w-4 h-4" /> Eliminar
+              </Button>
+            )}
           </div>
         </Card>
       </div>
 
-      {cv && (
-        <div className="space-y-6">
-          <Card>
-            <h3 className="font-heading font-semibold text-base mb-5 text-zinc-100">
-              Información del archivo
-            </h3>
+      <div className="space-y-6">
+        <Card>
+          <h3 className="font-heading font-semibold text-base mb-5 text-zinc-100">
+            Información del archivo
+          </h3>
+          {cv ? (
             <div className="space-y-4">
               {[
                 { label: "Nombre", value: cv.fileName },
@@ -86,24 +174,26 @@ export function CV() {
                 </div>
               ))}
             </div>
-          </Card>
+          ) : (
+            <p className="text-sm text-zinc-500">No hay CV subido</p>
+          )}
+        </Card>
 
-          <Card className="border-cyan-500/30 bg-cyan-500/10 [&>div]:bg-transparent [&>div]:border-0">
-            <div className="flex items-start gap-3">
-              <Info className="w-5 h-5 flex-shrink-0 mt-0.5 text-cyan-400" />
-              <div>
-                <p className="text-sm font-medium text-zinc-100">
-                  Formato recomendado
-                </p>
-                <p className="text-xs mt-1 leading-relaxed text-zinc-400">
-                  Sube tu CV en formato PDF, máximo 5MB. Se mostrará como enlace
-                  de descarga en tu portafolio.
-                </p>
-              </div>
+        <Card className="border-cyan-500/30 bg-cyan-500/10 [&>div]:bg-transparent [&>div]:border-0">
+          <div className="flex items-start gap-3">
+            <Info className="w-5 h-5 flex-shrink-0 mt-0.5 text-cyan-400" />
+            <div>
+              <p className="text-sm font-medium text-zinc-100">
+                Formato recomendado
+              </p>
+              <p className="text-xs mt-1 leading-relaxed text-zinc-400">
+                Sube tu CV en formato PDF, máximo 10MB. Se mostrará como enlace
+                de descarga en tu portafolio.
+              </p>
             </div>
-          </Card>
-        </div>
-      )}
+          </div>
+        </Card>
+      </div>
     </div>
   )
 }

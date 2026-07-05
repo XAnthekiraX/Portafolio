@@ -20,8 +20,9 @@ async function request<T>(
   options: RequestInit = {},
 ): Promise<T> {
   const token = getToken();
+  const isFormData = options.body instanceof FormData;
   const headers: Record<string, string> = {
-    "Content-Type": "application/json",
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
     ...(options.headers as Record<string, string>),
   };
 
@@ -58,7 +59,13 @@ export const http = {
     request<T>(path, { method: "POST", body: body ? JSON.stringify(body) : undefined }),
   put: <T>(path: string, body?: unknown) =>
     request<T>(path, { method: "PUT", body: body ? JSON.stringify(body) : undefined }),
+  putForm: <T>(path: string, body: FormData) =>
+    request<T>(path, { method: "PUT", body, headers: {} }),
+  postForm: <T>(path: string, body: FormData) =>
+    request<T>(path, { method: "POST", body, headers: {} }),
   patch: <T>(path: string, body?: unknown) =>
     request<T>(path, { method: "PATCH", body: body ? JSON.stringify(body) : undefined }),
+  patchForm: <T>(path: string, body: FormData) =>
+    request<T>(path, { method: "PATCH", body, headers: {} }),
   delete: <T>(path: string) => request<T>(path, { method: "DELETE" }),
 };

@@ -14,6 +14,7 @@ export interface Profile {
   location: string
   experienceYears: number
   email: string
+  isAvailable: boolean
   avatarUrl: string
   socialLinks: SocialLink[]
 }
@@ -61,9 +62,11 @@ export interface Project {
   id: string
   title: string
   description: string
+  category: string
   imageUrl: string
   url: string
   repository: string
+  features: string[]
   technologies: string[]
   status: "published" | "draft" | "hidden"
   visits: number

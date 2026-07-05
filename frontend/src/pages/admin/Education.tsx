@@ -1,16 +1,64 @@
-import { Plus, MoreHorizontal } from "lucide-react"
-import { useQuery } from "@tanstack/react-query"
+import { useState } from "react"
+import { Plus, Pencil, Trash2 } from "lucide-react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Card } from "../../components/ui/Card"
 import { Badge } from "../../components/ui/Badge"
 import { Button } from "../../components/ui/Button"
-import { getEducation } from "../../services/admin"
+import { EducationModal } from "../../components/admin/EducationModal"
+import {
+  getEducation,
+  createEducation,
+  updateEducation,
+  deleteEducation,
+} from "../../services/admin"
+import type { EducationItem } from "../../types/admin"
 import { queryKeys } from "../../lib/queryKeys"
+import { useNotification } from "../../context/NotificationContext"
 
 export function Education() {
+  const queryClient = useQueryClient()
+  const { notify } = useNotification()
   const { data: items = [] } = useQuery({
     queryKey: queryKeys.education,
     queryFn: () => getEducation().then((r) => r.data),
     staleTime: 5 * 60 * 1000,
+  })
+
+  const [editing, setEditing] = useState<EducationItem | null>(null)
+  const [showCreate, setShowCreate] = useState(false)
+
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.education })
+  }
+
+  const createMutation = useMutation({
+    mutationFn: createEducation,
+    onSuccess: () => {
+      notify("Formación creada", "success")
+      setShowCreate(false)
+      invalidate()
+    },
+    onError: () => notify("Error al crear formación", "error"),
+  })
+
+  const editMutation = useMutation({
+    mutationFn: ({ id, ...data }: { id: string } & Parameters<typeof updateEducation>[1]) =>
+      updateEducation(id, data),
+    onSuccess: () => {
+      notify("Formación actualizada", "success")
+      setEditing(null)
+      invalidate()
+    },
+    onError: () => notify("Error al actualizar formación", "error"),
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteEducation,
+    onSuccess: () => {
+      notify("Formación eliminada", "success")
+      invalidate()
+    },
+    onError: () => notify("Error al eliminar formación", "error"),
   })
 
   const academic = items.filter((i) => i.type === "academic")
@@ -22,7 +70,7 @@ export function Education() {
         <p className="text-base text-zinc-400">
           Tu formación académica y certificaciones
         </p>
-        <Button>
+        <Button onClick={() => setShowCreate(true)}>
           <Plus className="w-4 h-4" /> Agregar
         </Button>
       </div>
@@ -40,9 +88,26 @@ export function Education() {
                   <h4 className="font-heading font-semibold text-base text-zinc-100">
                     {item.title}
                   </h4>
-                  <Button variant="ghost" className="!p-1">
-                    <MoreHorizontal className="w-4 h-4" />
-                  </Button>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      className="!p-1.5"
+                      onClick={() => setEditing(item)}
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="!p-1.5 hover:!bg-red-500/10 hover:!text-red-500"
+                      onClick={() => {
+                        if (window.confirm(`¿Eliminar "${item.title}"?`)) {
+                          deleteMutation.mutate(item.id)
+                        }
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
                 <p className="text-sm mb-2 text-cyan-500">{item.institution}</p>
                 <p className="text-xs text-zinc-400">
@@ -70,21 +135,41 @@ export function Education() {
                   <h4 className="font-heading font-semibold text-base text-zinc-100">
                     {item.title}
                   </h4>
-                  <Badge
-                    variant={
-                      item.status === "active"
-                        ? "green"
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant={
+                        item.status === "active"
+                          ? "green"
+                          : item.status === "expiring"
+                          ? "yellow"
+                          : "red"
+                      }
+                    >
+                      {item.status === "active"
+                        ? "Activo"
                         : item.status === "expiring"
-                        ? "yellow"
-                        : "red"
-                    }
-                  >
-                    {item.status === "active"
-                      ? "Activo"
-                      : item.status === "expiring"
-                      ? "Próximo a expirar"
-                      : "Expirado"}
-                  </Badge>
+                        ? "Próximo a expirar"
+                        : "Expirado"}
+                    </Badge>
+                    <Button
+                      variant="ghost"
+                      className="!p-1.5"
+                      onClick={() => setEditing(item)}
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="!p-1.5 hover:!bg-red-500/10 hover:!text-red-500"
+                      onClick={() => {
+                        if (window.confirm(`¿Eliminar "${item.title}"?`)) {
+                          deleteMutation.mutate(item.id)
+                        }
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
                 <p className="text-sm mb-2 text-cyan-500">{item.institution}</p>
                 <p className="text-xs text-zinc-400">
@@ -99,6 +184,36 @@ export function Education() {
           ))}
         </div>
       </div>
+
+      {showCreate && (
+        <EducationModal
+          mode="create"
+          onSave={(data) => createMutation.mutate(data)}
+          onCancel={() => setShowCreate(false)}
+          isPending={createMutation.isPending}
+        />
+      )}
+
+      {editing && (
+        <EducationModal
+          mode="edit"
+          initial={{
+            title: editing.title,
+            institution: editing.institution,
+            type: editing.type,
+            startDate: editing.startDate,
+            endDate: editing.endDate,
+            description: editing.description,
+            status: editing.status,
+            displayOrder: editing.displayOrder,
+          }}
+          onSave={(data) =>
+            editMutation.mutate({ id: editing.id, ...data })
+          }
+          onCancel={() => setEditing(null)}
+          isPending={editMutation.isPending}
+        />
+      )}
     </div>
   )
 }

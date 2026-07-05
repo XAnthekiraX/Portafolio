@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { NotificationProvider } from "./context/NotificationContext";
+import { ToastContainer } from "./components/ui/ToastContainer";
 import { ProtectedRoute } from "./components/admin/ProtectedRoute";
 import { PublicLayout } from "./layouts/PublicLayout";
 import { AdminLayout } from "./layouts/AdminLayout";
@@ -20,6 +21,7 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <NotificationProvider>
+          <ToastContainer />
         <Routes>
           <Route element={<PublicLayout />}>
             <Route index element={<Home />} />

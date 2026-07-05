@@ -1,17 +1,66 @@
-import { Plus, Pencil, ExternalLink, Github, MoreHorizontal } from "lucide-react"
-import { useQuery } from "@tanstack/react-query"
+import { useState } from "react"
+import { Plus, Pencil, Trash2, ExternalLink, Github } from "lucide-react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Card } from "../../components/ui/Card"
 import { Badge } from "../../components/ui/Badge"
 import { Tag } from "../../components/ui/Tag"
 import { Button } from "../../components/ui/Button"
-import { getProjects } from "../../services/admin"
+import { ProjectModal } from "../../components/admin/ProjectModal"
+import {
+  getProjects,
+  createProject,
+  updateProject,
+  deleteProject,
+} from "../../services/admin"
+import type { Project } from "../../types/admin"
 import { queryKeys } from "../../lib/queryKeys"
+import { useNotification } from "../../context/NotificationContext"
 
 export function Projects() {
+  const queryClient = useQueryClient()
+  const { notify } = useNotification()
   const { data: projects = [] } = useQuery({
     queryKey: queryKeys.projects,
     queryFn: () => getProjects().then((r) => r.data),
     staleTime: 5 * 60 * 1000,
+  })
+
+  const [editing, setEditing] = useState<Project | null>(null)
+  const [showCreate, setShowCreate] = useState(false)
+
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.projects })
+  }
+
+  const createMutation = useMutation({
+    mutationFn: ({ data, image }: { data: Parameters<typeof createProject>[0]; image?: File }) =>
+      createProject(data, image),
+    onSuccess: () => {
+      notify("Proyecto creado", "success")
+      setShowCreate(false)
+      invalidate()
+    },
+    onError: () => notify("Error al crear proyecto", "error"),
+  })
+
+  const editMutation = useMutation({
+    mutationFn: ({ id, data, image }: { id: string; data: Parameters<typeof updateProject>[1]; image?: File }) =>
+      updateProject(id, data, image),
+    onSuccess: () => {
+      notify("Proyecto actualizado", "success")
+      setEditing(null)
+      invalidate()
+    },
+    onError: () => notify("Error al actualizar proyecto", "error"),
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteProject,
+    onSuccess: () => {
+      notify("Proyecto eliminado", "success")
+      invalidate()
+    },
+    onError: () => notify("Error al eliminar proyecto", "error"),
   })
 
   return (
@@ -20,7 +69,7 @@ export function Projects() {
         <p className="text-base text-zinc-400">
           {projects.length} proyectos en tu portafolio
         </p>
-        <Button>
+        <Button onClick={() => setShowCreate(true)}>
           <Plus className="w-4 h-4" /> Nuevo proyecto
         </Button>
       </div>
@@ -40,9 +89,26 @@ export function Projects() {
                 <h4 className="font-heading font-semibold text-base text-zinc-100">
                   {p.title}
                 </h4>
-                <Button variant="ghost" className="!p-1.5">
-                  <Pencil className="w-4 h-4" />
-                </Button>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    className="!p-1.5"
+                    onClick={() => setEditing(p)}
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="!p-1.5 hover:!bg-red-500/10 hover:!text-red-500"
+                    onClick={() => {
+                      if (window.confirm(`¿Eliminar "${p.title}"?`)) {
+                        deleteMutation.mutate(p.id)
+                      }
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
               <p className="text-sm leading-relaxed mb-4 text-zinc-400">
                 {p.description}
@@ -151,9 +217,26 @@ export function Projects() {
                     {p.visits || "—"}
                   </td>
                   <td className="px-5 py-4 border-b border-zinc-700">
-                    <Button variant="ghost" className="!p-1">
-                      <MoreHorizontal className="w-4 h-4" />
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        className="!p-1"
+                        onClick={() => setEditing(p)}
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        className="!p-1 hover:!bg-red-500/10 hover:!text-red-500"
+                        onClick={() => {
+                          if (window.confirm(`¿Eliminar "${p.title}"?`)) {
+                            deleteMutation.mutate(p.id)
+                          }
+                        }}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -161,6 +244,37 @@ export function Projects() {
           </table>
         </div>
       </Card>
+
+      {showCreate && (
+        <ProjectModal
+          mode="create"
+          onSave={(data, image) => createMutation.mutate({ data, image })}
+          onCancel={() => setShowCreate(false)}
+          isPending={createMutation.isPending}
+        />
+      )}
+
+      {editing && (
+        <ProjectModal
+          mode="edit"
+          initial={{
+            title: editing.title,
+            description: editing.description,
+            category: editing.category,
+            url: editing.url,
+            repository: editing.repository,
+            features: editing.features,
+            technologies: editing.technologies,
+            status: editing.status,
+            displayOrder: editing.displayOrder,
+          }}
+          onSave={(data, image) =>
+            editMutation.mutate({ id: editing.id, data, image })
+          }
+          onCancel={() => setEditing(null)}
+          isPending={editMutation.isPending}
+        />
+      )}
     </div>
   )
 }

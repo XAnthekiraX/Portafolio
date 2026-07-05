@@ -16,7 +16,7 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
       <article
         className={`group flex flex-col overflow-hidden rounded-2xl border border-dark-800 bg-dark-950 transition-all duration-300 ${borderHover}`}
       >
-        <div className="relative h-64 overflow-hidden bg-dark-800">
+        <div className="relative h-48 overflow-hidden bg-dark-800">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-accent/30 mix-blend-overlay" />
           <img
             src={project.imageUrl}
@@ -28,21 +28,20 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
           </div>
         </div>
 
-        <div className="flex flex-1 flex-col p-8">
+        <div className="flex flex-1 flex-col p-5">
           <h3
-            className={`mb-2 text-2xl font-bold transition-colors ${titleHover}`}
+            className={`mb-1.5 text-lg font-bold transition-colors ${titleHover}`}
           >
             {project.title}
           </h3>
-          <p className="mb-6 flex-1 text-dark-400">{project.description}</p>
+          <p className="mb-4 flex-1 text-sm leading-relaxed text-dark-400 line-clamp-3">{project.description}</p>
 
-          <div className="mb-6">
-            <p className="mb-2 font-mono text-xs text-dark-400">Features:</p>
-            <div className="flex flex-wrap gap-2">
+          <div className="mb-4">
+            <div className="flex flex-wrap gap-1.5">
               {project.features.map((feature) => (
                 <span
                   key={feature}
-                  className="rounded bg-dark-800 px-2 py-1 font-mono text-xs text-dark-100"
+                  className="rounded bg-dark-800 px-2 py-0.5 font-mono text-xs text-dark-100"
                 >
                   {feature}
                 </span>
@@ -50,7 +49,7 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
             </div>
           </div>
 
-          <div className="flex items-center gap-4 border-t border-dark-800 pt-4">
+          <div className="flex items-center gap-4 border-t border-dark-800 pt-3">
             <a
               href={project.repoUrl}
               className="flex items-center gap-2 text-sm text-dark-400 transition-colors hover:text-accent"

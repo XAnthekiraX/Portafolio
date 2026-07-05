@@ -1,8 +1,17 @@
-import { Plus } from "lucide-react"
-import { useQuery } from "@tanstack/react-query"
+import { useState } from "react"
+import { Plus, Pencil, Trash2 } from "lucide-react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Button } from "../../components/ui/Button"
-import { getTechnologies } from "../../services/admin"
+import { TechnologyModal } from "../../components/admin/TechnologyModal"
+import {
+  getTechnologies,
+  createTechnology,
+  updateTechnology,
+  deleteTechnology,
+} from "../../services/admin"
+import type { Technology } from "../../types/admin"
 import { queryKeys } from "../../lib/queryKeys"
+import { useNotification } from "../../context/NotificationContext"
 
 const iconColors: Record<string, { bg: string; text: string }> = {
   React: { bg: "rgba(97,218,251,0.15)", text: "#61dafb" },
@@ -35,10 +44,49 @@ function getInitials(name: string): string {
 }
 
 export function Technologies() {
+  const queryClient = useQueryClient()
+  const { notify } = useNotification()
   const { data: techs = [] } = useQuery({
     queryKey: queryKeys.technologies,
     queryFn: () => getTechnologies().then((r) => r.data),
     staleTime: 5 * 60 * 1000,
+  })
+
+  const [editing, setEditing] = useState<Technology | null>(null)
+  const [showCreate, setShowCreate] = useState(false)
+
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.technologies })
+  }
+
+  const createMutation = useMutation({
+    mutationFn: (name: string) => createTechnology({ name }),
+    onSuccess: () => {
+      notify("Tecnología creada", "success")
+      setShowCreate(false)
+      invalidate()
+    },
+    onError: () => notify("Error al crear tecnología", "error"),
+  })
+
+  const editMutation = useMutation({
+    mutationFn: ({ id, name }: { id: string; name: string }) =>
+      updateTechnology(id, { name }),
+    onSuccess: () => {
+      notify("Tecnología actualizada", "success")
+      setEditing(null)
+      invalidate()
+    },
+    onError: () => notify("Error al actualizar tecnología", "error"),
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteTechnology,
+    onSuccess: () => {
+      notify("Tecnología eliminada", "success")
+      invalidate()
+    },
+    onError: () => notify("Error al eliminar tecnología", "error"),
   })
 
   return (
@@ -47,7 +95,7 @@ export function Technologies() {
         <p className="text-base text-zinc-400">
           {techs.length} tecnologías en tu catálogo
         </p>
-        <Button>
+        <Button onClick={() => setShowCreate(true)}>
           <Plus className="w-4 h-4" /> Agregar
         </Button>
       </div>
@@ -61,8 +109,29 @@ export function Technologies() {
           return (
             <div
               key={t.id}
-              className="flex flex-col items-center justify-center gap-3 p-6 bg-zinc-900 border border-zinc-700 rounded-xl cursor-pointer transition-all duration-200 hover:border-cyan-500 hover:bg-cyan-500/10 hover:-translate-y-0.5"
+              className="group relative flex flex-col items-center justify-center gap-3 p-6 bg-zinc-900 border border-zinc-700 rounded-xl transition-all duration-200 hover:border-cyan-500 hover:bg-cyan-500/10 hover:-translate-y-0.5"
             >
+              <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button
+                  variant="ghost"
+                  className="!p-1"
+                  onClick={(e) => { e.stopPropagation(); setEditing(t) }}
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="!p-1 hover:!bg-red-500/10 hover:!text-red-500"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (window.confirm(`¿Eliminar "${t.name}"?`)) {
+                      deleteMutation.mutate(t.id)
+                    }
+                  }}
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
+              </div>
               <div
                 className="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-lg"
                 style={{ background: colors.bg, color: colors.text }}
@@ -76,6 +145,25 @@ export function Technologies() {
           )
         })}
       </div>
+
+      {showCreate && (
+        <TechnologyModal
+          mode="create"
+          onSave={(name) => createMutation.mutate(name)}
+          onCancel={() => setShowCreate(false)}
+          isPending={createMutation.isPending}
+        />
+      )}
+
+      {editing && (
+        <TechnologyModal
+          mode="edit"
+          initialName={editing.name}
+          onSave={(name) => editMutation.mutate({ id: editing.id, name })}
+          onCancel={() => setEditing(null)}
+          isPending={editMutation.isPending}
+        />
+      )}
     </div>
   )
 }

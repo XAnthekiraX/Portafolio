@@ -4,6 +4,7 @@ import { uploadService } from "../../services/upload.service";
 import { uploadImage } from "../../config/multer";
 import { validate } from "../../middleware/validate";
 import { createProjectSchema, updateProjectSchema } from "../../validators/project.validator";
+import { technologyService } from "../../services/technology.service";
 
 function p(val: string | string[]): string {
   return Array.isArray(val) ? val[0] : val;
@@ -18,6 +19,30 @@ function parseJsonArray(val: unknown): string[] | undefined {
   } catch {
     return undefined;
   }
+}
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+async function resolveTechnologyIds(techs: string[]): Promise<string[]> {
+  const allNames = techs.filter((t) => !UUID_RE.test(t));
+  if (allNames.length === 0) return techs;
+  const allTechs = await technologyService.getAll();
+  const nameMap = new Map(allTechs.map((t) => [t.name.toLowerCase(), t.id]));
+  const resolved: string[] = [];
+  for (const t of techs) {
+    if (UUID_RE.test(t)) {
+      resolved.push(t);
+    } else {
+      const existing = nameMap.get(t.toLowerCase());
+      if (existing) {
+        resolved.push(existing);
+      } else {
+        const created = await technologyService.create({ name: t });
+        resolved.push(created.id);
+      }
+    }
+  }
+  return resolved;
 }
 
 const router = Router();
@@ -80,7 +105,8 @@ router.post("/", uploadImage.single("image"), async (req, res, next) => {
     }
 
     if (technologies?.length) {
-      await projectService.replaceTechnologies(project.id, technologies);
+      const techIds = await resolveTechnologyIds(technologies);
+      await projectService.replaceTechnologies(project.id, techIds);
     }
 
     const resultProject = await projectService.getById(project.id);
@@ -136,7 +162,8 @@ router.patch("/:id", uploadImage.single("image"), async (req, res, next) => {
     }
 
     if (technologies) {
-      await projectService.replaceTechnologies(p(req.params.id), technologies);
+      const techIds = await resolveTechnologyIds(technologies);
+      await projectService.replaceTechnologies(p(req.params.id), techIds);
     }
 
     const resultProject = await projectService.getById(p(req.params.id));

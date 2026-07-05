@@ -1,11 +1,14 @@
-import { Plus, Pencil, Code2, Smartphone, Server, Palette, Cloud } from "lucide-react"
-import { useQuery } from "@tanstack/react-query"
+import { useState } from "react"
+import { Plus, Pencil, Trash2, Code2, Smartphone, Server, Palette, Cloud } from "lucide-react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Tag } from "../../components/ui/Tag"
 import { Badge } from "../../components/ui/Badge"
 import { Button } from "../../components/ui/Button"
+import { ServiceModal } from "../../components/admin/ServiceModal"
 import type { Service } from "../../types/admin"
-import { getServices } from "../../services/admin"
+import { getServices, createService, updateService, deleteService } from "../../services/admin"
 import { queryKeys } from "../../lib/queryKeys"
+import { useNotification } from "../../context/NotificationContext"
 
 const serviceIcons: Record<string, typeof Code2> = {
   "Desarrollo Web": Code2,
@@ -31,13 +34,21 @@ const iconTextColors: Record<string, string> = {
   "DevOps & Cloud": "text-red-500",
 }
 
-function ServiceCard({ service }: { service: Service }) {
+function ServiceCard({
+  service,
+  onEdit,
+  onDelete,
+}: {
+  service: Service
+  onEdit: () => void
+  onDelete: () => void
+}) {
   const IconComponent = serviceIcons[service.title] || Code2
   const bg = iconBgColors[service.title] || "bg-red-500/15"
   const color = iconTextColors[service.title] || "text-red-500"
 
   return (
-    <div className="p-6 bg-zinc-900 border border-zinc-700 rounded-xl cursor-pointer transition-all duration-250 hover:border-zinc-400 hover:-translate-y-0.5 relative overflow-hidden group before:absolute before:top-0 before:left-0 before:right-0 before:h-0.5 before:bg-gradient-to-r before:from-red-600 before:to-cyan-500 before:opacity-0 before:transition-opacity before:duration-250 hover:before:opacity-100">
+    <div className="p-6 bg-zinc-900 border border-zinc-700 rounded-xl transition-all duration-250 hover:border-zinc-400 hover:-translate-y-0.5 relative overflow-hidden group before:absolute before:top-0 before:left-0 before:right-0 before:h-0.5 before:bg-gradient-to-r before:from-red-600 before:to-cyan-500 before:opacity-0 before:transition-opacity before:duration-250 hover:before:opacity-100">
       <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${bg}`}>
         <IconComponent className={`w-6 h-6 ${color}`} />
       </div>
@@ -55,19 +66,67 @@ function ServiceCard({ service }: { service: Service }) {
         ) : (
           <Badge variant="green">Disponible</Badge>
         )}
-        <Button variant="ghost" className="!p-1.5 ml-auto">
-          <Pencil className="w-4 h-4" />
-        </Button>
+        <div className="flex gap-1 ml-auto">
+          <Button variant="ghost" className="!p-1.5" onClick={onEdit}>
+            <Pencil className="w-4 h-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            className="!p-1.5 hover:!bg-red-500/10 hover:!text-red-500"
+            onClick={onDelete}
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
     </div>
   )
 }
 
 export function Services() {
+  const queryClient = useQueryClient()
+  const { notify } = useNotification()
   const { data: services = [] } = useQuery({
     queryKey: queryKeys.services,
     queryFn: () => getServices().then((r) => r.data),
     staleTime: 5 * 60 * 1000,
+  })
+
+  const [editing, setEditing] = useState<Service | null>(null)
+  const [showCreate, setShowCreate] = useState(false)
+
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.services })
+  }
+
+  const createMutation = useMutation({
+    mutationFn: createService,
+    onSuccess: () => {
+      notify("Servicio creado", "success")
+      setShowCreate(false)
+      invalidate()
+    },
+    onError: () => notify("Error al crear servicio", "error"),
+  })
+
+  const editMutation = useMutation({
+    mutationFn: ({ id, ...data }: { id: string } & Parameters<typeof updateService>[1]) =>
+      updateService(id, data),
+    onSuccess: () => {
+      notify("Servicio actualizado", "success")
+      setEditing(null)
+      invalidate()
+    },
+    onError: () => notify("Error al actualizar servicio", "error"),
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteService,
+    onSuccess: () => {
+      notify("Servicio eliminado", "success")
+      invalidate()
+    },
+    onError: () => notify("Error al eliminar servicio", "error"),
   })
 
   return (
@@ -76,17 +135,29 @@ export function Services() {
         <p className="text-base text-zinc-400">
           Servicios que ofreces como profesional
         </p>
-        <Button>
+        <Button onClick={() => setShowCreate(true)}>
           <Plus className="w-4 h-4" /> Nuevo servicio
         </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {services.map((s) => (
-          <ServiceCard key={s.id} service={s} />
+          <ServiceCard
+            key={s.id}
+            service={s}
+            onEdit={() => setEditing(s)}
+            onDelete={() => {
+              if (window.confirm(`¿Eliminar el servicio "${s.title}"?`)) {
+                deleteMutation.mutate(s.id)
+              }
+            }}
+          />
         ))}
 
-        <div className="border-2 border-dashed border-zinc-700 hover:border-red-500 hover:bg-red-500/10 rounded-xl p-6 transition-all duration-200 cursor-pointer flex flex-col items-center justify-center text-center min-h-[240px]">
+        <div
+          className="border-2 border-dashed border-zinc-700 hover:border-red-500 hover:bg-red-500/10 rounded-xl p-6 transition-all duration-200 cursor-pointer flex flex-col items-center justify-center text-center min-h-[240px]"
+          onClick={() => setShowCreate(true)}
+        >
           <div className="w-16 h-16 rounded-2xl bg-zinc-700/50 border border-zinc-600 flex items-center justify-center mb-4 text-zinc-400">
             <Plus className="w-7 h-7" />
           </div>
@@ -98,6 +169,30 @@ export function Services() {
           </p>
         </div>
       </div>
+
+      {showCreate && (
+        <ServiceModal
+          mode="create"
+          onSave={(data) => createMutation.mutate(data)}
+          onCancel={() => setShowCreate(false)}
+          isPending={createMutation.isPending}
+        />
+      )}
+
+      {editing && (
+        <ServiceModal
+          mode="edit"
+          initial={{
+            title: editing.title,
+            description: editing.description,
+            status: editing.status,
+            displayOrder: editing.displayOrder,
+          }}
+          onSave={(data) => editMutation.mutate({ id: editing.id, ...data })}
+          onCancel={() => setEditing(null)}
+          isPending={editMutation.isPending}
+        />
+      )}
     </div>
   )
 }

@@ -20,7 +20,7 @@ export function Hero() {
         <div className="flex flex-col items-center gap-12 lg:flex-row lg:gap-20">
           <div className="flex-1 text-center lg:text-left">
             <ScrollReveal>
-              <StatusBadge />
+              <StatusBadge isAvailable={profile.isAvailable} />
 
               <h1 className="mb-4 mt-6 text-5xl font-bold tracking-tight md:text-6xl lg:text-7xl">
                 {profile.name}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import {
   Camera,
   MapPin,
@@ -9,12 +9,24 @@ import {
   Globe,
   Pencil,
   Plus,
+  Trash2,
+  Loader2,
 } from "lucide-react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Card } from "../../components/ui/Card"
 import { Button } from "../../components/ui/Button"
 import { Input, Textarea } from "../../components/ui/Input"
-import { getProfile, updateProfile, type UpdateProfilePayload } from "../../services/admin"
+import { SocialLinkModal } from "../../components/admin/SocialLinkModal"
+import {
+  getProfile,
+  updateProfile,
+  uploadAvatar,
+  createSocialLink,
+  updateSocialLink,
+  deleteSocialLink,
+  type UpdateProfilePayload,
+} from "../../services/admin"
+import type { SocialLink } from "../../types/admin"
 import { queryKeys } from "../../lib/queryKeys"
 import { useNotification } from "../../context/NotificationContext"
 
@@ -34,7 +46,13 @@ export function Profile() {
     location: "",
     experienceYears: 0,
     email: "",
+    isAvailable: true,
   })
+
+  const avatarInputRef = useRef<HTMLInputElement>(null)
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
+  const [editingLink, setEditingLink] = useState<SocialLink | null>(null)
+  const [showCreateModal, setShowCreateModal] = useState(false)
 
   useEffect(() => {
     if (profile) {
@@ -46,21 +64,78 @@ export function Profile() {
         location: profile.location,
         experienceYears: profile.experienceYears,
         email: profile.email,
+        isAvailable: profile.isAvailable ?? true,
       })
     }
   }, [profile])
 
   const { notify } = useNotification()
 
+  const invalidateProfile = () => {
+    queryClient.invalidateQueries({ queryKey: queryKeys.profile })
+    queryClient.invalidateQueries({ queryKey: queryKeys.profileCompletion })
+  }
+
   const saveMutation = useMutation({
     mutationFn: updateProfile,
     onSuccess: () => {
       notify("Perfil guardado correctamente", "success")
-      queryClient.invalidateQueries({ queryKey: queryKeys.profile })
-      queryClient.invalidateQueries({ queryKey: queryKeys.profileCompletion })
+      invalidateProfile()
     },
     onError: () => {
       notify("Error al guardar el perfil", "error")
+    },
+  })
+
+  const createMutation = useMutation({
+    mutationFn: (payload: { platform: string; url: string }) => createSocialLink(payload),
+    onSuccess: () => {
+      notify("Red social agregada", "success")
+      setShowCreateModal(false)
+      invalidateProfile()
+    },
+    onError: () => {
+      notify("Error al agregar red social", "error")
+    },
+  })
+
+  const editMutation = useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: { platform: string; url: string } }) =>
+      updateSocialLink(id, payload),
+    onSuccess: () => {
+      notify("Red social actualizada", "success")
+      setEditingLink(null)
+      invalidateProfile()
+    },
+    onError: () => {
+      notify("Error al actualizar red social", "error")
+    },
+  })
+
+  const avatarUploadMutation = useMutation({
+    mutationFn: uploadAvatar,
+    onSuccess: () => {
+      notify("Avatar actualizado", "success")
+      setAvatarPreview(null)
+      invalidateProfile()
+    },
+    onError: (error) => {
+      const msg = typeof error === "object" && error !== null && "message" in error
+        ? String(error.message)
+        : "Error al subir avatar"
+      notify(msg, "error")
+      setAvatarPreview(null)
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteSocialLink,
+    onSuccess: () => {
+      notify("Red social eliminada", "success")
+      invalidateProfile()
+    },
+    onError: () => {
+      notify("Error al eliminar red social", "error")
     },
   })
 
@@ -77,14 +152,40 @@ export function Profile() {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <Card className="flex flex-col items-center text-center">
         <div className="relative mb-5">
+          <input
+            ref={avatarInputRef}
+            type="file"
+            accept=".webp,image/webp"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0]
+              if (!file) return
+              if (file.type !== "image/webp") {
+                notify("El archivo debe ser formato WebP. Verificá que la imagen sea realmente WebP.", "error")
+                e.target.value = ""
+                return
+              }
+              setAvatarPreview(URL.createObjectURL(file))
+              avatarUploadMutation.mutate(file)
+              e.target.value = ""
+            }}
+          />
           <img
-            src={profile.avatarUrl}
+            src={avatarPreview || profile.avatarUrl}
             alt="Avatar"
             className="w-32 h-32 rounded-2xl object-cover border-2 border-zinc-600"
           />
-          <div className="absolute -bottom-2 -right-2 w-9 h-9 rounded-xl flex items-center justify-center border border-red-600 bg-red-600">
-            <Camera className="w-4 h-4 text-white" />
-          </div>
+          <button
+            onClick={() => avatarInputRef.current?.click()}
+            className="absolute -bottom-2 -right-2 w-9 h-9 rounded-xl flex items-center justify-center border border-red-600 bg-red-600 cursor-pointer hover:bg-red-500 transition-colors disabled:opacity-50"
+            disabled={avatarUploadMutation.isPending}
+          >
+            {avatarUploadMutation.isPending ? (
+              <Loader2 className="w-4 h-4 text-white animate-spin" />
+            ) : (
+              <Camera className="w-4 h-4 text-white" />
+            )}
+          </button>
         </div>
         <h2 className="font-heading font-bold text-xl text-zinc-100">
           {profile.firstName} {profile.lastName}
@@ -148,6 +249,23 @@ export function Profile() {
               value={form.experienceYears}
               onChange={(e) => setForm({ ...form, experienceYears: Number(e.target.value) })}
             />
+            <div className="sm:col-span-2 flex items-center gap-3 py-3">
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="sr-only peer"
+                  checked={form.isAvailable}
+                  onChange={(e) => setForm({ ...form, isAvailable: e.target.checked })}
+                />
+                <div className="w-11 h-6 bg-zinc-700 rounded-full peer peer-checked:bg-green-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-green-500/30 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full" />
+              </label>
+              <div>
+                <p className="text-sm font-medium text-zinc-100">Disponible para proyectos</p>
+                <p className="text-xs text-zinc-400 mt-0.5">
+                  {form.isAvailable ? "Aparecerá como disponible en tu portafolio" : "Ocultar estado de disponibilidad"}
+                </p>
+              </div>
+            </div>
           </div>
           <div className="flex justify-end gap-3 mt-6 pt-5 border-t border-zinc-700">
             <Button
@@ -160,6 +278,7 @@ export function Profile() {
                 location: profile.location,
                 experienceYears: profile.experienceYears,
                 email: profile.email,
+                isAvailable: profile.isAvailable ?? true,
               })}
             >
               Cancelar
@@ -188,18 +307,57 @@ export function Profile() {
                 <span className="font-mono text-xs text-zinc-400 w-[80px]">
                   {link.platform.charAt(0).toUpperCase() + link.platform.slice(1)}
                 </span>
-                <span className="text-sm flex-1 text-zinc-100">{link.url}</span>
-                <Button variant="ghost" className="!p-1.5">
-                  <Pencil className="w-4 h-4" />
-                </Button>
+                <span className="text-sm flex-1 text-zinc-100 truncate">{link.url}</span>
+                <div className="flex gap-1 flex-shrink-0">
+                  <Button
+                    variant="ghost"
+                    className="!p-1.5"
+                    onClick={() => setEditingLink(link)}
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="!p-1.5 hover:!bg-red-500/10 hover:!text-red-500"
+                    onClick={() => deleteMutation.mutate(link.id)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             )
           })}
-          <Button variant="secondary" className="mt-5 w-full justify-center">
+          <Button
+            variant="secondary"
+            className="mt-5 w-full justify-center"
+            onClick={() => setShowCreateModal(true)}
+          >
             <Plus className="w-4 h-4" /> Agregar red social
           </Button>
         </Card>
       </div>
+
+      {showCreateModal && (
+        <SocialLinkModal
+          mode="create"
+          onSave={(platform, url) => createMutation.mutate({ platform, url })}
+          onCancel={() => setShowCreateModal(false)}
+          isPending={createMutation.isPending}
+        />
+      )}
+
+      {editingLink && (
+        <SocialLinkModal
+          mode="edit"
+          initialPlatform={editingLink.platform}
+          initialUrl={editingLink.url}
+          onSave={(platform, url) =>
+            editMutation.mutate({ id: editingLink.id, payload: { platform, url } })
+          }
+          onCancel={() => setEditingLink(null)}
+          isPending={editMutation.isPending}
+        />
+      )}
     </div>
   )
 }
