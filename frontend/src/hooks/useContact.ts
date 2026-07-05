@@ -1,24 +1,13 @@
-import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { sendContact } from "../services/api";
 import type { ContactMessage } from "../types";
 
 export function useContact() {
-  const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { mutateAsync: submit, isPending: sending, isSuccess: sent, error } = useMutation({
+    mutationFn: (message: ContactMessage) => sendContact(message),
+  });
 
-  async function submit(message: ContactMessage) {
-    setSending(true);
-    setError(null);
-    try {
-      await sendContact(message);
-      setSent(true);
-    } catch {
-      setError("Error al enviar el mensaje. Intenta de nuevo.");
-    } finally {
-      setSending(false);
-    }
-  }
+  const serverError = error ? "Error al enviar el mensaje. Intenta de nuevo." : null;
 
-  return { submit, sending, sent, error };
+  return { submit, sending, sent, error: serverError };
 }

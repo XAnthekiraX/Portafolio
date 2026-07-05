@@ -1,16 +1,13 @@
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getServices } from "../services/api";
-import type { Service } from "../types";
+import { queryKeys } from "../lib/queryKeys";
 
 export function useServices() {
-  const [services, setServices] = useState<Service[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useQuery({
+    queryKey: queryKeys.services,
+    queryFn: () => getServices().then((r) => r.data),
+    staleTime: 5 * 60 * 1000,
+  });
 
-  useEffect(() => {
-    getServices()
-      .then((res) => setServices(res.data))
-      .finally(() => setLoading(false));
-  }, []);
-
-  return { services, loading };
+  return { services: data ?? [], loading: isLoading };
 }

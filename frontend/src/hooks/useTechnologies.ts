@@ -1,16 +1,13 @@
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getTechnologies } from "../services/api";
-import type { Technology } from "../types";
+import { queryKeys } from "../lib/queryKeys";
 
 export function useTechnologies() {
-  const [technologies, setTechnologies] = useState<Technology[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useQuery({
+    queryKey: queryKeys.technologies,
+    queryFn: () => getTechnologies().then((r) => r.data),
+    staleTime: 5 * 60 * 1000,
+  });
 
-  useEffect(() => {
-    getTechnologies()
-      .then((res) => setTechnologies(res.data))
-      .finally(() => setLoading(false));
-  }, []);
-
-  return { technologies, loading };
+  return { technologies: data ?? [], loading: isLoading };
 }

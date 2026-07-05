@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react"
 import { Plus, Pencil, Code2, Smartphone, Server, Palette, Cloud } from "lucide-react"
+import { useQuery } from "@tanstack/react-query"
 import { Tag } from "../../components/ui/Tag"
 import { Badge } from "../../components/ui/Badge"
 import { Button } from "../../components/ui/Button"
 import type { Service } from "../../types/admin"
 import { getServices } from "../../services/admin"
+import { queryKeys } from "../../lib/queryKeys"
 
 const serviceIcons: Record<string, typeof Code2> = {
   "Desarrollo Web": Code2,
@@ -63,11 +64,11 @@ function ServiceCard({ service }: { service: Service }) {
 }
 
 export function Services() {
-  const [services, setServices] = useState<Service[]>([])
-
-  useEffect(() => {
-    getServices().then((res) => setServices(res.data))
-  }, [])
+  const { data: services = [] } = useQuery({
+    queryKey: queryKeys.services,
+    queryFn: () => getServices().then((r) => r.data),
+    staleTime: 5 * 60 * 1000,
+  })
 
   return (
     <div>

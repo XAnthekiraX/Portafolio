@@ -1,17 +1,17 @@
-import { useEffect, useState } from "react"
 import { Plus, MoreHorizontal } from "lucide-react"
+import { useQuery } from "@tanstack/react-query"
 import { Card } from "../../components/ui/Card"
 import { Badge } from "../../components/ui/Badge"
 import { Button } from "../../components/ui/Button"
-import type { EducationItem } from "../../types/admin"
 import { getEducation } from "../../services/admin"
+import { queryKeys } from "../../lib/queryKeys"
 
 export function Education() {
-  const [items, setItems] = useState<EducationItem[]>([])
-
-  useEffect(() => {
-    getEducation().then((res) => setItems(res.data))
-  }, [])
+  const { data: items = [] } = useQuery({
+    queryKey: queryKeys.education,
+    queryFn: () => getEducation().then((r) => r.data),
+    staleTime: 5 * 60 * 1000,
+  })
 
   const academic = items.filter((i) => i.type === "academic")
   const certifications = items.filter((i) => i.type === "certification")

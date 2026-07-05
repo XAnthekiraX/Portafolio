@@ -1,17 +1,17 @@
-import { useEffect, useState } from "react"
 import { Upload, Download, CheckCircle2, Info } from "lucide-react"
+import { useQuery } from "@tanstack/react-query"
 import { Card } from "../../components/ui/Card"
 import { Button } from "../../components/ui/Button"
 import { Skeleton } from "../../components/ui/Skeleton"
-import type { CV as CVType } from "../../types/admin"
 import { getCV } from "../../services/admin"
+import { queryKeys } from "../../lib/queryKeys"
 
 export function CV() {
-  const [cv, setCv] = useState<CVType | null>(null)
-
-  useEffect(() => {
-    getCV().then((res) => setCv(res.data))
-  }, [])
+  const { data: cv } = useQuery({
+    queryKey: queryKeys.cv,
+    queryFn: () => getCV().then((r) => r.data),
+    staleTime: 5 * 60 * 1000,
+  })
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

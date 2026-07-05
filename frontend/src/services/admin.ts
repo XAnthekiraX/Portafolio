@@ -152,6 +152,21 @@ export async function getProfile(): Promise<ApiResponse<Profile>> {
   return { data: mapProfile(data) };
 }
 
+export interface UpdateProfilePayload {
+  firstName: string;
+  lastName: string;
+  title: string;
+  description: string;
+  location: string;
+  experienceYears: number;
+  email: string;
+}
+
+export async function updateProfile(payload: UpdateProfilePayload): Promise<ApiResponse<Profile>> {
+  const data = await http.put<BackendProfile>("/api/admin/profile", payload);
+  return { data: mapProfile(data) };
+}
+
 export async function getSkills(): Promise<ApiResponse<SkillCategory[]>> {
   const data = await http.get<BackendSkillCategory[]>("/api/admin/skills");
   return { data: data.map(mapSkillCategory) };
@@ -222,6 +237,21 @@ export interface NotificationsResponse {
 
 export async function getNotifications(): Promise<ApiResponse<NotificationsResponse>> {
   const data = await http.get<NotificationsResponse>("/api/admin/notifications");
+  return { data };
+}
+
+export interface ProfileCompletionCheck {
+  label: string;
+  done: boolean;
+}
+
+export interface ProfileCompletion {
+  percentage: number;
+  checks: ProfileCompletionCheck[];
+}
+
+export async function getProfileCompletion(): Promise<ApiResponse<ProfileCompletion>> {
+  const data = await http.get<ProfileCompletion>("/api/admin/profile/completion");
   return { data };
 }
 

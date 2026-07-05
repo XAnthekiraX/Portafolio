@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react"
 import {
   FolderKanban,
   Cpu,
@@ -8,14 +7,15 @@ import {
   Circle,
   ArrowRight,
 } from "lucide-react"
+import { useQuery } from "@tanstack/react-query"
 import { Card } from "../../components/ui/Card"
 import { Badge } from "../../components/ui/Badge"
 import { Tag } from "../../components/ui/Tag"
 import { Sparkline } from "../../components/ui/Sparkline"
 import { ProgressBar } from "../../components/ui/ProgressBar"
-import { Skeleton } from "../../components/ui/Skeleton"
-import type { Project, Profile } from "../../types/admin"
-import { getDashboard, getProjects, getProfile } from "../../services/admin"
+
+import { getDashboard, getProjects, getProfile, getProfileCompletion } from "../../services/admin"
+import { queryKeys } from "../../lib/queryKeys"
 
 interface Metric {
   label: string;
@@ -27,22 +27,29 @@ interface Metric {
 }
 
 export function Dashboard() {
-  const [counts, setCounts] = useState<{ totalProjects: number; totalSkillCategories: number; totalTechnologies: number; unreadMessages: number } | null>(null)
-  const [profile, setProfile] = useState<Profile | null>(null)
-  const [recentProjects, setRecentProjects] = useState<Project[]>([])
-  const [loading, setLoading] = useState(true)
+  const { data: counts } = useQuery({
+    queryKey: queryKeys.dashboard,
+    queryFn: () => getDashboard().then((r) => r.data),
+    staleTime: 30 * 1000,
+  })
 
-  useEffect(() => {
-    Promise.all([
-      getDashboard(),
-      getProjects(),
-      getProfile(),
-    ]).then(([dash, proj, prof]) => {
-      setCounts(dash.data)
-      setRecentProjects(proj.data.slice(0, 3))
-      setProfile(prof.data)
-    }).finally(() => setLoading(false))
-  }, [])
+  const { data: recentProjects = [] } = useQuery({
+    queryKey: queryKeys.projects,
+    queryFn: () => getProjects().then((r) => r.data),
+    staleTime: 5 * 60 * 1000,
+  })
+
+  const { data: profile } = useQuery({
+    queryKey: queryKeys.profile,
+    queryFn: () => getProfile().then((r) => r.data),
+    staleTime: 5 * 60 * 1000,
+  })
+
+  const { data: profileCompletion } = useQuery({
+    queryKey: queryKeys.profileCompletion,
+    queryFn: () => getProfileCompletion().then((r) => r.data),
+    staleTime: 5 * 60 * 1000,
+  })
 
   const metrics: Metric[] = [
     {
@@ -136,58 +143,42 @@ export function Dashboard() {
             </button>
           </div>
 
-          {loading ? (
-            <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
-                <Card key={i}>
-                  <div className="flex items-center gap-4">
-                    <Skeleton className="w-24 h-16 rounded-lg flex-shrink-0" />
-                    <div className="flex-1 space-y-2">
-                      <Skeleton className="h-5 w-3/4" />
-                      <Skeleton className="h-4 w-1/2" />
-                    </div>
+          <div className="space-y-3">
+            {recentProjects.slice(0, 3).map((p) => (
+              <Card key={p.id} hover={false}>
+                <div className="flex items-center gap-4">
+                  <img
+                    src={p.imageUrl}
+                    alt=""
+                    className="w-24 h-16 rounded-lg object-cover flex-shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate text-zinc-100">
+                      {p.title}
+                    </p>
+                    <p className="text-sm mt-0.5 truncate text-zinc-400">
+                      {p.description}
+                    </p>
                   </div>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {recentProjects.map((p) => (
-                <Card key={p.id} hover={false}>
-                  <div className="flex items-center gap-4">
-                    <img
-                      src={p.imageUrl}
-                      alt=""
-                      className="w-24 h-16 rounded-lg object-cover flex-shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate text-zinc-100">
-                        {p.title}
-                      </p>
-                      <p className="text-sm mt-0.5 truncate text-zinc-400">
-                        {p.description}
-                      </p>
-                    </div>
-                    <Badge
-                      variant={
-                        p.status === "published"
-                          ? "green"
-                          : p.status === "draft"
-                          ? "yellow"
-                          : "red"
-                      }
-                    >
-                      {p.status === "published"
-                        ? "Publicado"
+                  <Badge
+                    variant={
+                      p.status === "published"
+                        ? "green"
                         : p.status === "draft"
-                        ? "Borrador"
-                        : "Oculto"}
-                    </Badge>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
+                        ? "yellow"
+                        : "red"
+                    }
+                  >
+                    {p.status === "published"
+                      ? "Publicado"
+                      : p.status === "draft"
+                      ? "Borrador"
+                      : "Oculto"}
+                  </Badge>
+                </div>
+              </Card>
+            ))}
+          </div>
         </div>
 
         <div className="space-y-6">
@@ -205,17 +196,12 @@ export function Dashboard() {
                 <p className="text-base font-medium text-zinc-100">
                   {profile ? `${profile.firstName} ${profile.lastName}` : "—"}
                 </p>
-                <p className="text-xs text-zinc-400">75% completo</p>
+                <p className="text-xs text-zinc-400">{profileCompletion?.percentage ?? 0}% completo</p>
               </div>
             </div>
-            <ProgressBar value={75} />
+            <ProgressBar value={profileCompletion?.percentage ?? 0} />
             <div className="mt-4 space-y-2">
-              {[
-                { label: "Foto de perfil", done: !!profile?.avatarUrl },
-                { label: "Descripción", done: !!profile?.description },
-                { label: "CV adjunto", done: false },
-                { label: "Redes sociales", done: (profile?.socialLinks?.length ?? 0) > 0 },
-              ].map((item) => (
+              {(profileCompletion?.checks ?? []).map((item) => (
                 <div
                   key={item.label}
                   className="flex items-center justify-between text-xs"

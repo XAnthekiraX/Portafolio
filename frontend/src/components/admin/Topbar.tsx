@@ -1,7 +1,9 @@
 import { Bell, Menu, Mail, Clock } from "lucide-react"
-import { useState, useEffect, useCallback } from "react"
+import { useState } from "react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useAuth } from "../../context/AuthContext"
-import { getNotifications, markContactRead, type NotificationsResponse } from "../../services/admin"
+import { getNotifications, markContactRead } from "../../services/admin"
+import { queryKeys } from "../../lib/queryKeys"
 
 interface TopbarProps {
   title: string
@@ -10,16 +12,23 @@ interface TopbarProps {
 
 export function Topbar({ title, onToggleSidebar }: TopbarProps) {
   const { user } = useAuth()
+  const queryClient = useQueryClient()
   const [showNotifications, setShowNotifications] = useState(false)
-  const [notifData, setNotifData] = useState<NotificationsResponse | null>(null)
 
-  const refresh = useCallback(() => {
-    getNotifications()
-      .then((res) => setNotifData(res.data))
-      .catch(() => {})
-  }, [])
+  const { data: notifData } = useQuery({
+    queryKey: queryKeys.notifications,
+    queryFn: () => getNotifications().then((r) => r.data),
+    staleTime: 10 * 1000,
+    refetchInterval: 15 * 1000,
+  })
 
-  useEffect(() => { refresh() }, [refresh])
+  const markReadMutation = useMutation({
+    mutationFn: markContactRead,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications })
+      queryClient.invalidateQueries({ queryKey: queryKeys.dashboard })
+    },
+  })
 
   return (
     <header className="h-16 min-h-16 bg-zinc-900 border-b border-zinc-700 flex items-center px-6 gap-5 max-md:px-4">
@@ -71,8 +80,7 @@ export function Topbar({ title, onToggleSidebar }: TopbarProps) {
                     <button
                       key={n.id}
                       onClick={async () => {
-                        await markContactRead(n.id).catch(() => {})
-                        refresh()
+                        await markReadMutation.mutateAsync(n.id)
                         window.location.href = `mailto:${n.email}?subject=Re: ${n.subject}`
                       }}
                       className="w-full text-left block px-5 py-3.5 border-b border-zinc-700/50 flex items-start gap-3 bg-zinc-800 hover:bg-zinc-700/50 transition-colors cursor-pointer border-none"

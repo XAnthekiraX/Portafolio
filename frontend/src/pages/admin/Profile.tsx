@@ -10,18 +10,59 @@ import {
   Pencil,
   Plus,
 } from "lucide-react"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { Card } from "../../components/ui/Card"
 import { Button } from "../../components/ui/Button"
 import { Input, Textarea } from "../../components/ui/Input"
-import type { Profile as ProfileType } from "../../types/admin"
-import { getProfile } from "../../services/admin"
+import { getProfile, updateProfile, type UpdateProfilePayload } from "../../services/admin"
+import { queryKeys } from "../../lib/queryKeys"
+import { useNotification } from "../../context/NotificationContext"
 
 export function Profile() {
-  const [profile, setProfile] = useState<ProfileType | null>(null)
+  const queryClient = useQueryClient()
+  const { data: profile } = useQuery({
+    queryKey: queryKeys.profile,
+    queryFn: () => getProfile().then((r) => r.data),
+    staleTime: 5 * 60 * 1000,
+  })
+
+  const [form, setForm] = useState<UpdateProfilePayload>({
+    firstName: "",
+    lastName: "",
+    title: "",
+    description: "",
+    location: "",
+    experienceYears: 0,
+    email: "",
+  })
 
   useEffect(() => {
-    getProfile().then((res) => setProfile(res.data))
-  }, [])
+    if (profile) {
+      setForm({
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        title: profile.title,
+        description: profile.description,
+        location: profile.location,
+        experienceYears: profile.experienceYears,
+        email: profile.email,
+      })
+    }
+  }, [profile])
+
+  const { notify } = useNotification()
+
+  const saveMutation = useMutation({
+    mutationFn: updateProfile,
+    onSuccess: () => {
+      notify("Perfil guardado correctamente", "success")
+      queryClient.invalidateQueries({ queryKey: queryKeys.profile })
+      queryClient.invalidateQueries({ queryKey: queryKeys.profileCompletion })
+    },
+    onError: () => {
+      notify("Error al guardar el perfil", "error")
+    },
+  })
 
   if (!profile) return null
 
@@ -68,19 +109,67 @@ export function Profile() {
             Información personal
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <Input label="Nombre" value={profile.firstName} readOnly />
-            <Input label="Apellido" value={profile.lastName} readOnly />
-            <Input label="Título" value={profile.title} readOnly />
-            <Input label="Email" value={profile.email} readOnly />
+            <Input
+              label="Nombre"
+              value={form.firstName}
+              onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+            />
+            <Input
+              label="Apellido"
+              value={form.lastName}
+              onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+            />
+            <Input
+              label="Título"
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+            />
+            <Input
+              label="Email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+            />
             <div className="sm:col-span-2">
-              <Textarea label="Descripción" value={profile.description} rows={4} readOnly />
+              <Textarea
+                label="Descripción"
+                value={form.description}
+                rows={4}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+              />
             </div>
-            <Input label="Ubicación" value={profile.location} readOnly />
-            <Input label="Experiencia" value={`${profile.experienceYears} años`} readOnly />
+            <Input
+              label="Ubicación"
+              value={form.location}
+              onChange={(e) => setForm({ ...form, location: e.target.value })}
+            />
+            <Input
+              label="Experiencia"
+              type="number"
+              value={form.experienceYears}
+              onChange={(e) => setForm({ ...form, experienceYears: Number(e.target.value) })}
+            />
           </div>
           <div className="flex justify-end gap-3 mt-6 pt-5 border-t border-zinc-700">
-            <Button variant="secondary">Cancelar</Button>
-            <Button>Guardar cambios</Button>
+            <Button
+              variant="secondary"
+              onClick={() => setForm({
+                firstName: profile.firstName,
+                lastName: profile.lastName,
+                title: profile.title,
+                description: profile.description,
+                location: profile.location,
+                experienceYears: profile.experienceYears,
+                email: profile.email,
+              })}
+            >
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => saveMutation.mutate(form)}
+              disabled={saveMutation.isPending}
+            >
+              {saveMutation.isPending ? "Guardando..." : "Guardar cambios"}
+            </Button>
           </div>
         </Card>
 

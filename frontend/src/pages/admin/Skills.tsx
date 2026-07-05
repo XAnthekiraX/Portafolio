@@ -1,19 +1,19 @@
-import { useEffect, useState } from "react"
 import { Plus } from "lucide-react"
+import { useQuery } from "@tanstack/react-query"
 import { Card } from "../../components/ui/Card"
 import { Button } from "../../components/ui/Button"
 import { Tag } from "../../components/ui/Tag"
-import type { SkillCategory } from "../../types/admin"
 import { getSkills } from "../../services/admin"
+import { queryKeys } from "../../lib/queryKeys"
 
 const dotColors = ["bg-red-600", "bg-cyan-500", "bg-green-500", "bg-yellow-500"]
 
 export function Skills() {
-  const [skills, setSkills] = useState<SkillCategory[]>([])
-
-  useEffect(() => {
-    getSkills().then((res) => setSkills(res.data))
-  }, [])
+  const { data: skills = [] } = useQuery({
+    queryKey: queryKeys.skills,
+    queryFn: () => getSkills().then((r) => r.data),
+    staleTime: 5 * 60 * 1000,
+  })
 
   return (
     <div>

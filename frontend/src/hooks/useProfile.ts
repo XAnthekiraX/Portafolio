@@ -1,16 +1,13 @@
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getProfile } from "../services/api";
-import type { Profile } from "../types";
+import { queryKeys } from "../lib/queryKeys";
 
 export function useProfile() {
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useQuery({
+    queryKey: queryKeys.profile,
+    queryFn: () => getProfile().then((r) => r.data),
+    staleTime: 5 * 60 * 1000,
+  });
 
-  useEffect(() => {
-    getProfile()
-      .then((res) => setProfile(res.data))
-      .finally(() => setLoading(false));
-  }, []);
-
-  return { profile, loading };
+  return { profile: data ?? null, loading: isLoading };
 }

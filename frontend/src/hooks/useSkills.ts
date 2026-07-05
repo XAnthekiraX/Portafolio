@@ -1,16 +1,13 @@
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getSkills } from "../services/api";
-import type { SkillCategory } from "../types";
+import { queryKeys } from "../lib/queryKeys";
 
 export function useSkills() {
-  const [skills, setSkills] = useState<SkillCategory[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useQuery({
+    queryKey: queryKeys.skills,
+    queryFn: () => getSkills().then((r) => r.data),
+    staleTime: 5 * 60 * 1000,
+  });
 
-  useEffect(() => {
-    getSkills()
-      .then((res) => setSkills(res.data))
-      .finally(() => setLoading(false));
-  }, []);
-
-  return { skills, loading };
+  return { skills: data ?? [], loading: isLoading };
 }

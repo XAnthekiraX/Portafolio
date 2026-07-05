@@ -1,16 +1,13 @@
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getEducation } from "../services/api";
-import type { EducationItem } from "../types";
+import { queryKeys } from "../lib/queryKeys";
 
 export function useEducation() {
-  const [education, setEducation] = useState<EducationItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useQuery({
+    queryKey: queryKeys.education,
+    queryFn: () => getEducation().then((r) => r.data),
+    staleTime: 5 * 60 * 1000,
+  });
 
-  useEffect(() => {
-    getEducation()
-      .then((res) => setEducation(res.data))
-      .finally(() => setLoading(false));
-  }, []);
-
-  return { education, loading };
+  return { education: data ?? [], loading: isLoading };
 }

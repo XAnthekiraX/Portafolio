@@ -1,18 +1,18 @@
-import { useEffect, useState } from "react"
 import { Plus, Pencil, ExternalLink, Github, MoreHorizontal } from "lucide-react"
+import { useQuery } from "@tanstack/react-query"
 import { Card } from "../../components/ui/Card"
 import { Badge } from "../../components/ui/Badge"
 import { Tag } from "../../components/ui/Tag"
 import { Button } from "../../components/ui/Button"
-import type { Project } from "../../types/admin"
 import { getProjects } from "../../services/admin"
+import { queryKeys } from "../../lib/queryKeys"
 
 export function Projects() {
-  const [projects, setProjects] = useState<Project[]>([])
-
-  useEffect(() => {
-    getProjects().then((res) => setProjects(res.data))
-  }, [])
+  const { data: projects = [] } = useQuery({
+    queryKey: queryKeys.projects,
+    queryFn: () => getProjects().then((r) => r.data),
+    staleTime: 5 * 60 * 1000,
+  })
 
   return (
     <div>

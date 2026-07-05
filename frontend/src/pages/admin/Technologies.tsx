@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react"
 import { Plus } from "lucide-react"
+import { useQuery } from "@tanstack/react-query"
 import { Button } from "../../components/ui/Button"
-import type { Technology } from "../../types/admin"
 import { getTechnologies } from "../../services/admin"
+import { queryKeys } from "../../lib/queryKeys"
 
 const iconColors: Record<string, { bg: string; text: string }> = {
   React: { bg: "rgba(97,218,251,0.15)", text: "#61dafb" },
@@ -35,11 +35,11 @@ function getInitials(name: string): string {
 }
 
 export function Technologies() {
-  const [techs, setTechs] = useState<Technology[]>([])
-
-  useEffect(() => {
-    getTechnologies().then((res) => setTechs(res.data))
-  }, [])
+  const { data: techs = [] } = useQuery({
+    queryKey: queryKeys.technologies,
+    queryFn: () => getTechnologies().then((r) => r.data),
+    staleTime: 5 * 60 * 1000,
+  })
 
   return (
     <div>

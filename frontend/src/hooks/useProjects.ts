@@ -1,16 +1,13 @@
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getProjects } from "../services/api";
-import type { Project } from "../types";
+import { queryKeys } from "../lib/queryKeys";
 
 export function useProjects() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data, isLoading } = useQuery({
+    queryKey: queryKeys.projects,
+    queryFn: () => getProjects().then((r) => r.data),
+    staleTime: 5 * 60 * 1000,
+  });
 
-  useEffect(() => {
-    getProjects()
-      .then((res) => setProjects(res.data))
-      .finally(() => setLoading(false));
-  }, []);
-
-  return { projects, loading };
+  return { projects: data ?? [], loading: isLoading };
 }
