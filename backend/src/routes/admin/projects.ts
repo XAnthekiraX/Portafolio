@@ -1,11 +1,13 @@
 import { Router } from "express";
 import { projectService } from "../../services/project.service";
+import { uploadService } from "../../services/upload.service";
+import { uploadImage } from "../../config/multer";
+import { validate } from "../../middleware/validate";
+import { createProjectSchema, updateProjectSchema } from "../../validators/project.validator";
 
 function p(val: string | string[]): string {
   return Array.isArray(val) ? val[0] : val;
 }
-import { validate } from "../../middleware/validate";
-import { createProjectSchema, updateProjectSchema } from "../../validators/project.validator";
 
 const router = Router();
 
@@ -18,13 +20,29 @@ router.get("/", async (_req, res, next) => {
   }
 });
 
-router.post("/", validate(createProjectSchema), async (req, res, next) => {
+router.post("/", uploadImage.single("image"), async (req, res, next) => {
   try {
     const { technologyIds, ...data } = req.body;
+
+    if (req.file) {
+      data.imageUrl = "";
+    }
+
     const project = await projectService.create(data);
 
-    if (technologyIds?.length) {
-      await projectService.replaceTechnologies(project.id, technologyIds);
+    if (req.file) {
+      const publicUrl = await uploadService.uploadFile(
+        "Images",
+        `${project.id}/image.webp`,
+        req.file.buffer,
+        "image/webp",
+      );
+      await projectService.update(project.id, { imageUrl: publicUrl });
+    }
+
+    if (technologyIds) {
+      const ids = Array.isArray(technologyIds) ? technologyIds : [technologyIds];
+      await projectService.replaceTechnologies(project.id, ids);
     }
 
     const result = await projectService.getById(project.id);
@@ -34,13 +52,25 @@ router.post("/", validate(createProjectSchema), async (req, res, next) => {
   }
 });
 
-router.patch("/:id", validate(updateProjectSchema), async (req, res, next) => {
+router.patch("/:id", uploadImage.single("image"), async (req, res, next) => {
   try {
     const { technologyIds, ...data } = req.body;
+
+    if (req.file) {
+      const publicUrl = await uploadService.uploadFile(
+        "Images",
+        `${p(req.params.id)}/image.webp`,
+        req.file.buffer,
+        "image/webp",
+      );
+      data.imageUrl = publicUrl;
+    }
+
     const project = await projectService.update(p(req.params.id), data);
 
     if (technologyIds) {
-      await projectService.replaceTechnologies(p(req.params.id), technologyIds);
+      const ids = Array.isArray(technologyIds) ? technologyIds : [technologyIds];
+      await projectService.replaceTechnologies(p(req.params.id), ids);
     }
 
     const result = await projectService.getById(project.id);

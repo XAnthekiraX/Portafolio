@@ -97,9 +97,9 @@ El admin ve y gestiona todos los registros independientemente de su estado.
 
 | Bucket | Ruta | Regla |
 |--------|------|-------|
-| `avatars` | `{user_id}/avatar.{ext}` | Se sobrescribe en cada PUT |
-| `cv` | `{user_id}/cv.pdf` | Se sobrescribe en cada POST |
-| `projects` | `{project_id}/image.{ext}` | Se sobrescribe en cada PATCH |
+| `Images` | `{user_id}/avatar.webp` | Se sobrescribe en cada PUT. Solo webp. |
+| `Images` | `{user_id}/cv.pdf` | Se sobrescribe en cada POST. Solo PDF. |
+| `Images` | `{project_id}/image.webp` | Se sobrescribe en cada POST/PATCH. Solo webp. |
 
 ### Rate Limiting
 

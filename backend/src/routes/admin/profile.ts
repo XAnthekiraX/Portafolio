@@ -2,6 +2,8 @@ import { Router } from "express";
 import { profileService } from "../../services/profile.service";
 import { socialLinkService } from "../../services/social-link.service";
 import { profileCompletionService } from "../../services/profile-completion.service";
+import { uploadService } from "../../services/upload.service";
+import { uploadAvatar } from "../../config/multer";
 import { validate } from "../../middleware/validate";
 import { updateProfileSchema } from "../../validators/profile.validator";
 import { createSocialLinkSchema, updateSocialLinkSchema } from "../../validators/social.validator";
@@ -25,13 +27,37 @@ router.get("/", async (req, res, next) => {
   }
 });
 
-router.put("/", validate(updateProfileSchema), async (req, res, next) => {
+router.put("/", uploadAvatar.single("avatar"), async (req, res, next) => {
   try {
     if (!req.user) {
       res.status(401).json({ error: { code: "UNAUTHORIZED", message: "No autenticado" } });
       return;
     }
-    const profile = await profileService.update(req.user.id, req.body);
+
+    const data: Record<string, unknown> = {};
+
+    const fields = ["firstName", "lastName", "title", "description", "location", "email"];
+    for (const field of fields) {
+      if (req.body[field] !== undefined) data[field] = req.body[field];
+    }
+    if (req.body.experienceYears !== undefined) {
+      data.experienceYears = parseInt(req.body.experienceYears as string, 10);
+    }
+    if (req.body.isAvailable !== undefined) {
+      data.isAvailable = req.body.isAvailable === "true";
+    }
+
+    if (req.file) {
+      const publicUrl = await uploadService.uploadFile(
+        "Images",
+        `${req.user.id}/avatar.webp`,
+        req.file.buffer,
+        "image/webp",
+      );
+      data.avatarUrl = publicUrl;
+    }
+
+    const profile = await profileService.update(req.user.id, data);
     res.json({ data: profile });
   } catch (err) {
     next(err);

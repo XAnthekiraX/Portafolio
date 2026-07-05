@@ -307,38 +307,17 @@ CREATE POLICY "admin_all_contact_messages" ON contact_messages
 
 | Bucket | Visibilidad | Objetos | Ruta típica |
 |--------|-----------|---------|-------------|
-| `avatars` | Público | 1 | `{user_id}/avatar.{ext}` |
-| `cv` | Público | 1 | `{user_id}/cv.pdf` |
-| `projects` | Público | N | `{project_id}/image.{ext}` |
+| `Images` | Público | N | `{user_id}/avatar.webp`, `{user_id}/cv.pdf`, `{project_id}/image.webp` |
 
 ### Políticas de Storage
 
 ```sql
--- Bucket avatars
-CREATE POLICY "public_read_avatars" ON storage.objects
-    FOR SELECT USING (bucket_id = 'avatars');
+CREATE POLICY "public_read_images" ON storage.objects
+    FOR SELECT USING (bucket_id = 'Images');
 
-CREATE POLICY "admin_write_avatars" ON storage.objects
+CREATE POLICY "admin_write_images" ON storage.objects
     FOR INSERT WITH CHECK (
-        bucket_id = 'avatars' AND auth.role() = 'authenticated'
-    );
-
--- Bucket cv
-CREATE POLICY "public_read_cv" ON storage.objects
-    FOR SELECT USING (bucket_id = 'cv');
-
-CREATE POLICY "admin_write_cv" ON storage.objects
-    FOR INSERT WITH CHECK (
-        bucket_id = 'cv' AND auth.role() = 'authenticated'
-    );
-
--- Bucket projects
-CREATE POLICY "public_read_projects" ON storage.objects
-    FOR SELECT USING (bucket_id = 'projects');
-
-CREATE POLICY "admin_write_projects" ON storage.objects
-    FOR INSERT WITH CHECK (
-        bucket_id = 'projects' AND auth.role() = 'authenticated'
+        bucket_id = 'Images' AND auth.role() = 'authenticated'
     );
 ```
 

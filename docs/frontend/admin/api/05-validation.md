@@ -27,7 +27,7 @@ La validación aplica a todos los endpoints de escritura. Los errores se devuelv
 | experienceYears | integer | sí | 0-100 |
 | isAvailable | boolean | no | Default: true |
 | email | string | sí | Formato email válido, 1-254 caracteres |
-| avatar | file | no | Imagen. Formatos: jpg, png, webp. Máximo 5MB |
+| avatar | file | no | Imagen. Solo formato webp. Máximo 5MB. Se sube a Supabase Storage bucket `Images` |
 
 ---
 

@@ -136,7 +136,7 @@ Reemplaza todos los campos del perfil. Envío como `multipart/form-data`.
 | experienceYears | integer | sí |
 | isAvailable | boolean | no |
 | email | string | sí |
-| avatar | file | no (imagen, reemplaza avatarUrl) |
+| avatar | file | no (webp, reemplaza avatarUrl. Se sube a Supabase Storage bucket `Images`) |
 
 **Response — 200 OK**
 

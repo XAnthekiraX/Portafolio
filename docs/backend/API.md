@@ -126,7 +126,7 @@ Estos endpoints delegan en Supabase Auth. El backend actúa como proxy: recibe l
 | PUT | `/api/admin/profile` | `profiles` | UPDATE (multipart) |
 | GET | `/api/admin/profile/completion` | — | Porcentaje de perfil completado |
 
-Campos de profile: `firstName`, `lastName`, `title`, `description`, `location`, `experienceYears`, `email`, `avatar` (file opcional).
+Campos de profile: `firstName`, `lastName`, `title`, `description`, `location`, `experienceYears`, `email`, `isAvailable`. `avatar` (file opcional, solo webp, máx 5MB). Se sube al bucket `Images` como `{userId}/avatar.webp`.
 
 ### Social Links
 
@@ -151,7 +151,7 @@ Campos de profile: `firstName`, `lastName`, `title`, `description`, `location`, 
 | Método | Endpoint | Operación |
 |--------|----------|-----------|
 | GET | `/api/admin/cv` | SELECT `cv_url` de profiles |
-| POST | `/api/admin/cv` | UPDATE `cv_url` en profiles |
+| POST | `/api/admin/cv` | UPDATE `cv_url` en profiles (multipart, PDF) |
 | DELETE | `/api/admin/cv` | SET `cv_url = NULL` |
 
 ### Education
