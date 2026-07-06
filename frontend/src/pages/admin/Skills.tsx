@@ -11,7 +11,7 @@ import {
   updateSkillCategory,
   deleteSkillCategory,
 } from "../../services/admin"
-import type { SkillCategory } from "../../types/admin"
+import type { AdminSkillCategory } from "../../types/admin"
 import { queryKeys } from "../../lib/queryKeys"
 import { useNotification } from "../../context/NotificationContext"
 
@@ -26,7 +26,7 @@ export function Skills() {
     staleTime: 5 * 60 * 1000,
   })
 
-  const [editing, setEditing] = useState<SkillCategory | null>(null)
+  const [editing, setEditing] = useState<AdminSkillCategory | null>(null)
   const [showCreate, setShowCreate] = useState(false)
 
   const invalidate = () => {

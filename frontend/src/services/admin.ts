@@ -8,18 +8,18 @@ import type {
   BackendService,
 } from "../lib/mappers";
 import type {
-  Profile,
-  SkillCategory,
+  AdminProfile,
+  AdminSkillCategory,
   CV,
-  EducationItem,
-  Technology,
-  Project,
-  Service,
-  SocialLink,
+  AdminEducationItem,
+  AdminTechnology,
+  AdminProject,
+  AdminService,
+  AdminSocialLink,
   ApiResponse,
 } from "../types/admin";
 
-function mapProfile(bp: BackendProfile): Profile {
+function mapProfile(bp: BackendProfile): AdminProfile {
   return {
     id: bp.id,
     firstName: bp.firstName,
@@ -39,7 +39,7 @@ function mapProfile(bp: BackendProfile): Profile {
   };
 }
 
-function mapSkillCategory(sc: BackendSkillCategory): SkillCategory {
+function mapSkillCategory(sc: BackendSkillCategory): AdminSkillCategory {
   return {
     id: sc.id,
     name: sc.name,
@@ -47,7 +47,7 @@ function mapSkillCategory(sc: BackendSkillCategory): SkillCategory {
   };
 }
 
-function mapProject(p: BackendProject): Project {
+function mapProject(p: BackendProject): AdminProject {
   return {
     id: p.id,
     title: p.title,
@@ -58,7 +58,7 @@ function mapProject(p: BackendProject): Project {
     repository: p.repository ?? "",
     features: p.features ?? [],
     technologies: p.technologies.map((t) => t.name),
-    status: p.status as Project["status"],
+    status: p.status as AdminProject["status"],
     visits: p.visits!,
     displayOrder: p.displayOrder!,
     createdAt: p.createdAt!,
@@ -66,32 +66,32 @@ function mapProject(p: BackendProject): Project {
   };
 }
 
-function mapEducation(e: BackendEducation): EducationItem {
+function mapEducation(e: BackendEducation): AdminEducationItem {
   return {
     id: e.id,
     title: e.title,
     institution: e.institution,
-    type: e.type as EducationItem["type"],
+    type: e.type as AdminEducationItem["type"],
     startDate: e.startDate,
     endDate: e.endDate ?? "",
     description: e.description ?? "",
-    status: e.status as EducationItem["status"],
+    status: e.status as AdminEducationItem["status"],
     displayOrder: e.displayOrder,
   };
 }
 
-function mapService(s: BackendService): Service {
+function mapService(s: BackendService): AdminService {
   return {
     id: s.id,
     title: s.title,
     description: s.description ?? "",
     icon: s.icon ?? "code",
-    status: s.status as Service["status"],
+    status: s.status as AdminService["status"],
     displayOrder: s.displayOrder,
   };
 }
 
-export async function getProfile(): Promise<ApiResponse<Profile>> {
+export async function getProfile(): Promise<ApiResponse<AdminProfile>> {
   const data = await http.get<BackendProfile>("/api/admin/profile");
   return { data: mapProfile(data) };
 }
@@ -107,19 +107,19 @@ export interface UpdateProfilePayload {
   isAvailable: boolean;
 }
 
-export async function updateProfile(payload: UpdateProfilePayload): Promise<ApiResponse<Profile>> {
+export async function updateProfile(payload: UpdateProfilePayload): Promise<ApiResponse<AdminProfile>> {
   const data = await http.put<BackendProfile>("/api/admin/profile", payload);
   return { data: mapProfile(data) };
 }
 
-export async function uploadAvatar(file: File): Promise<ApiResponse<Profile>> {
+export async function uploadAvatar(file: File): Promise<ApiResponse<AdminProfile>> {
   const formData = new FormData();
   formData.append("avatar", file);
   const data = await http.putForm<BackendProfile>("/api/admin/profile", formData);
   return { data: mapProfile(data) };
 }
 
-export async function getSkills(): Promise<ApiResponse<SkillCategory[]>> {
+export async function getSkills(): Promise<ApiResponse<AdminSkillCategory[]>> {
   const data = await http.get<BackendSkillCategory[]>("/api/admin/skills");
   return { data: data.map(mapSkillCategory) };
 }
@@ -129,12 +129,12 @@ export interface CreateSkillPayload {
   technologies: string[];
 }
 
-export async function createSkillCategory(payload: CreateSkillPayload): Promise<ApiResponse<SkillCategory>> {
+export async function createSkillCategory(payload: CreateSkillPayload): Promise<ApiResponse<AdminSkillCategory>> {
   const data = await http.post<BackendSkillCategory>("/api/admin/skills", payload);
   return { data: mapSkillCategory(data) };
 }
 
-export async function updateSkillCategory(id: string, payload: CreateSkillPayload): Promise<ApiResponse<SkillCategory>> {
+export async function updateSkillCategory(id: string, payload: CreateSkillPayload): Promise<ApiResponse<AdminSkillCategory>> {
   const data = await http.patch<BackendSkillCategory>(`/api/admin/skills/${id}`, payload);
   return { data: mapSkillCategory(data) };
 }
@@ -170,7 +170,7 @@ export async function deleteCv(): Promise<void> {
   await http.delete("/api/admin/cv");
 }
 
-export async function getEducation(): Promise<ApiResponse<EducationItem[]>> {
+export async function getEducation(): Promise<ApiResponse<AdminEducationItem[]>> {
   const data = await http.get<BackendEducation[]>("/api/admin/education");
   return { data: data.map(mapEducation) };
 }
@@ -186,12 +186,12 @@ export interface CreateEducationPayload {
   displayOrder?: number;
 }
 
-export async function createEducation(payload: CreateEducationPayload): Promise<ApiResponse<EducationItem>> {
+export async function createEducation(payload: CreateEducationPayload): Promise<ApiResponse<AdminEducationItem>> {
   const data = await http.post<BackendEducation>("/api/admin/education", payload);
   return { data: mapEducation(data) };
 }
 
-export async function updateEducation(id: string, payload: Partial<CreateEducationPayload>): Promise<ApiResponse<EducationItem>> {
+export async function updateEducation(id: string, payload: Partial<CreateEducationPayload>): Promise<ApiResponse<AdminEducationItem>> {
   const data = await http.patch<BackendEducation>(`/api/admin/education/${id}`, payload);
   return { data: mapEducation(data) };
 }
@@ -200,7 +200,7 @@ export async function deleteEducation(id: string): Promise<void> {
   await http.delete(`/api/admin/education/${id}`);
 }
 
-export async function getTechnologies(): Promise<ApiResponse<Technology[]>> {
+export async function getTechnologies(): Promise<ApiResponse<AdminTechnology[]>> {
   const data = await http.get<BackendTechnology[]>("/api/admin/technologies");
   return { data: data.map((t) => ({ id: t.id, name: t.name })) };
 }
@@ -209,12 +209,12 @@ export interface CreateTechnologyPayload {
   name: string;
 }
 
-export async function createTechnology(payload: CreateTechnologyPayload): Promise<ApiResponse<Technology>> {
+export async function createTechnology(payload: CreateTechnologyPayload): Promise<ApiResponse<AdminTechnology>> {
   const data = await http.post<BackendTechnology>("/api/admin/technologies", payload);
   return { data: { id: data.id, name: data.name } };
 }
 
-export async function updateTechnology(id: string, payload: CreateTechnologyPayload): Promise<ApiResponse<Technology>> {
+export async function updateTechnology(id: string, payload: CreateTechnologyPayload): Promise<ApiResponse<AdminTechnology>> {
   const data = await http.patch<BackendTechnology>(`/api/admin/technologies/${id}`, payload);
   return { data: { id: data.id, name: data.name } };
 }
@@ -223,7 +223,7 @@ export async function deleteTechnology(id: string): Promise<void> {
   await http.delete(`/api/admin/technologies/${id}`);
 }
 
-export async function getProjects(): Promise<ApiResponse<Project[]>> {
+export async function getProjects(): Promise<ApiResponse<AdminProject[]>> {
   const data = await http.get<BackendProject[]>("/api/admin/projects");
   return { data: data.map(mapProject) };
 }
@@ -258,7 +258,7 @@ function appendFormData(formData: FormData, payload: CreateProjectPayload) {
   if (payload.technologies?.length) formData.append("technologies", JSON.stringify(payload.technologies));
 }
 
-export async function createProject(payload: CreateProjectPayload, image?: File): Promise<ApiResponse<Project>> {
+export async function createProject(payload: CreateProjectPayload, image?: File): Promise<ApiResponse<AdminProject>> {
   if (image) {
     const formData = new FormData();
     formData.append("image", image);
@@ -275,7 +275,7 @@ export async function createProject(payload: CreateProjectPayload, image?: File)
   return { data: mapProject(data) };
 }
 
-export async function updateProject(id: string, payload: CreateProjectPayload, image?: File): Promise<ApiResponse<Project>> {
+export async function updateProject(id: string, payload: CreateProjectPayload, image?: File): Promise<ApiResponse<AdminProject>> {
   if (image) {
     const formData = new FormData();
     formData.append("image", image);
@@ -299,7 +299,7 @@ export async function deleteProject(id: string): Promise<void> {
   await http.delete(`/api/admin/projects/${id}`);
 }
 
-export async function getServices(): Promise<ApiResponse<Service[]>> {
+export async function getServices(): Promise<ApiResponse<AdminService[]>> {
   const data = await http.get<BackendService[]>("/api/admin/services");
   return { data: data.map(mapService) };
 }
@@ -312,12 +312,12 @@ export interface CreateServicePayload {
   displayOrder?: number;
 }
 
-export async function createService(payload: CreateServicePayload): Promise<ApiResponse<Service>> {
+export async function createService(payload: CreateServicePayload): Promise<ApiResponse<AdminService>> {
   const data = await http.post<BackendService>("/api/admin/services", payload);
   return { data: mapService(data) };
 }
 
-export async function updateService(id: string, payload: Partial<CreateServicePayload>): Promise<ApiResponse<Service>> {
+export async function updateService(id: string, payload: Partial<CreateServicePayload>): Promise<ApiResponse<AdminService>> {
   const data = await http.patch<BackendService>(`/api/admin/services/${id}`, payload);
   return { data: mapService(data) };
 }
@@ -378,13 +378,13 @@ export interface CreateSocialLinkPayload {
   url: string;
 }
 
-export async function createSocialLink(payload: CreateSocialLinkPayload): Promise<ApiResponse<SocialLink>> {
-  const data = await http.post<SocialLink>("/api/admin/profile/social", payload);
+export async function createSocialLink(payload: CreateSocialLinkPayload): Promise<ApiResponse<AdminSocialLink>> {
+  const data = await http.post<AdminSocialLink>("/api/admin/profile/social", payload);
   return { data };
 }
 
-export async function updateSocialLink(id: string, payload: CreateSocialLinkPayload): Promise<ApiResponse<SocialLink>> {
-  const data = await http.patch<SocialLink>(`/api/admin/profile/social/${id}`, payload);
+export async function updateSocialLink(id: string, payload: CreateSocialLinkPayload): Promise<ApiResponse<AdminSocialLink>> {
+  const data = await http.patch<AdminSocialLink>(`/api/admin/profile/social/${id}`, payload);
   return { data };
 }
 

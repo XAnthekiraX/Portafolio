@@ -9,7 +9,7 @@ import {
   updateTechnology,
   deleteTechnology,
 } from "../../services/admin"
-import type { Technology } from "../../types/admin"
+import type { AdminTechnology } from "../../types/admin"
 import { queryKeys } from "../../lib/queryKeys"
 import { useNotification } from "../../context/NotificationContext"
 
@@ -52,7 +52,7 @@ export function Technologies() {
     staleTime: 5 * 60 * 1000,
   })
 
-  const [editing, setEditing] = useState<Technology | null>(null)
+  const [editing, setEditing] = useState<AdminTechnology | null>(null)
   const [showCreate, setShowCreate] = useState(false)
 
   const invalidate = () => {

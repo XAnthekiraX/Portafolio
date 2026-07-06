@@ -11,7 +11,7 @@ import {
   updateEducation,
   deleteEducation,
 } from "../../services/admin"
-import type { EducationItem } from "../../types/admin"
+import type { AdminEducationItem } from "../../types/admin"
 import { queryKeys } from "../../lib/queryKeys"
 import { useNotification } from "../../context/NotificationContext"
 
@@ -24,7 +24,7 @@ export function Education() {
     staleTime: 5 * 60 * 1000,
   })
 
-  const [editing, setEditing] = useState<EducationItem | null>(null)
+  const [editing, setEditing] = useState<AdminEducationItem | null>(null)
   const [showCreate, setShowCreate] = useState(false)
 
   const invalidate = () => {

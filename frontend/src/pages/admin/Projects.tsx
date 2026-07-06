@@ -12,7 +12,7 @@ import {
   updateProject,
   deleteProject,
 } from "../../services/admin"
-import type { Project } from "../../types/admin"
+import type { AdminProject } from "../../types/admin"
 import { queryKeys } from "../../lib/queryKeys"
 import { useNotification } from "../../context/NotificationContext"
 
@@ -25,7 +25,7 @@ export function Projects() {
     staleTime: 5 * 60 * 1000,
   })
 
-  const [editing, setEditing] = useState<Project | null>(null)
+  const [editing, setEditing] = useState<AdminProject | null>(null)
   const [showCreate, setShowCreate] = useState(false)
 
   const invalidate = () => {

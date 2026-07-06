@@ -1,3 +1,6 @@
+// Admin-specific types (extend or differ from public types in types/index.ts)
+// Naming convention: Admin-prefix to distinguish from public types
+
 export interface Admin {
   id: string
   firstName: string
@@ -5,7 +8,7 @@ export interface Admin {
   email: string
 }
 
-export interface Profile {
+export interface AdminProfile {
   id: string
   firstName: string
   lastName: string
@@ -16,16 +19,16 @@ export interface Profile {
   email: string
   isAvailable: boolean
   avatarUrl: string
-  socialLinks: SocialLink[]
+  socialLinks: AdminSocialLink[]
 }
 
-export interface SocialLink {
+export interface AdminSocialLink {
   id: string
   platform: string
   url: string
 }
 
-export interface SkillCategory {
+export interface AdminSkillCategory {
   id: string
   name: string
   technologies: string[]
@@ -41,7 +44,7 @@ export interface CV {
   lastUpdated: string
 }
 
-export interface EducationItem {
+export interface AdminEducationItem {
   id: string
   title: string
   institution: string
@@ -53,12 +56,12 @@ export interface EducationItem {
   displayOrder: number
 }
 
-export interface Technology {
+export interface AdminTechnology {
   id: string
   name: string
 }
 
-export interface Project {
+export interface AdminProject {
   id: string
   title: string
   description: string
@@ -75,7 +78,7 @@ export interface Project {
   updatedAt: string
 }
 
-export interface Service {
+export interface AdminService {
   id: string
   title: string
   description: string
@@ -90,6 +93,4 @@ export interface AuthResponse {
   admin: Admin
 }
 
-export interface ApiResponse<T> {
-  data: T
-}
+export type { ApiResponse } from "./index";

@@ -26,7 +26,7 @@ import {
   deleteSocialLink,
   type UpdateProfilePayload,
 } from "../../services/admin"
-import type { SocialLink } from "../../types/admin"
+import type { AdminSocialLink } from "../../types/admin"
 import { queryKeys } from "../../lib/queryKeys"
 import { useNotification } from "../../context/NotificationContext"
 
@@ -51,7 +51,7 @@ export function Profile() {
 
   const avatarInputRef = useRef<HTMLInputElement>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null)
-  const [editingLink, setEditingLink] = useState<SocialLink | null>(null)
+  const [editingLink, setEditingLink] = useState<AdminSocialLink | null>(null)
   const [showCreateModal, setShowCreateModal] = useState(false)
 
   useEffect(() => {

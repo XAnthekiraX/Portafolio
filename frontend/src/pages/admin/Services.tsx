@@ -5,7 +5,7 @@ import { Tag } from "../../components/ui/Tag"
 import { Badge } from "../../components/ui/Badge"
 import { Button } from "../../components/ui/Button"
 import { ServiceModal } from "../../components/admin/ServiceModal"
-import type { Service } from "../../types/admin"
+import type { AdminService } from "../../types/admin"
 import { getServices, createService, updateService, deleteService } from "../../services/admin"
 import { queryKeys } from "../../lib/queryKeys"
 import { useNotification } from "../../context/NotificationContext"
@@ -39,7 +39,7 @@ function ServiceCard({
   onEdit,
   onDelete,
 }: {
-  service: Service
+  service: AdminService
   onEdit: () => void
   onDelete: () => void
 }) {
@@ -92,7 +92,7 @@ export function Services() {
     staleTime: 5 * 60 * 1000,
   })
 
-  const [editing, setEditing] = useState<Service | null>(null)
+  const [editing, setEditing] = useState<AdminService | null>(null)
   const [showCreate, setShowCreate] = useState(false)
 
   const invalidate = () => {
