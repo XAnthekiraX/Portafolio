@@ -36,7 +36,7 @@ const api = ky.create({
 
 async function request<T>(
   path: string,
-  options: { method?: string; body?: unknown } = {},
+  options: { method?: string; body?: unknown; signal?: AbortSignal } = {},
 ): Promise<T> {
   try {
     const isFormData = options.body instanceof FormData;
@@ -44,6 +44,7 @@ async function request<T>(
 
     const response = await api(path, {
       method,
+      signal: options.signal,
       ...(isFormData
         ? { body: options.body as FormData }
         : method !== "GET" && options.body !== undefined
@@ -81,18 +82,18 @@ async function request<T>(
 }
 
 export const http = {
-  get: <T>(path: string) => request<T>(path),
-  post: <T>(path: string, body?: unknown) =>
-    request<T>(path, { method: "POST", body }),
-  put: <T>(path: string, body?: unknown) =>
-    request<T>(path, { method: "PUT", body }),
-  putForm: <T>(path: string, body: FormData) =>
-    request<T>(path, { method: "PUT", body }),
-  postForm: <T>(path: string, body: FormData) =>
-    request<T>(path, { method: "POST", body }),
-  patch: <T>(path: string, body?: unknown) =>
-    request<T>(path, { method: "PATCH", body }),
-  patchForm: <T>(path: string, body: FormData) =>
-    request<T>(path, { method: "PATCH", body }),
-  delete: <T>(path: string) => request<T>(path, { method: "DELETE" }),
+  get: <T>(path: string, signal?: AbortSignal) => request<T>(path, { signal }),
+  post: <T>(path: string, body?: unknown, signal?: AbortSignal) =>
+    request<T>(path, { method: "POST", body, signal }),
+  put: <T>(path: string, body?: unknown, signal?: AbortSignal) =>
+    request<T>(path, { method: "PUT", body, signal }),
+  putForm: <T>(path: string, body: FormData, signal?: AbortSignal) =>
+    request<T>(path, { method: "PUT", body, signal }),
+  postForm: <T>(path: string, body: FormData, signal?: AbortSignal) =>
+    request<T>(path, { method: "POST", body, signal }),
+  patch: <T>(path: string, body?: unknown, signal?: AbortSignal) =>
+    request<T>(path, { method: "PATCH", body, signal }),
+  patchForm: <T>(path: string, body: FormData, signal?: AbortSignal) =>
+    request<T>(path, { method: "PATCH", body, signal }),
+  delete: <T>(path: string, signal?: AbortSignal) => request<T>(path, { method: "DELETE", signal }),
 };

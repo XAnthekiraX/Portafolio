@@ -20,7 +20,7 @@ export function Education() {
   const { notify } = useNotification()
   const { data: items = [] } = useQuery({
     queryKey: queryKeys.education,
-    queryFn: () => getEducation().then((r) => r.data),
+    queryFn: ({ signal }) => getEducation(signal).then((r) => r.data),
     staleTime: 5 * 60 * 1000,
   })
 

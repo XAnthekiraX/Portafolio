@@ -5,7 +5,7 @@ import { queryKeys } from "../lib/queryKeys";
 export function useTechnologies() {
   const { data, isLoading } = useQuery({
     queryKey: queryKeys.technologies,
-    queryFn: () => getTechnologies().then((r) => r.data),
+    queryFn: ({ signal }) => getTechnologies(signal).then((r) => r.data),
     staleTime: 5 * 60 * 1000,
   });
 

@@ -29,25 +29,25 @@ interface Metric {
 export function Dashboard() {
   const { data: counts } = useQuery({
     queryKey: queryKeys.dashboard,
-    queryFn: () => getDashboard().then((r) => r.data),
+    queryFn: ({ signal }) => getDashboard(signal).then((r) => r.data),
     staleTime: 30 * 1000,
   })
 
   const { data: recentProjects = [] } = useQuery({
     queryKey: queryKeys.projects,
-    queryFn: () => getProjects().then((r) => r.data),
+    queryFn: ({ signal }) => getProjects(signal).then((r) => r.data),
     staleTime: 5 * 60 * 1000,
   })
 
   const { data: profile } = useQuery({
     queryKey: queryKeys.profile,
-    queryFn: () => getProfile().then((r) => r.data),
+    queryFn: ({ signal }) => getProfile(signal).then((r) => r.data),
     staleTime: 5 * 60 * 1000,
   })
 
   const { data: profileCompletion } = useQuery({
     queryKey: queryKeys.profileCompletion,
-    queryFn: () => getProfileCompletion().then((r) => r.data),
+    queryFn: ({ signal }) => getProfileCompletion(signal).then((r) => r.data),
     staleTime: 5 * 60 * 1000,
   })
 

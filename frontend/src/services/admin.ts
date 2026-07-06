@@ -91,8 +91,8 @@ function mapService(s: BackendService): AdminService {
   };
 }
 
-export async function getProfile(): Promise<ApiResponse<AdminProfile>> {
-  const data = await http.get<BackendProfile>("/api/admin/profile");
+export async function getProfile(signal?: AbortSignal): Promise<ApiResponse<AdminProfile>> {
+  const data = await http.get<BackendProfile>("/api/admin/profile", signal);
   return { data: mapProfile(data) };
 }
 
@@ -119,8 +119,8 @@ export async function uploadAvatar(file: File): Promise<ApiResponse<AdminProfile
   return { data: mapProfile(data) };
 }
 
-export async function getSkills(): Promise<ApiResponse<AdminSkillCategory[]>> {
-  const data = await http.get<BackendSkillCategory[]>("/api/admin/skills");
+export async function getSkills(signal?: AbortSignal): Promise<ApiResponse<AdminSkillCategory[]>> {
+  const data = await http.get<BackendSkillCategory[]>("/api/admin/skills", signal);
   return { data: data.map(mapSkillCategory) };
 }
 
@@ -143,8 +143,8 @@ export async function deleteSkillCategory(id: string): Promise<void> {
   await http.delete(`/api/admin/skills/${id}`);
 }
 
-export async function getCV(): Promise<ApiResponse<CV>> {
-  const data = await http.get<{ cvUrl: string }>("/api/admin/cv");
+export async function getCV(signal?: AbortSignal): Promise<ApiResponse<CV>> {
+  const data = await http.get<{ cvUrl: string }>("/api/admin/cv", signal);
   const cvUrl = data.cvUrl;
   return {
     data: {
@@ -170,8 +170,8 @@ export async function deleteCv(): Promise<void> {
   await http.delete("/api/admin/cv");
 }
 
-export async function getEducation(): Promise<ApiResponse<AdminEducationItem[]>> {
-  const data = await http.get<BackendEducation[]>("/api/admin/education");
+export async function getEducation(signal?: AbortSignal): Promise<ApiResponse<AdminEducationItem[]>> {
+  const data = await http.get<BackendEducation[]>("/api/admin/education", signal);
   return { data: data.map(mapEducation) };
 }
 
@@ -200,8 +200,8 @@ export async function deleteEducation(id: string): Promise<void> {
   await http.delete(`/api/admin/education/${id}`);
 }
 
-export async function getTechnologies(): Promise<ApiResponse<AdminTechnology[]>> {
-  const data = await http.get<BackendTechnology[]>("/api/admin/technologies");
+export async function getTechnologies(signal?: AbortSignal): Promise<ApiResponse<AdminTechnology[]>> {
+  const data = await http.get<BackendTechnology[]>("/api/admin/technologies", signal);
   return { data: data.map((t) => ({ id: t.id, name: t.name })) };
 }
 
@@ -223,8 +223,8 @@ export async function deleteTechnology(id: string): Promise<void> {
   await http.delete(`/api/admin/technologies/${id}`);
 }
 
-export async function getProjects(): Promise<ApiResponse<AdminProject[]>> {
-  const data = await http.get<BackendProject[]>("/api/admin/projects");
+export async function getProjects(signal?: AbortSignal): Promise<ApiResponse<AdminProject[]>> {
+  const data = await http.get<BackendProject[]>("/api/admin/projects", signal);
   return { data: data.map(mapProject) };
 }
 
@@ -300,8 +300,8 @@ export async function deleteProject(id: string): Promise<void> {
   await http.delete(`/api/admin/projects/${id}`);
 }
 
-export async function getServices(): Promise<ApiResponse<AdminService[]>> {
-  const data = await http.get<BackendService[]>("/api/admin/services");
+export async function getServices(signal?: AbortSignal): Promise<ApiResponse<AdminService[]>> {
+  const data = await http.get<BackendService[]>("/api/admin/services", signal);
   return { data: data.map(mapService) };
 }
 
@@ -334,8 +334,8 @@ export interface DashboardCounts {
   unreadMessages: number;
 }
 
-export async function getDashboard(): Promise<ApiResponse<DashboardCounts>> {
-  const data = await http.get<DashboardCounts>("/api/admin/dashboard");
+export async function getDashboard(signal?: AbortSignal): Promise<ApiResponse<DashboardCounts>> {
+  const data = await http.get<DashboardCounts>("/api/admin/dashboard", signal);
   return { data };
 }
 
@@ -354,8 +354,8 @@ export interface NotificationsResponse {
   recent: NotificationItem[];
 }
 
-export async function getNotifications(): Promise<ApiResponse<NotificationsResponse>> {
-  const data = await http.get<NotificationsResponse>("/api/admin/notifications");
+export async function getNotifications(signal?: AbortSignal): Promise<ApiResponse<NotificationsResponse>> {
+  const data = await http.get<NotificationsResponse>("/api/admin/notifications", signal);
   return { data };
 }
 
@@ -369,8 +369,8 @@ export interface ProfileCompletion {
   checks: ProfileCompletionCheck[];
 }
 
-export async function getProfileCompletion(): Promise<ApiResponse<ProfileCompletion>> {
-  const data = await http.get<ProfileCompletion>("/api/admin/profile/completion");
+export async function getProfileCompletion(signal?: AbortSignal): Promise<ApiResponse<ProfileCompletion>> {
+  const data = await http.get<ProfileCompletion>("/api/admin/profile/completion", signal);
   return { data };
 }
 

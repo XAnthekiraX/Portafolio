@@ -41,7 +41,7 @@ export function Hero() {
   const { profile, loading } = useProfile();
   const { data: cvUrl } = useQuery({
     queryKey: queryKeys.cvUrl,
-    queryFn: () => getCvUrl().then((url) => (url ? url : null)),
+    queryFn: ({ signal }) => getCvUrl(signal).then((url) => (url ? url : null)),
     staleTime: 5 * 60 * 1000,
   });
 

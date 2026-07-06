@@ -88,7 +88,7 @@ export function Services() {
   const { notify } = useNotification()
   const { data: services = [] } = useQuery({
     queryKey: queryKeys.services,
-    queryFn: () => getServices().then((r) => r.data),
+    queryFn: ({ signal }) => getServices(signal).then((r) => r.data),
     staleTime: 5 * 60 * 1000,
   })
 

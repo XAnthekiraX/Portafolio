@@ -34,7 +34,7 @@ export function Profile() {
   const queryClient = useQueryClient()
   const { data: profile, isLoading } = useQuery({
     queryKey: queryKeys.profile,
-    queryFn: () => getProfile().then((r) => r.data),
+    queryFn: ({ signal }) => getProfile(signal).then((r) => r.data),
     staleTime: 5 * 60 * 1000,
   })
 

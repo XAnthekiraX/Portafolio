@@ -15,7 +15,7 @@ export function CV() {
 
   const { data: cv } = useQuery({
     queryKey: queryKeys.cv,
-    queryFn: () => getCV().then((r) => r.data),
+    queryFn: ({ signal }) => getCV(signal).then((r) => r.data),
     staleTime: 0,
   })
 

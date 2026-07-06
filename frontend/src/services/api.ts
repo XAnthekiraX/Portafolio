@@ -83,47 +83,53 @@ function mapService(s: BackendService): Service {
   };
 }
 
-export async function getProfile(): Promise<ApiResponse<Profile>> {
-  const data = await http.get<BackendProfile>("/api/profile");
+export async function getProfile(signal?: AbortSignal): Promise<ApiResponse<Profile>> {
+  const data = await http.get<BackendProfile>("/api/profile", signal);
   return { data: mapProfile(data) };
 }
 
-export async function getSkills(): Promise<ApiResponse<SkillCategory[]>> {
-  const data = await http.get<BackendSkillCategory[]>("/api/skills");
+export async function getSkills(signal?: AbortSignal): Promise<ApiResponse<SkillCategory[]>> {
+  const data = await http.get<BackendSkillCategory[]>("/api/skills", signal);
   return { data: data.map(mapSkillCategory) };
 }
 
-export async function getTechnologies(): Promise<ApiResponse<Technology[]>> {
-  const data = await http.get<BackendTechnology[]>("/api/technologies");
+export async function getTechnologies(signal?: AbortSignal): Promise<ApiResponse<Technology[]>> {
+  const data = await http.get<BackendTechnology[]>("/api/technologies", signal);
   return { data: data.map(mapTechnology) };
 }
 
-export async function getProjects(): Promise<ApiResponse<Project[]>> {
-  const data = await http.get<BackendProject[]>("/api/projects");
+export async function getProjects(signal?: AbortSignal): Promise<ApiResponse<Project[]>> {
+  const data = await http.get<BackendProject[]>("/api/projects", signal);
   return { data: data.map(mapProject) };
 }
 
-export async function getEducation(): Promise<ApiResponse<EducationItem[]>> {
-  const data = await http.get<BackendEducation[]>("/api/education");
+export async function getEducation(signal?: AbortSignal): Promise<ApiResponse<EducationItem[]>> {
+  const data = await http.get<BackendEducation[]>("/api/education", signal);
   return { data: data.map(mapEducation) };
 }
 
-export async function getServices(): Promise<ApiResponse<Service[]>> {
-  const data = await http.get<BackendService[]>("/api/services");
+export async function getServices(signal?: AbortSignal): Promise<ApiResponse<Service[]>> {
+  const data = await http.get<BackendService[]>("/api/services", signal);
   return { data: data.map(mapService) };
 }
 
 export async function sendContact(
   message: ContactMessage,
+  signal?: AbortSignal,
 ): Promise<ApiResponse<{ id: string; status: "sent" }>> {
-  const data = await http.post<{ id: string; status: "sent" }>("/api/contact", message);
+  const data = await http.post<{ id: string; status: "sent" }>("/api/contact", message, signal);
   return { data };
 }
 
-export async function getCvUrl(): Promise<string> {
-  const res = await fetch(`${BASE_URL}/api/cv`, { redirect: "manual" });
-  if (res.status >= 300 && res.status < 400) {
-    return res.headers.get("location") ?? "";
+export async function getCvUrl(signal?: AbortSignal): Promise<string> {
+  try {
+    const res = await fetch(`${BASE_URL}/api/cv`, { redirect: "manual", signal });
+    if (res.status >= 300 && res.status < 400) {
+      return res.headers.get("location") ?? "";
+    }
+    return "";
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") throw err;
+    return "";
   }
-  return "";
 }

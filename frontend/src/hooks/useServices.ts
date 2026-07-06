@@ -5,7 +5,7 @@ import { queryKeys } from "../lib/queryKeys";
 export function useServices() {
   const { data, isLoading } = useQuery({
     queryKey: queryKeys.services,
-    queryFn: () => getServices().then((r) => r.data),
+    queryFn: ({ signal }) => getServices(signal).then((r) => r.data),
     staleTime: 5 * 60 * 1000,
   });
 

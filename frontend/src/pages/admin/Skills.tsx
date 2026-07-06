@@ -22,7 +22,7 @@ export function Skills() {
   const { notify } = useNotification()
   const { data: skills = [] } = useQuery({
     queryKey: queryKeys.skills,
-    queryFn: () => getSkills().then((r) => r.data),
+    queryFn: ({ signal }) => getSkills(signal).then((r) => r.data),
     staleTime: 5 * 60 * 1000,
   })
 

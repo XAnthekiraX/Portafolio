@@ -5,7 +5,7 @@ import { queryKeys } from "../lib/queryKeys";
 export function useSkills() {
   const { data, isLoading } = useQuery({
     queryKey: queryKeys.skills,
-    queryFn: () => getSkills().then((r) => r.data),
+    queryFn: ({ signal }) => getSkills(signal).then((r) => r.data),
     staleTime: 5 * 60 * 1000,
   });
 
