@@ -3,6 +3,10 @@ import postgres from "postgres";
 import { env } from "../config/env";
 import * as schema from "./schema";
 
-const queryClient = postgres(env.DATABASE_URL);
+const queryClient = postgres(env.DATABASE_URL, {
+  idle_timeout: 300,
+  max_lifetime: 3600,
+  max: 10,
+});
 
 export const db = drizzle(queryClient, { schema });

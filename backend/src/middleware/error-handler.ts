@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { MulterError } from "multer";
 
-export function errorHandler(err: Error, _req: Request, res: Response, _next: NextFunction) {
+export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction) {
   if (err.message === "UNSUPPORTED_FORMAT") {
     res.status(400).json({
       error: {
@@ -27,7 +27,7 @@ export function errorHandler(err: Error, _req: Request, res: Response, _next: Ne
     return;
   }
 
-  console.error("[Error]", err);
+  console.error(`[Error] ${req.method} ${req.path}:`, err.message, err.stack);
 
   res.status(500).json({
     error: {

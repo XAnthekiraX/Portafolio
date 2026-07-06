@@ -110,7 +110,7 @@ export function Projects() {
                   </Button>
                 </div>
               </div>
-              <p className="text-sm leading-relaxed mb-4 text-zinc-400">
+              <p className="text-sm leading-relaxed mb-4 text-zinc-400 max-h-24 overflow-y-auto">
                 {p.description}
               </p>
               <div className="flex flex-wrap gap-1.5 mb-4">

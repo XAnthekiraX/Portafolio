@@ -16,18 +16,22 @@ export function CV() {
   const { data: cv } = useQuery({
     queryKey: queryKeys.cv,
     queryFn: () => getCV().then((r) => r.data),
-    staleTime: 5 * 60 * 1000,
+    staleTime: 0,
   })
 
   useEffect(() => {
-    if (cv?.downloadUrl) setPreviewUrl(cv.downloadUrl)
+    if (cv?.downloadUrl) {
+      const cacheBuster = `?t=${new Date().getTime()}`;
+      setPreviewUrl(`${cv.downloadUrl}${cacheBuster}`);
+    }
   }, [cv])
 
   const uploadMutation = useMutation({
     mutationFn: uploadCv,
     onSuccess: (res) => {
       notify("CV subido correctamente", "success")
-      setPreviewUrl(res.data.url)
+      const cacheBuster = `?t=${new Date().getTime()}`;
+      setPreviewUrl(`${res.data.url}${cacheBuster}`)
       queryClient.invalidateQueries({ queryKey: queryKeys.cv })
     },
     onError: (error) => {
