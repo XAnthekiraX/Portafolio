@@ -284,8 +284,9 @@ export async function updateProject(id: string, payload: CreateProjectPayload, i
     return { data: mapProject(data) };
   }
   const body: Record<string, unknown> = {};
-  for (const key of ["title", "description", "category", "url", "repository", "status", "displayOrder"] as const) {
-    if ((payload as any)[key] !== undefined) body[key] = (payload as any)[key];
+  const projectKeys = ["title", "description", "category", "url", "repository", "status", "displayOrder"] as const;
+  for (const key of projectKeys) {
+    if (payload[key] !== undefined) body[key] = payload[key];
   }
   if (payload.url !== undefined) body.repoUrl = payload.url;
   if (payload.repository !== undefined) body.demoUrl = payload.repository;

@@ -1,6 +1,9 @@
 import ky, { HTTPError } from "ky";
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3001";
+export const BASE_URL = import.meta.env.VITE_API_URL;
+if (!BASE_URL) {
+  throw new Error("VITE_API_URL environment variable is required");
+}
 
 function getToken(): string | null {
   return localStorage.getItem("folio-cms-token");

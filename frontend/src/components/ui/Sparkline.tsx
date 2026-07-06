@@ -9,7 +9,7 @@ export function Sparkline({ values }: SparklineProps) {
       {values.map((v, i) => (
         <div
           key={i}
-          className={`w-1 rounded-sm ${i === values.length - 1 ? "bg-cyan-500" : "bg-red-500"} opacity-60 transition-opacity duration-150 group-hover/card:opacity-100`}
+          className={`w-1 rounded-sm ${i === values.length - 1 ? "bg-cyan-500" : "bg-red-500"} opacity-60 hover:opacity-100 transition-opacity duration-150`}
           style={{ height: `${(v / max) * 100}%` }}
         />
       ))}

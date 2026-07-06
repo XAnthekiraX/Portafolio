@@ -35,8 +35,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     http.get<{ id: string; email: string }>("/api/admin/auth/me")
       .then((data) => {
+        const displayName = data.email.split("@")[0] ?? "";
         setState({
-          user: { id: data.id, firstName: "", lastName: "", email: data.email },
+          user: { id: data.id, firstName: displayName, lastName: "", email: data.email },
           token,
           isAuthenticated: true,
           isLoading: false,

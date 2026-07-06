@@ -6,6 +6,7 @@ export const queryKeys = {
   education: ["education"] as const,
   services: ["services"] as const,
   cv: ["cv"] as const,
+  cvUrl: ["cv-url"] as const,
   profileCompletion: ["profile", "completion"] as const,
   dashboard: ["dashboard"] as const,
   notifications: ["notifications"] as const,

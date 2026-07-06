@@ -2,6 +2,7 @@ import { Download, Mail, MapPin, Briefcase } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useProfile } from "../hooks/useProfile";
 import { getCvUrl } from "../services/api";
+import { queryKeys } from "../lib/queryKeys";
 import { StatusBadge } from "./StatusBadge";
 import { AvatarFrame } from "./AvatarFrame";
 import { ScrollIndicator } from "./ScrollIndicator";
@@ -11,7 +12,7 @@ import { SocialLinks } from "./SocialLinks";
 export function Hero() {
   const { profile } = useProfile();
   const { data: cvUrl } = useQuery({
-    queryKey: ["cv-url"],
+    queryKey: queryKeys.cvUrl,
     queryFn: () => getCvUrl().then((url) => (url ? url : null)),
     staleTime: 5 * 60 * 1000,
   });

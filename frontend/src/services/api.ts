@@ -1,4 +1,4 @@
-import { http } from "../lib/http";
+import { http, BASE_URL } from "../lib/http";
 import type {
   BackendProfile,
   BackendSkillCategory,
@@ -121,7 +121,7 @@ export async function sendContact(
 }
 
 export async function getCvUrl(): Promise<string> {
-  const res = await fetch("http://localhost:3001/api/cv", { redirect: "manual" });
+  const res = await fetch(`${BASE_URL}/api/cv`, { redirect: "manual" });
   if (res.status >= 300 && res.status < 400) {
     return res.headers.get("location") ?? "";
   }
