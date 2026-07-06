@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
+import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "./context/AuthContext";
 import { NotificationProvider } from "./context/NotificationContext";
 import { ToastContainer } from "./components/ui/ToastContainer";
@@ -28,6 +29,7 @@ function AdminPageFallback() {
 
 export default function App() {
   return (
+    <HelmetProvider>
     <BrowserRouter>
       <AuthProvider>
         <NotificationProvider>
@@ -57,5 +59,6 @@ export default function App() {
         </NotificationProvider>
       </AuthProvider>
     </BrowserRouter>
+    </HelmetProvider>
   );
 }
