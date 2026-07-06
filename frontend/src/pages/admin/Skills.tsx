@@ -15,7 +15,12 @@ import type { AdminSkillCategory } from "../../types/admin"
 import { queryKeys } from "../../lib/queryKeys"
 import { useNotification } from "../../context/NotificationContext"
 
-const dotColors = ["bg-red-600", "bg-cyan-500", "bg-green-500", "bg-yellow-500"]
+const dotColors = [
+  { className: "bg-red-500", label: "Rojo" },
+  { className: "bg-cyan-500", label: "Cian" },
+  { className: "bg-emerald-500", label: "Verde" },
+  { className: "bg-amber-500", label: "Ámbar" },
+]
 
 export function Skills() {
   const queryClient = useQueryClient()
@@ -80,7 +85,7 @@ export function Skills() {
         {skills.map((cat, i) => (
           <Card key={cat.id}>
             <div className="flex items-center gap-3 mb-4">
-              <div className={`w-2.5 h-2.5 rounded-full ${dotColors[i % dotColors.length]}`} />
+              <div className={`w-2.5 h-2.5 rounded-full ${dotColors[i % dotColors.length].className}`} title={dotColors[i % dotColors.length].label} />
               <h3 className="font-heading font-semibold text-base text-zinc-100">
                 {cat.name}
               </h3>
