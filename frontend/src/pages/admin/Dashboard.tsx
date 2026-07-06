@@ -150,6 +150,7 @@ export function Dashboard() {
                   <img
                     src={p.imageUrl}
                     alt=""
+                    loading="lazy"
                     className="w-24 h-16 rounded-lg object-cover flex-shrink-0"
                   />
                   <div className="flex-1 min-w-0">
@@ -190,6 +191,7 @@ export function Dashboard() {
               <img
                 src={profile?.avatarUrl || "https://picsum.photos/seed/dev-avatar-cms/80/80.jpg"}
                 alt=""
+                loading="lazy"
                 className="w-12 h-12 rounded-full object-cover"
               />
               <div>

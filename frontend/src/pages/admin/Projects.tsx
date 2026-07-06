@@ -81,6 +81,7 @@ export function Projects() {
               <img
                 src={p.imageUrl}
                 alt=""
+                loading="lazy"
                 className="w-full aspect-[16/10] object-cover rounded-t-xl transition-transform duration-300 group-hover:scale-102"
               />
             </div>

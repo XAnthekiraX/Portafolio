@@ -11,19 +11,26 @@ export function ScrollReveal({ children, className = "", delay = 0 }: ScrollReve
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    function handleScroll() {
-      const current = ref.current;
-      if (!current) return;
-      const rect = current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      if (rect.top < windowHeight - 100) {
-        setVisible(true);
-      }
+    const el = ref.current;
+    if (!el) return;
+
+    if ("IntersectionObserver" in window === false) {
+      setVisible(true);
+      return;
     }
 
-    handleScroll();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.unobserve(el);
+        }
+      },
+      { rootMargin: "0px 0px -100px 0px" },
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   return (

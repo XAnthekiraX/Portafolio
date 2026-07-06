@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import { AuthProvider } from "./context/AuthContext";
 import { NotificationProvider } from "./context/NotificationContext";
 import { ToastContainer } from "./components/ui/ToastContainer";
@@ -7,14 +8,23 @@ import { PublicLayout } from "./layouts/PublicLayout";
 import { AdminLayout } from "./layouts/AdminLayout";
 import { Home } from "./pages/public/Home";
 import { LoginPage } from "./pages/admin/LoginPage";
-import { Dashboard } from "./pages/admin/Dashboard";
-import { Profile } from "./pages/admin/Profile";
-import { Skills } from "./pages/admin/Skills";
-import { CV } from "./pages/admin/CV";
-import { Education } from "./pages/admin/Education";
-import { Technologies } from "./pages/admin/Technologies";
-import { Projects } from "./pages/admin/Projects";
-import { Services } from "./pages/admin/Services";
+
+const Dashboard = lazy(() => import("./pages/admin/Dashboard").then((m) => ({ default: m.Dashboard })));
+const Profile = lazy(() => import("./pages/admin/Profile").then((m) => ({ default: m.Profile })));
+const Skills = lazy(() => import("./pages/admin/Skills").then((m) => ({ default: m.Skills })));
+const CV = lazy(() => import("./pages/admin/CV").then((m) => ({ default: m.CV })));
+const Education = lazy(() => import("./pages/admin/Education").then((m) => ({ default: m.Education })));
+const Technologies = lazy(() => import("./pages/admin/Technologies").then((m) => ({ default: m.Technologies })));
+const Projects = lazy(() => import("./pages/admin/Projects").then((m) => ({ default: m.Projects })));
+const Services = lazy(() => import("./pages/admin/Services").then((m) => ({ default: m.Services })));
+
+function AdminPageFallback() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-zinc-950">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-700 border-t-red-500" />
+    </div>
+  );
+}
 
 export default function App() {
   return (
@@ -31,14 +41,14 @@ export default function App() {
 
           <Route element={<ProtectedRoute />}>
             <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<Dashboard />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="skills" element={<Skills />} />
-              <Route path="cv" element={<CV />} />
-              <Route path="education" element={<Education />} />
-              <Route path="technologies" element={<Technologies />} />
-              <Route path="projects" element={<Projects />} />
-              <Route path="services" element={<Services />} />
+              <Route index element={<Suspense fallback={<AdminPageFallback />}><Dashboard /></Suspense>} />
+              <Route path="profile" element={<Suspense fallback={<AdminPageFallback />}><Profile /></Suspense>} />
+              <Route path="skills" element={<Suspense fallback={<AdminPageFallback />}><Skills /></Suspense>} />
+              <Route path="cv" element={<Suspense fallback={<AdminPageFallback />}><CV /></Suspense>} />
+              <Route path="education" element={<Suspense fallback={<AdminPageFallback />}><Education /></Suspense>} />
+              <Route path="technologies" element={<Suspense fallback={<AdminPageFallback />}><Technologies /></Suspense>} />
+              <Route path="projects" element={<Suspense fallback={<AdminPageFallback />}><Projects /></Suspense>} />
+              <Route path="services" element={<Suspense fallback={<AdminPageFallback />}><Services /></Suspense>} />
             </Route>
           </Route>
 

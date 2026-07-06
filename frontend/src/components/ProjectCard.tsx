@@ -22,6 +22,7 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
             <img
               src={project.imageUrl}
               alt={project.title}
+              loading="lazy"
               className="h-full w-full object-cover opacity-80 transition-transform duration-500 group-hover:scale-105"
             />
           )}

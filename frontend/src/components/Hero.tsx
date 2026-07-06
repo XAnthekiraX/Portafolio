@@ -21,8 +21,8 @@ export function Hero() {
 
   return (
     <header className="relative grid-bg flex min-h-screen items-center overflow-hidden pt-24 pb-12">
-      <div className="absolute -left-20 top-1/4 -z-10 h-96 w-96 rounded-full bg-primary/20 blur-[120px]" />
-      <div className="absolute -right-20 bottom-1/4 -z-10 h-96 w-96 rounded-full bg-accent/20 blur-[120px]" />
+      <div className="absolute -left-20 top-1/4 -z-10 h-96 w-96 rounded-full bg-primary/20 blur-[120px]" style={{ willChange: "transform" }} />
+      <div className="absolute -right-20 bottom-1/4 -z-10 h-96 w-96 rounded-full bg-accent/20 blur-[120px]" style={{ willChange: "transform" }} />
 
       <div className="mx-auto w-full max-w-7xl px-6 lg:px-8">
         <div className="flex flex-col items-center gap-12 lg:flex-row lg:gap-20">
