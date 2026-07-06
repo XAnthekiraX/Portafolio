@@ -1,0 +1,16 @@
+{
+  "name": "portfolio-root",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n fe,be -c cyan,yellow \"npm run dev:fe\" \"npm run dev:be\"",
+    "dev:fe": "npm --prefix frontend run dev",
+    "dev:be": "npm --prefix backend run dev",
+    "build": "npm --prefix frontend run build && npm --prefix backend run build",
+    "install": "npm --prefix frontend install && npm --prefix backend install",
+    "start": "npm --prefix backend run start",
+    "preview": "npm --prefix frontend run preview"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
