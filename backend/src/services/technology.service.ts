@@ -1,10 +1,23 @@
-import { eq, asc } from "drizzle-orm";
+import { eq, asc, desc, sql } from "drizzle-orm";
 import { db } from "../db";
-import { technologies } from "../db/schema";
+import { technologies, projectTechnologies } from "../db/schema";
 
 export const technologyService = {
   async getAll() {
-    return db.select().from(technologies).orderBy(asc(technologies.name));
+    const result = await db
+      .select({
+        id: technologies.id,
+        name: technologies.name,
+        icon: technologies.icon,
+        createdAt: technologies.createdAt,
+        updatedAt: technologies.updatedAt,
+        usageCount: sql<number>`count(${projectTechnologies.id})`.as("usage_count"),
+      })
+      .from(technologies)
+      .leftJoin(projectTechnologies, eq(technologies.id, projectTechnologies.technologyId))
+      .groupBy(technologies.id)
+      .orderBy(desc(sql`count(${projectTechnologies.id})`), asc(technologies.name));
+    return result;
   },
 
   async create(data: typeof technologies.$inferInsert) {

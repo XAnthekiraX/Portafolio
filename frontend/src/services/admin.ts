@@ -146,6 +146,7 @@ function mapService(s: BackendService): Service {
     id: s.id,
     title: s.title,
     description: s.description ?? "",
+    icon: s.icon ?? "code",
     status: s.status as Service["status"],
     displayOrder: s.displayOrder,
   };
@@ -367,6 +368,7 @@ export async function getServices(): Promise<ApiResponse<Service[]>> {
 export interface CreateServicePayload {
   title: string;
   description?: string;
+  icon?: string;
   status?: string;
   displayOrder?: number;
 }
