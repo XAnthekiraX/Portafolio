@@ -23,68 +23,66 @@
   --font-mono: "JetBrains Mono", monospace;
 }
 
-@layer base {
-  :root {
-    --color-page: #09090b;
-    --color-bg: #09090b;
-    --color-bg-secondary: #18181b;
-    --color-border: #27272a;
-    --color-border-light: #3f3f46;
-    --color-text: #f4f4f5;
-    --color-text-secondary: #a1a1aa;
-    --color-text-muted: #71717a;
-    --scrollbar-track: #09090b;
-    --scrollbar-thumb: #3f3f46;
-  }
+:root {
+  --color-page: #09090b;
+  --color-bg: #09090b;
+  --color-bg-secondary: #18181b;
+  --color-border: #27272a;
+  --color-border-light: #3f3f46;
+  --color-text: #f4f4f5;
+  --color-text-secondary: #a1a1aa;
+  --color-text-muted: #71717a;
+  --scrollbar-track: #09090b;
+  --scrollbar-thumb: #3f3f46;
+}
 
-  .light {
-    --color-page: #ffffff;
-    --color-bg: #ffffff;
-    --color-bg-secondary: #f4f4f5;
-    --color-border: #e4e4e7;
-    --color-border-light: #d4d4d8;
-    --color-text: #18181b;
-    --color-text-secondary: #71717a;
-    --color-text-muted: #a1a1aa;
-    --scrollbar-track: #f4f4f5;
-    --scrollbar-thumb: #d4d4d8;
-  }
+.light {
+  --color-page: #ffffff;
+  --color-bg: #ffffff;
+  --color-bg-secondary: #f4f4f5;
+  --color-border: #e4e4e7;
+  --color-border-light: #d4d4d8;
+  --color-text: #18181b;
+  --color-text-secondary: #71717a;
+  --color-text-muted: #a1a1aa;
+  --scrollbar-track: #f4f4f5;
+  --scrollbar-thumb: #d4d4d8;
+}
 
-  html {
-    scroll-behavior: smooth;
-    scroll-padding-top: 5rem;
-  }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
 
-  body {
-    font-family: "Inter", sans-serif;
-    background-color: var(--color-page);
-    color: var(--color-text);
-  }
+body {
+  font-family: "Inter", sans-serif;
+  background-color: var(--color-page);
+  color: var(--color-text);
+}
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5 {
-    font-family: "Space Grotesk", sans-serif;
-  }
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: "Space Grotesk", sans-serif;
+}
 
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
+::-webkit-scrollbar {
+  width: 8px;
+}
 
-  ::-webkit-scrollbar-track {
-    background: var(--scrollbar-track);
-  }
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
 
-  ::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb);
-    border-radius: 4px;
-  }
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
 
-  ::-webkit-scrollbar-thumb:hover {
-    background: #dc2626;
-  }
+::-webkit-scrollbar-thumb:hover {
+  background: #dc2626;
 }
 
 .grid-bg {
