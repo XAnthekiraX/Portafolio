@@ -1,5 +1,13 @@
 import { http } from "../lib/http";
 import type {
+  BackendProfile,
+  BackendSkillCategory,
+  BackendTechnology,
+  BackendProject,
+  BackendEducation,
+  BackendService,
+} from "../lib/mappers";
+import type {
   Profile,
   SkillCategory,
   CV,
@@ -10,75 +18,6 @@ import type {
   SocialLink,
   ApiResponse,
 } from "../types/admin";
-
-interface BackendProfile {
-  id: string;
-  firstName: string;
-  lastName: string;
-  title: string;
-  description: string | null;
-  location: string | null;
-  experienceYears: number;
-  isAvailable: boolean;
-  email: string;
-  avatarUrl: string | null;
-  socialLinks: { id: string; platform: string; url: string }[];
-}
-
-interface BackendSkillCategory {
-  id: string;
-  name: string;
-  icon: string | null;
-  displayOrder: number;
-  technologies: { id: string; name: string; displayOrder: number }[];
-}
-
-interface BackendTechnology {
-  id: string;
-  name: string;
-  icon: string | null;
-}
-
-interface BackendProject {
-  id: string;
-  title: string;
-  description: string | null;
-  category: string | null;
-  imageUrl: string | null;
-  url: string | null;
-  repository: string | null;
-  features: string[];
-  repoUrl: string | null;
-  demoUrl: string | null;
-  status: string;
-  visits: number;
-  displayOrder: number;
-  createdAt: string;
-  updatedAt: string;
-  technologies: { id: string; name: string; icon: string | null }[];
-}
-
-interface BackendEducation {
-  id: string;
-  title: string;
-  degree: string | null;
-  institution: string;
-  type: string;
-  startDate: string;
-  endDate: string | null;
-  description: string | null;
-  status: string;
-  displayOrder: number;
-}
-
-interface BackendService {
-  id: string;
-  title: string;
-  description: string | null;
-  icon: string | null;
-  status: string;
-  displayOrder: number;
-}
 
 function mapProfile(bp: BackendProfile): Profile {
   return {
@@ -120,10 +59,10 @@ function mapProject(p: BackendProject): Project {
     features: p.features ?? [],
     technologies: p.technologies.map((t) => t.name),
     status: p.status as Project["status"],
-    visits: p.visits,
-    displayOrder: p.displayOrder,
-    createdAt: p.createdAt,
-    updatedAt: p.updatedAt,
+    visits: p.visits!,
+    displayOrder: p.displayOrder!,
+    createdAt: p.createdAt!,
+    updatedAt: p.updatedAt!,
   };
 }
 
