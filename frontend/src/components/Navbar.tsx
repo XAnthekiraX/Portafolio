@@ -34,7 +34,7 @@ export function Navbar() {
       >
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
-            <Logo />
+            <Lowgo />
 
             <div className="hidden items-center gap-8 text-sm font-medium text-dark-400 md:flex">
               {links.map((link) => (

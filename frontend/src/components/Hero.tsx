@@ -26,8 +26,7 @@ export function Hero() {
                 {profile.name}
               </h1>
               <h2 className="mb-6 text-2xl font-medium text-dark-400 md:text-3xl">
-                Senior Product Engineer <span className="text-primary">&</span>{" "}
-                UI/UX Designer
+                {profile.title}
               </h2>
               <p className="mx-auto mb-8 max-w-2xl text-lg leading-relaxed text-dark-400 lg:mx-0">
                 {profile.description}
@@ -47,7 +46,8 @@ export function Hero() {
 
               <div className="flex flex-col items-center gap-4 sm:flex-row">
                 <a
-                  href="#"
+                  href="/api/cv"
+                  target="_blank"
                   className="glow-red inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 font-medium text-white transition-colors hover:bg-primary-hover active:bg-primary-active focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-dark-950 sm:w-auto"
                 >
                   <Download className="h-4 w-4" />

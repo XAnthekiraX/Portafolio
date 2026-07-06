@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react"
 import { http } from "../lib/http"
 import type { Admin } from "../types/admin"
+import type { AuthResponse } from "../types/admin"
 
 interface AuthState {
   user: Admin | null
@@ -17,11 +18,6 @@ interface AuthContextValue extends AuthState {
 const AuthContext = createContext<AuthContextValue | null>(null)
 
 const TOKEN_KEY = "folio-cms-token"
-
-interface LoginResponse {
-  user: { id: string; email: string }
-  session?: { access_token: string }
-}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({
@@ -53,16 +49,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const login = useCallback(async (email: string, password: string) => {
-    const data = await http.post<LoginResponse>("/api/admin/auth/login", { email, password })
-    const accessToken = data.session?.access_token ?? data.user?.id ?? ""
-    const admin: Admin = {
-      id: data.user.id,
-      firstName: "",
-      lastName: "",
-      email: data.user.email,
-    }
-    localStorage.setItem(TOKEN_KEY, accessToken)
-    setState({ user: admin, token: accessToken, isAuthenticated: true, isLoading: false })
+    const data = await http.post<AuthResponse>("/api/admin/auth/login", { email, password })
+    const { token, admin } = data
+    localStorage.setItem(TOKEN_KEY, token)
+    setState({ user: admin, token, isAuthenticated: true, isLoading: false })
   }, [])
 
   const logout = useCallback(() => {
