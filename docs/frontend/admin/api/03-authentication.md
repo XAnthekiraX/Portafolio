@@ -65,6 +65,16 @@ HTTP Status: **401 Unauthorized**
 ## Consideraciones de seguridad
 
 - El token debe transmitirse únicamente por HTTPS.
-- El tiempo de expiración recomendado es de 24 horas o menos.
 - La contraseña debe almacenarse hasheada (bcrypt o similar).
 - No incluir datos sensibles en el payload del JWT.
+
+## Configuración del JWT (Supabase)
+
+La expiración del token se configura en el dashboard de Supabase:
+
+1. Ir a **Authentication → Settings**
+2. Buscar **JWT expiry** (predeterminado: 3600 = 1 hora)
+3. Ajustar al valor deseado (ej: `86400` = 24 horas)
+4. Guardar los cambios
+
+> El valor definido aquí aplica a todos los tokens emitidos por Supabase Auth.
