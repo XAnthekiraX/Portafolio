@@ -80,7 +80,7 @@ export function Projects() {
             <div className="overflow-hidden">
               <img
                 src={p.imageUrl}
-                alt=""
+                alt={p.title}
                 loading="lazy"
                 className="w-full aspect-[16/10] object-cover rounded-t-xl transition-transform duration-300 group-hover:scale-102"
               />

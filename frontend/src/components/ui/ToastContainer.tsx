@@ -14,10 +14,11 @@ export function ToastContainer() {
   if (notifications.length === 0) return null
 
   return (
-    <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2 max-w-sm w-full">
+    <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2 max-w-sm w-full" role="alert" aria-live="polite">
       {notifications.map((n) => (
         <div
           key={n.id}
+          role="status"
           className={`flex items-start gap-3 px-4 py-3 rounded-lg border shadow-lg text-sm ${typeStyles[n.type] || typeStyles.info}`}
         >
           <span className="flex-1">{n.message}</span>

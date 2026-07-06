@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Button } from "../ui/Button"
 import { Input } from "../ui/Input"
+import { useFocusTrap } from "../../hooks/useFocusTrap"
 
 const ALLOWED_PLATFORMS = [
   "github",
@@ -33,12 +34,19 @@ export function SocialLinkModal({
   const [url, setUrl] = useState(initialUrl)
 
   const isValid = platform && url.startsWith("http")
+  const containerRef = useFocusTrap(true, onCancel)
 
   return (
     <>
       <div className="fixed inset-0 z-40 bg-black/50" onClick={onCancel} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="w-full max-w-md bg-zinc-800 border border-zinc-700 rounded-xl shadow-2xl p-6">
+        <div
+          ref={containerRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={mode === "create" ? "Agregar red social" : "Editar red social"}
+          className="w-full max-w-md bg-zinc-800 border border-zinc-700 rounded-xl shadow-2xl p-6"
+        >
           <h3 className="font-heading font-semibold text-base text-zinc-100 mb-5">
             {mode === "create" ? "Agregar red social" : "Editar red social"}
           </h3>

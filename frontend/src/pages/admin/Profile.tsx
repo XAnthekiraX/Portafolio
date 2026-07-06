@@ -195,7 +195,7 @@ export function Profile() {
           />
           <img
             src={avatarPreview || profile.avatarUrl}
-            alt="Avatar"
+            alt={profile.firstName ? `${profile.firstName} ${profile.lastName}` : "Avatar"}
             loading="lazy"
             className="w-32 h-32 rounded-2xl object-cover border-2 border-zinc-600"
           />

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Outlet, useLocation } from "react-router-dom"
 import { Sidebar } from "../components/admin/Sidebar"
 import { Topbar } from "../components/admin/Topbar"
@@ -19,9 +19,20 @@ export function AdminLayout() {
   const location = useLocation()
   const title = viewTitles[location.pathname] || "Admin"
 
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") setSidebarOpen(false);
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [sidebarOpen]);
+
   return (
     <div className="flex h-screen overflow-hidden bg-zinc-950 text-zinc-100">
       <div
+        aria-hidden="true"
+        role="presentation"
         className={`${sidebarOpen ? "block" : "hidden"} fixed inset-0 bg-black/50 z-30 max-md:block lg:hidden`}
         onClick={() => setSidebarOpen(false)}
       />

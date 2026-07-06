@@ -42,7 +42,10 @@ export function Sidebar() {
   const { user, logout } = useAuth()
 
   return (
-    <aside className="w-64 min-w-64 bg-zinc-900 border-r border-zinc-700 flex flex-col z-40 transition-all duration-300 max-lg:w-16 max-lg:min-w-16 max-md:fixed max-md:-left-64 max-md:w-64 max-md:top-0 max-md:bottom-0 max-md:z-50 max-md:data-[open=true]:left-0"
+    <aside
+      role="navigation"
+      aria-label="Admin navigation"
+      className="w-64 min-w-64 bg-zinc-900 border-r border-zinc-700 flex flex-col z-40 transition-all duration-300 max-lg:w-16 max-lg:min-w-16 max-md:fixed max-md:-left-64 max-md:w-64 max-md:top-0 max-md:bottom-0 max-md:z-50 max-md:data-[open=true]:left-0"
       id="sidebar"
     >
       <div className="flex items-center gap-3 px-5 py-5 border-b border-zinc-700 max-lg:justify-center max-lg:px-2 max-md:justify-start max-md:px-5">
@@ -86,7 +89,7 @@ export function Sidebar() {
           <>
             <img
               src={`https://picsum.photos/seed/${user.email}/80/80.jpg`}
-              alt="Avatar"
+              alt={`${user.firstName} ${user.lastName}`}
               className="w-9 h-9 rounded-full object-cover flex-shrink-0"
             />
             <div className="min-w-0 max-lg:hidden max-md:block">

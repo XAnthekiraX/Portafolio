@@ -120,7 +120,7 @@ export function Topbar({ title, onToggleSidebar }: TopbarProps) {
       {user && (
         <img
           src={`https://picsum.photos/seed/${user.email}/80/80.jpg`}
-          alt="Avatar"
+          alt={`${user.firstName} ${user.lastName}`}
           className="w-9 h-9 rounded-full object-cover border border-zinc-600"
         />
       )}

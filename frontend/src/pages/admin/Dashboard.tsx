@@ -149,7 +149,7 @@ export function Dashboard() {
                 <div className="flex items-center gap-4">
                   <img
                     src={p.imageUrl}
-                    alt=""
+                    alt={p.title}
                     loading="lazy"
                     className="w-24 h-16 rounded-lg object-cover flex-shrink-0"
                   />
@@ -190,7 +190,7 @@ export function Dashboard() {
             <div className="flex items-center gap-4 mb-5">
               <img
                 src={profile?.avatarUrl || "https://picsum.photos/seed/dev-avatar-cms/80/80.jpg"}
-                alt=""
+                alt={profile?.firstName ? `${profile.firstName} ${profile.lastName}` : "Avatar"}
                 loading="lazy"
                 className="w-12 h-12 rounded-full object-cover"
               />
