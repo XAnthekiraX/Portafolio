@@ -1,6 +1,12 @@
-import { Mail, MapPin } from "lucide-react";
+import { Mail, MapPin, Github, Linkedin, Twitter, Dribbble } from "lucide-react";
 import { useProfile } from "../hooks/useProfile";
-import { SocialLinks } from "./SocialLinks";
+
+const socialIconMap: Record<string, typeof Github> = {
+  github: Github,
+  linkedin: Linkedin,
+  twitter: Twitter,
+  dribbble: Dribbble,
+};
 
 export function ContactInfo() {
   const { profile } = useProfile();
@@ -54,15 +60,21 @@ export function ContactInfo() {
       <div className="border-t border-dark-800 pt-8">
         <p className="mb-4 text-sm text-dark-400">Sígueme</p>
         <div className="flex gap-4">
-          {profile.socialLinks.slice(0, 3).map((link) => (
-            <a
-              key={link.platform}
-              href={link.url}
-              className="flex h-10 w-10 items-center justify-center rounded-lg border border-dark-700 bg-dark-800 text-dark-400 transition-colors hover:border-primary hover:text-primary"
-            >
-              <SocialLinks links={[link]} size={20} />
-            </a>
-          ))}
+          {profile.socialLinks.slice(0, 3).map((link) => {
+            const Icon = socialIconMap[link.platform];
+            if (!Icon) return null;
+            return (
+              <a
+                key={link.platform}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-10 w-10 items-center justify-center rounded-lg border border-dark-700 bg-dark-800 text-dark-400 transition-colors hover:border-primary hover:text-primary"
+              >
+                <Icon style={{ width: 20, height: 20 }} />
+              </a>
+            );
+          })}
         </div>
       </div>
     </div>

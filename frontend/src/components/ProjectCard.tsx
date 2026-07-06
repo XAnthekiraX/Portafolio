@@ -18,11 +18,13 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
       >
         <div className="relative h-48 overflow-hidden bg-dark-800">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-accent/30 mix-blend-overlay" />
-          <img
-            src={project.imageUrl}
-            alt={project.title}
-            className="h-full w-full object-cover opacity-80 transition-transform duration-500 group-hover:scale-105"
-          />
+          {project.imageUrl && (
+            <img
+              src={project.imageUrl}
+              alt={project.title}
+              className="h-full w-full object-cover opacity-80 transition-transform duration-500 group-hover:scale-105"
+            />
+          )}
           <div className="absolute right-4 top-4 rounded-full bg-primary px-3 py-1 font-mono text-xs text-white">
             {project.category}
           </div>
