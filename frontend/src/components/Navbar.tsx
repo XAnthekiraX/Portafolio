@@ -4,6 +4,7 @@ import { Logo } from "./Logo";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { MobileDrawer } from "./MobileDrawer";
+import { useProfile } from "../hooks/useProfile";
 
 const links = [
   { href: "#about", label: "About" },
@@ -16,6 +17,7 @@ const links = [
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { profile } = useProfile();
 
   useEffect(() => {
     function handleScroll() {
@@ -34,7 +36,7 @@ export function Navbar() {
       >
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
-            <Lowgo />
+            <Logo name={profile?.name} />
 
             <div className="hidden items-center gap-8 text-sm font-medium text-dark-400 md:flex">
               {links.map((link) => (

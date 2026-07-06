@@ -1,27 +1,20 @@
-import {
-  Github,
-  Figma,
-  Database,
-  Cloud,
-  Terminal,
-  GitBranch,
-  Boxes,
-  Zap,
-  type LucideIcon,
-} from "lucide-react";
+import * as Icons from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import type { Technology } from "../types";
 import { ScrollReveal } from "./ScrollReveal";
 
-const iconMap: Record<string, LucideIcon> = {
-  github: Github,
-  figma: Figma,
-  database: Database,
-  cloud: Cloud,
-  terminal: Terminal,
-  "git-branch": GitBranch,
-  boxes: Boxes,
-  zap: Zap,
-};
+function pascalCase(str: string): string {
+  return str
+    .split(/[-_]/)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join("");
+}
+
+function resolveIcon(name: string | null | undefined): LucideIcon {
+  if (!name) return Icons.HelpCircle as unknown as LucideIcon;
+  const iconName = pascalCase(name);
+  return (Icons as unknown as Record<string, LucideIcon>)[iconName] ?? (Icons.HelpCircle as unknown as LucideIcon);
+}
 
 interface TechItemProps {
   tech: Technology;
@@ -29,7 +22,7 @@ interface TechItemProps {
 }
 
 export function TechItem({ tech, index }: TechItemProps) {
-  const Icon = iconMap[tech.icon] || Github;
+  const Icon = resolveIcon(tech.icon);
   const borderColor = index % 2 === 0 ? "hover:border-primary" : "hover:border-accent";
 
   return (

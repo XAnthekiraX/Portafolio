@@ -24,11 +24,11 @@ export default {
         },
 
         light: {
-          50: "#FFFFFF",
-          100: "#F4F4F5",
-          200: "#E4E4E7",
-          300: "#D4D4D8",
-          400: "#A1A1AA",
+          50: "var(--color-page)",
+          100: "var(--color-bg-secondary)",
+          200: "var(--color-border)",
+          300: "var(--color-border-light)",
+          400: "var(--color-text-secondary)",
           500: "var(--color-text-muted)",
           800: "#27272A",
           900: "#18181B",

@@ -18,6 +18,19 @@
     --scrollbar-thumb: #3f3f46;
   }
 
+  html.light {
+    --color-page: #ffffff;
+    --color-bg: #ffffff;
+    --color-bg-secondary: #f4f4f5;
+    --color-border: #e4e4e7;
+    --color-border-light: #d4d4d8;
+    --color-text: #18181b;
+    --color-text-secondary: #71717a;
+    --color-text-muted: #a1a1aa;
+    --scrollbar-track: #f4f4f5;
+    --scrollbar-thumb: #d4d4d8;
+  }
+
   html {
     scroll-behavior: smooth;
     scroll-padding-top: 5rem;
@@ -60,6 +73,12 @@
   background-image:
     linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+
+html.light .grid-bg {
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.04) 1px, transparent 1px);
 }
 
 .glow-red {

@@ -50,18 +50,26 @@ export function ProjectCard({ project, index }: ProjectCardProps) {
           </div>
 
           <div className="flex items-center gap-4 border-t border-dark-800 pt-3">
-            <a
-              href={project.repoUrl}
-              className="flex items-center gap-2 text-sm text-dark-400 transition-colors hover:text-accent"
-            >
-              <Github className="h-4 w-4" /> Repo
-            </a>
-            <a
-              href={project.demoUrl}
-              className="ml-auto flex items-center gap-2 text-sm text-dark-400 transition-colors hover:text-primary"
-            >
-              <ExternalLink className="h-4 w-4" /> Demo
-            </a>
+            {project.repoUrl && (
+              <a
+                href={project.repoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-sm text-dark-400 transition-colors hover:text-accent"
+              >
+                <Github className="h-4 w-4" /> Repo
+              </a>
+            )}
+            {project.demoUrl && (
+              <a
+                href={project.demoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-auto flex items-center gap-2 text-sm text-dark-400 transition-colors hover:text-primary"
+              >
+                <ExternalLink className="h-4 w-4" /> Demo
+              </a>
+            )}
           </div>
         </div>
       </article>

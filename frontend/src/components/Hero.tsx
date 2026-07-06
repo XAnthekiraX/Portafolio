@@ -1,5 +1,7 @@
 import { Download, Mail, MapPin, Briefcase } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import { useProfile } from "../hooks/useProfile";
+import { getCvUrl } from "../services/api";
 import { StatusBadge } from "./StatusBadge";
 import { AvatarFrame } from "./AvatarFrame";
 import { ScrollIndicator } from "./ScrollIndicator";
@@ -8,6 +10,11 @@ import { SocialLinks } from "./SocialLinks";
 
 export function Hero() {
   const { profile } = useProfile();
+  const { data: cvUrl } = useQuery({
+    queryKey: ["cv-url"],
+    queryFn: () => getCvUrl().then((url) => (url ? url : null)),
+    staleTime: 5 * 60 * 1000,
+  });
 
   if (!profile) return null;
 
@@ -45,14 +52,17 @@ export function Hero() {
               </div>
 
               <div className="flex flex-col items-center gap-4 sm:flex-row">
-                <a
-                  href="/api/cv"
-                  target="_blank"
-                  className="glow-red inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 font-medium text-white transition-colors hover:bg-primary-hover active:bg-primary-active focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-dark-950 sm:w-auto"
-                >
-                  <Download className="h-4 w-4" />
-                  Descargar CV
-                </a>
+                {cvUrl && (
+                  <a
+                    href={cvUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="glow-red inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 font-medium text-white transition-colors hover:bg-primary-hover active:bg-primary-active focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-dark-950 sm:w-auto"
+                  >
+                    <Download className="h-4 w-4" />
+                    Descargar CV
+                  </a>
+                )}
                 <a
                   href="#contact"
                   className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-dark-700 px-6 py-3 font-medium text-dark-100 transition-colors hover:border-primary hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-dark-950 sm:w-auto"
