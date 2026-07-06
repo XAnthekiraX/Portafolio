@@ -9,7 +9,29 @@ const socialIconMap: Record<string, typeof Github> = {
 };
 
 export function ContactInfo() {
-  const { profile } = useProfile();
+  const { profile, loading } = useProfile();
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <p className="text-lg leading-relaxed text-dark-400">
+          ¿Tienes un proyecto en mente o necesitas mejorar tu producto actual?
+          Rellena el formulario o contáctame directamente.
+        </p>
+        <div className="space-y-6">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="flex items-center gap-4">
+              <div className="h-12 w-12 rounded-lg bg-zinc-700/50 animate-pulse" />
+              <div className="space-y-2">
+                <div className="h-3 w-16 rounded bg-zinc-700/50 animate-pulse" />
+                <div className="h-4 w-40 rounded bg-zinc-700/50 animate-pulse" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (!profile) return null;
 

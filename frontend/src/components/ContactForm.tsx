@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { Send } from "lucide-react";
 import { useContact } from "../hooks/useContact";
 
@@ -8,6 +8,15 @@ export function ContactForm() {
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    if (sent) {
+      setName("");
+      setEmail("");
+      setSubject("");
+      setMessage("");
+    }
+  }, [sent]);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();

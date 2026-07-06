@@ -1,9 +1,29 @@
 import { ScrollReveal } from "./ScrollReveal";
+import { Skeleton } from "./ui/Skeleton";
 import { useProfile } from "../hooks/useProfile";
 
-export function About() {
-  const { profile } = useProfile();
+function AboutSkeleton() {
+  return (
+    <section className="py-24 md:py-32">
+      <div className="mx-auto max-w-4xl px-6 lg:px-8">
+        <div className="space-y-6">
+          <Skeleton className="h-5 w-40" />
+          <Skeleton className="h-12 w-3/4" />
+          <div className="space-y-4">
+            <Skeleton className="h-5 w-full" />
+            <Skeleton className="h-5 w-5/6" />
+            <Skeleton className="h-5 w-4/6" />
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
+export function About() {
+  const { profile, loading } = useProfile();
+
+  if (loading) return <AboutSkeleton />;
   if (!profile) return null;
 
   const paragraphs = profile.description

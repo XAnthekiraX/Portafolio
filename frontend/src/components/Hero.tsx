@@ -9,14 +9,43 @@ import { ScrollIndicator } from "./ScrollIndicator";
 import { ScrollReveal } from "./ScrollReveal";
 import { SocialLinks } from "./SocialLinks";
 
+function HeroSkeleton() {
+  return (
+    <header className="relative grid-bg flex min-h-screen items-center overflow-hidden pt-24 pb-12">
+      <div className="mx-auto w-full max-w-7xl px-6 lg:px-8">
+        <div className="flex flex-col items-center gap-12 lg:flex-row lg:gap-20">
+          <div className="flex-1 space-y-6">
+            <div className="h-6 w-32 rounded-md bg-zinc-700/50 animate-pulse" />
+            <div className="h-14 w-3/4 rounded-md bg-zinc-700/50 animate-pulse" />
+            <div className="h-10 w-1/2 rounded-md bg-zinc-700/50 animate-pulse" />
+            <div className="space-y-3">
+              <div className="h-4 w-full rounded bg-zinc-700/50 animate-pulse" />
+              <div className="h-4 w-5/6 rounded bg-zinc-700/50 animate-pulse" />
+              <div className="h-4 w-2/3 rounded bg-zinc-700/50 animate-pulse" />
+            </div>
+            <div className="flex gap-4">
+              <div className="h-12 w-40 rounded-md bg-zinc-700/50 animate-pulse" />
+              <div className="h-12 w-40 rounded-md bg-zinc-700/50 animate-pulse" />
+            </div>
+          </div>
+          <div className="flex-shrink-0">
+            <div className="h-64 w-64 rounded-2xl bg-zinc-700/50 animate-pulse md:h-80 md:w-80" />
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
 export function Hero() {
-  const { profile } = useProfile();
+  const { profile, loading } = useProfile();
   const { data: cvUrl } = useQuery({
     queryKey: queryKeys.cvUrl,
     queryFn: () => getCvUrl().then((url) => (url ? url : null)),
     staleTime: 5 * 60 * 1000,
   });
 
+  if (loading) return <HeroSkeleton />;
   if (!profile) return null;
 
   return (

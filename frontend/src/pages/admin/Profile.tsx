@@ -32,7 +32,7 @@ import { useNotification } from "../../context/NotificationContext"
 
 export function Profile() {
   const queryClient = useQueryClient()
-  const { data: profile } = useQuery({
+  const { data: profile, isLoading } = useQuery({
     queryKey: queryKeys.profile,
     queryFn: () => getProfile().then((r) => r.data),
     staleTime: 5 * 60 * 1000,
@@ -139,7 +139,30 @@ export function Profile() {
     },
   })
 
-  if (!profile) return null
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="flex flex-col items-center text-center p-8">
+          <div className="h-32 w-32 rounded-2xl bg-zinc-700/50 animate-pulse mb-5" />
+          <div className="h-6 w-40 rounded bg-zinc-700/50 animate-pulse mb-2" />
+          <div className="h-4 w-28 rounded bg-zinc-700/50 animate-pulse" />
+        </Card>
+        <Card className="lg:col-span-2 p-8">
+          <div className="space-y-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="space-y-2">
+                <div className="h-4 w-20 rounded bg-zinc-700/50 animate-pulse" />
+                <div className="h-10 w-full rounded-lg bg-zinc-700/50 animate-pulse" />
+              </div>
+            ))}
+            <div className="h-10 w-40 rounded-lg bg-zinc-700/50 animate-pulse" />
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!profile) return null;
 
   const socialIcons: Record<string, typeof Github> = {
     github: Github,

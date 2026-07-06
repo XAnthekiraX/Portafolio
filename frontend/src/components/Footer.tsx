@@ -45,7 +45,7 @@ export function Footer() {
         </div>
 
         <div className="mt-8 border-t border-dark-800 pt-8 text-center text-sm text-dark-400">
-          <p>&copy; 2024 {profile?.name ?? "Portafolio"}. Diseñado y construido con precisión.</p>
+          <p>&copy; {new Date().getFullYear()} {profile?.name ?? "Portafolio"}. Diseñado y construido con precisión.</p>
         </div>
       </div>
     </footer>
