@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { supabase } from "../../config/supabase";
-import { db } from "../../db";
-import { profiles } from "../../db/schema/profiles";
+import { supabase } from "../../config/supabase.js";
+import { db } from "../../db/index.js";
+import { profiles } from "../../db/schema/profiles.js";
 import { eq } from "drizzle-orm";
-import { validate } from "../../middleware/validate";
-import { loginSchema } from "../../validators/auth.validator";
+import { validate } from "../../middleware/validate.js";
+import { loginSchema } from "../../validators/auth.validator.js";
 
 const router = Router();
 

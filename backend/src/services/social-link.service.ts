@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import { db } from "../db";
-import { socialLinks } from "../db/schema/social-links";
+import { db } from "../db/index.js";
+import { socialLinks } from "../db/schema/social-links.js";
 
 export const socialLinkService = {
   async getAll(profileId: string) {

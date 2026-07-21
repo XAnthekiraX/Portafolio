@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { technologyService } from "../../services/technology.service";
+import { technologyService } from "../../services/technology.service.js";
 
 const router = Router();
 

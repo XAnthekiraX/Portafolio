@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { eq } from "drizzle-orm";
-import { db } from "../../db";
-import { profiles } from "../../db/schema/profiles";
-import { profileService } from "../../services/profile.service";
-import { uploadService } from "../../services/upload.service";
-import { uploadCv } from "../../config/multer";
+import { db } from "../../db/index.js";
+import { profiles } from "../../db/schema/profiles.js";
+import { profileService } from "../../services/profile.service.js";
+import { uploadService } from "../../services/upload.service.js";
+import { uploadCv } from "../../config/multer.js";
 
 const router = Router();
 

@@ -1,7 +1,7 @@
 import { eq, asc, desc, sql } from "drizzle-orm";
-import { db } from "../db";
-import { technologies } from "../db/schema/technologies";
-import { projectTechnologies } from "../db/schema/project-technologies";
+import { db } from "../db/index.js";
+import { technologies } from "../db/schema/technologies.js";
+import { projectTechnologies } from "../db/schema/project-technologies.js";
 
 export const technologyService = {
   async getAll() {

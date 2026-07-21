@@ -1,5 +1,5 @@
-import { db } from "../db";
-import { profiles } from "../db/schema/profiles";
+import { db } from "../db/index.js";
+import { profiles } from "../db/schema/profiles.js";
 
 export const cvService = {
   async getUrl() {

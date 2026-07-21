@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
-import { db } from "../db";
-import { profiles } from "../db/schema/profiles";
-import { socialLinks } from "../db/schema/social-links";
+import { db } from "../db/index.js";
+import { profiles } from "../db/schema/profiles.js";
+import { socialLinks } from "../db/schema/social-links.js";
 
 export const profileService = {
   async getPublic() {

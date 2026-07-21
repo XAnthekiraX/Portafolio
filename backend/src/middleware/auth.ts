@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
-import { supabase } from "../config/supabase";
-import type { AuthenticatedUser } from "../types";
+import { supabase } from "../config/supabase.js";
+import type { AuthenticatedUser } from "../types/index.js";
 
 declare global {
   namespace Express {

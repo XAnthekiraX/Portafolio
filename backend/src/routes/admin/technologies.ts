@@ -3,9 +3,9 @@ import { Router } from "express";
 function p(val: string | string[]): string {
   return Array.isArray(val) ? val[0] : val;
 }
-import { technologyService } from "../../services/technology.service";
-import { validate } from "../../middleware/validate";
-import { createTechnologySchema, updateTechnologySchema } from "../../validators/technology.validator";
+import { technologyService } from "../../services/technology.service.js";
+import { validate } from "../../middleware/validate.js";
+import { createTechnologySchema, updateTechnologySchema } from "../../validators/technology.validator.js";
 
 const router = Router();
 

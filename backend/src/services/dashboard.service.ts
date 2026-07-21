@@ -1,8 +1,8 @@
-import { db } from "../db";
-import { projects } from "../db/schema/projects";
-import { skillCategories } from "../db/schema/skill-categories";
-import { technologies } from "../db/schema/technologies";
-import { contactMessages } from "../db/schema/contact-messages";
+import { db } from "../db/index.js";
+import { projects } from "../db/schema/projects.js";
+import { skillCategories } from "../db/schema/skill-categories.js";
+import { technologies } from "../db/schema/technologies.js";
+import { contactMessages } from "../db/schema/contact-messages.js";
 import { count, eq } from "drizzle-orm";
 
 export const dashboardService = {

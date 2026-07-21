@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { skillCategoryService } from "../../services/skill-category.service";
+import { skillCategoryService } from "../../services/skill-category.service.js";
 
 const router = Router();
 

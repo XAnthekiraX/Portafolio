@@ -1,5 +1,5 @@
 import { pgTable, uuid, varchar, integer, unique } from "drizzle-orm/pg-core";
-import { skillCategories } from "./skill-categories";
+import { skillCategories } from "./skill-categories.js";
 
 export const skillTechnologies = pgTable("skill_technologies", {
   id: uuid("id").primaryKey().defaultRandom(),

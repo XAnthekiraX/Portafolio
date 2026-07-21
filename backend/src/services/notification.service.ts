@@ -1,6 +1,6 @@
 import { eq, desc, and, gte, sql } from "drizzle-orm";
-import { db } from "../db";
-import { contactMessages } from "../db/schema/contact-messages";
+import { db } from "../db/index.js";
+import { contactMessages } from "../db/schema/contact-messages.js";
 
 export const notificationService = {
   async getUnread() {

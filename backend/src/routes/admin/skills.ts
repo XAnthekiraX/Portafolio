@@ -3,9 +3,9 @@ import { Router } from "express";
 function p(val: string | string[]): string {
   return Array.isArray(val) ? val[0] : val;
 }
-import { skillCategoryService } from "../../services/skill-category.service";
-import { validate } from "../../middleware/validate";
-import { createSkillCategorySchema, updateSkillCategorySchema } from "../../validators/skill.validator";
+import { skillCategoryService } from "../../services/skill-category.service.js";
+import { validate } from "../../middleware/validate.js";
+import { createSkillCategorySchema, updateSkillCategorySchema } from "../../validators/skill.validator.js";
 
 function normalizeTechs(techs: (string | { name: string; displayOrder?: number })[]) {
   return techs.map((t) =>

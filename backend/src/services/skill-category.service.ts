@@ -1,7 +1,7 @@
 import { eq, asc } from "drizzle-orm";
-import { db } from "../db";
-import { skillCategories } from "../db/schema/skill-categories";
-import { skillTechnologies } from "../db/schema/skill-technologies";
+import { db } from "../db/index.js";
+import { skillCategories } from "../db/schema/skill-categories.js";
+import { skillTechnologies } from "../db/schema/skill-technologies.js";
 
 export const skillCategoryService = {
   async getAll() {

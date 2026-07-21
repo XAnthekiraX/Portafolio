@@ -1,10 +1,10 @@
 import { Router } from "express";
-import { projectService } from "../../services/project.service";
-import { uploadService } from "../../services/upload.service";
-import { uploadImage } from "../../config/multer";
-import { validate } from "../../middleware/validate";
-import { createProjectSchema, updateProjectSchema } from "../../validators/project.validator";
-import { technologyService } from "../../services/technology.service";
+import { projectService } from "../../services/project.service.js";
+import { uploadService } from "../../services/upload.service.js";
+import { uploadImage } from "../../config/multer.js";
+import { validate } from "../../middleware/validate.js";
+import { createProjectSchema, updateProjectSchema } from "../../validators/project.validator.js";
+import { technologyService } from "../../services/technology.service.js";
 
 function p(val: string | string[]): string {
   return Array.isArray(val) ? val[0] : val;

@@ -1,6 +1,6 @@
 import { eq, asc } from "drizzle-orm";
-import { db } from "../db";
-import { services } from "../db/schema/services";
+import { db } from "../db/index.js";
+import { services } from "../db/schema/services.js";
 
 export const serviceService = {
   async getAll() {

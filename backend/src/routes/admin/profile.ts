@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { profileService } from "../../services/profile.service";
-import { socialLinkService } from "../../services/social-link.service";
-import { profileCompletionService } from "../../services/profile-completion.service";
-import { uploadService } from "../../services/upload.service";
-import { uploadAvatar } from "../../config/multer";
-import { validate } from "../../middleware/validate";
-import { updateProfileSchema } from "../../validators/profile.validator";
-import { createSocialLinkSchema, updateSocialLinkSchema } from "../../validators/social.validator";
+import { profileService } from "../../services/profile.service.js";
+import { socialLinkService } from "../../services/social-link.service.js";
+import { profileCompletionService } from "../../services/profile-completion.service.js";
+import { uploadService } from "../../services/upload.service.js";
+import { uploadAvatar } from "../../config/multer.js";
+import { validate } from "../../middleware/validate.js";
+import { updateProfileSchema } from "../../validators/profile.validator.js";
+import { createSocialLinkSchema, updateSocialLinkSchema } from "../../validators/social.validator.js";
 import type { ZodError } from "zod";
 
 function p(val: string | string[]): string {

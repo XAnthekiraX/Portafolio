@@ -3,7 +3,7 @@ import { Router } from "express";
 function p(val: string | string[]): string {
   return Array.isArray(val) ? val[0] : val;
 }
-import { projectService } from "../../services/project.service";
+import { projectService } from "../../services/project.service.js";
 
 const router = Router();
 
