@@ -159,10 +159,10 @@ export async function getCV(signal?: AbortSignal): Promise<ApiResponse<CV>> {
   };
 }
 
-export async function uploadCv(file: File): Promise<ApiResponse<{ url: string }>> {
+export async function uploadCv(file: File): Promise<ApiResponse<{ cvUrl: string }>> {
   const formData = new FormData();
   formData.append("file", file);
-  const data = await http.postForm<{ url: string }>("/api/admin/cv", formData);
+  const data = await http.postForm<{ cvUrl: string }>("/api/admin/cv", formData);
   return { data };
 }
 

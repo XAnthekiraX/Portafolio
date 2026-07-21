@@ -23,7 +23,9 @@ export function ToastContainer() {
         >
           <span className="flex-1">{n.message}</span>
           <button
+            type="button"
             onClick={() => removeNotification(n.id)}
+            aria-label="Cerrar"
             className="cursor-pointer bg-transparent border-none p-0 leading-none opacity-70 hover:opacity-100"
           >
             <X className="w-4 h-4" />

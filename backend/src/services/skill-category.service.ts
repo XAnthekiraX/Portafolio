@@ -1,6 +1,7 @@
 import { eq, asc } from "drizzle-orm";
 import { db } from "../db";
-import { skillCategories, skillTechnologies } from "../db/schema";
+import { skillCategories } from "../db/schema/skill-categories";
+import { skillTechnologies } from "../db/schema/skill-technologies";
 
 export const skillCategoryService = {
   async getAll() {
@@ -9,24 +10,24 @@ export const skillCategoryService = {
       .from(skillCategories)
       .orderBy(asc(skillCategories.displayOrder));
 
-    const result = [];
-    for (const cat of categories) {
-      const techs = await db
-        .select()
-        .from(skillTechnologies)
-        .where(eq(skillTechnologies.skillCategoryId, cat.id))
-        .orderBy(asc(skillTechnologies.displayOrder));
-
-      result.push({
-        ...cat,
-        technologies: techs.map((t) => ({
-          id: t.id,
-          name: t.name,
-          displayOrder: t.displayOrder,
-        })),
-      });
-    }
-    return result;
+    const techResults = await Promise.all(
+      categories.map((cat) =>
+        db
+          .select()
+          .from(skillTechnologies)
+          .where(eq(skillTechnologies.skillCategoryId, cat.id))
+          .orderBy(asc(skillTechnologies.displayOrder))
+          .then((techs) => ({
+            ...cat,
+            technologies: techs.map((t) => ({
+              id: t.id,
+              name: t.name,
+              displayOrder: t.displayOrder,
+            })),
+          }))
+      )
+    );
+    return techResults;
   },
 
   async create(data: typeof skillCategories.$inferInsert) {

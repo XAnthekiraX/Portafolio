@@ -138,7 +138,7 @@ export function Dashboard() {
             <h2 className="font-heading font-semibold text-base text-zinc-100">
               Proyectos recientes
             </h2>
-            <button className="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-100 transition-colors bg-transparent border-none cursor-pointer">
+            <button type="button" className="inline-flex items-center gap-1.5 text-sm text-zinc-400 hover:text-zinc-100 transition-colors bg-transparent border-none cursor-pointer">
               Ver todos <ArrowRight className="w-4 h-4" />
             </button>
           </div>

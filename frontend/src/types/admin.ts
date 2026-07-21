@@ -88,8 +88,6 @@ export interface AdminService {
 }
 
 export interface AuthResponse {
-  token: string
-  expiresAt: string
   admin: Admin
 }
 

@@ -10,7 +10,7 @@ router.get("/", async (_req, res, next) => {
       res.status(404).json({ error: { code: "RESOURCE_NOT_FOUND", message: "CV no disponible" } });
       return;
     }
-    res.redirect(url);
+    res.json({ data: { cvUrl: url } });
   } catch (err) {
     next(err);
   }

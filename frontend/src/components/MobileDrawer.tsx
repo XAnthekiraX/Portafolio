@@ -22,7 +22,9 @@ export function MobileDrawer({ open, onClose }: MobileDrawerProps) {
     >
       <div className="flex h-16 items-center justify-end px-6">
         <button
+          type="button"
           onClick={onClose}
+          aria-label="Cerrar"
           className="rounded-md p-2 text-dark-100 transition-colors hover:bg-dark-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
           <X className="h-6 w-6" />

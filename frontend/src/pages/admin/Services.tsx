@@ -154,7 +154,8 @@ export function Services() {
           />
         ))}
 
-        <div
+        <button
+          type="button"
           className="border-2 border-dashed border-zinc-700 hover:border-red-500 hover:bg-red-500/10 rounded-xl p-6 transition-all duration-200 cursor-pointer flex flex-col items-center justify-center text-center min-h-[240px]"
           onClick={() => setShowCreate(true)}
         >
@@ -167,7 +168,7 @@ export function Services() {
           <p className="text-sm mt-1 max-w-[200px] text-zinc-500">
             Ofrece un nuevo servicio en tu portafolio
           </p>
-        </div>
+        </button>
       </div>
 
       {showCreate && (

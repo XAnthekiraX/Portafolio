@@ -1,40 +1,40 @@
 import { eq, desc, and, gte, sql } from "drizzle-orm";
 import { db } from "../db";
-import { contactMessages } from "../db/schema";
+import { contactMessages } from "../db/schema/contact-messages";
 
 export const notificationService = {
   async getUnread() {
-    const messages = await db
-      .select({
-        id: contactMessages.id,
-        name: contactMessages.name,
-        email: contactMessages.email,
-        subject: contactMessages.subject,
-        message: contactMessages.message,
-        createdAt: contactMessages.createdAt,
-      })
-      .from(contactMessages)
-      .where(eq(contactMessages.status, "unread"))
-      .orderBy(desc(contactMessages.createdAt))
-      .limit(10);
-
-    const [unreadResult] = await db
-      .select({ value: sql`count(*)` })
-      .from(contactMessages)
-      .where(eq(contactMessages.status, "unread"));
-
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
 
-    const [todayResult] = await db
-      .select({ value: sql`count(*)` })
-      .from(contactMessages)
-      .where(
-        and(
-          gte(contactMessages.createdAt, todayStart),
-          eq(contactMessages.status, "unread"),
+    const [messages, [unreadResult], [todayResult]] = await Promise.all([
+      db
+        .select({
+          id: contactMessages.id,
+          name: contactMessages.name,
+          email: contactMessages.email,
+          subject: contactMessages.subject,
+          message: contactMessages.message,
+          createdAt: contactMessages.createdAt,
+        })
+        .from(contactMessages)
+        .where(eq(contactMessages.status, "unread"))
+        .orderBy(desc(contactMessages.createdAt))
+        .limit(10),
+      db
+        .select({ value: sql`count(*)` })
+        .from(contactMessages)
+        .where(eq(contactMessages.status, "unread")),
+      db
+        .select({ value: sql`count(*)` })
+        .from(contactMessages)
+        .where(
+          and(
+            gte(contactMessages.createdAt, todayStart),
+            eq(contactMessages.status, "unread"),
+          ),
         ),
-      );
+    ]);
 
     return {
       unreadCount: Number(unreadResult.value),

@@ -28,9 +28,9 @@ export function SeoHead() {
         image: profile.avatarUrl,
         email: profile.email,
         location: { "@type": "Place", name: profile.location },
-        sameAs: profile.socialLinks
-          .filter((l) => l.url.startsWith("http"))
-          .map((l) => l.url),
+        sameAs: profile.socialLinks.flatMap((l) =>
+          l.url.startsWith("http") ? [l.url] : []
+        ),
       }
     : null;
 

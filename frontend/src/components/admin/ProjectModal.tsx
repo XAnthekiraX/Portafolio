@@ -81,7 +81,7 @@ export function ProjectModal({
 
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/50" onClick={onCancel} />
+      <button type="button" aria-label="Cerrar" className="fixed inset-0 z-40 bg-black/50" onClick={onCancel} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div
           ref={containerRef}
@@ -157,6 +157,7 @@ export function ProjectModal({
                     >
                       {f}
                       <button
+                        type="button"
                         onClick={() => removeFeature(f)}
                         className="cursor-pointer bg-transparent border-none p-0 leading-none text-zinc-400 hover:text-zinc-100"
                       >
@@ -198,6 +199,7 @@ export function ProjectModal({
                     >
                       {t}
                       <button
+                        type="button"
                         onClick={() => removeTech(t)}
                         className="cursor-pointer bg-transparent border-none p-0 leading-none text-zinc-400 hover:text-zinc-100"
                       >
@@ -210,10 +212,11 @@ export function ProjectModal({
             </div>
 
             <div>
-              <label className="block font-mono text-xs font-medium uppercase tracking-wider text-zinc-400 mb-2">
+              <label htmlFor="proj-status" className="block font-mono text-xs font-medium uppercase tracking-wider text-zinc-400 mb-2">
                 Estado
               </label>
               <select
+                id="proj-status"
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 className="w-full px-4 py-3 bg-zinc-900 border border-zinc-600 rounded-lg text-zinc-100 text-sm outline-none transition-all duration-150 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(220,38,38,0.15)]"
@@ -232,10 +235,11 @@ export function ProjectModal({
             />
 
             <div>
-              <label className="block font-mono text-xs font-medium uppercase tracking-wider text-zinc-400 mb-2">
+              <label htmlFor="proj-image" className="block font-mono text-xs font-medium uppercase tracking-wider text-zinc-400 mb-2">
                 Imagen
               </label>
               <input
+                id="proj-image"
                 type="file"
                 accept="image/*"
                 onChange={(e) => setImageFile(e.target.files?.[0])}

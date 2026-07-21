@@ -31,15 +31,7 @@ export function Footer() {
 
           {profile && (
             <div className="flex gap-4">
-              {profile.socialLinks.slice(0, 3).map((link) => (
-                <a
-                  key={link.platform}
-                  href={link.url}
-                  className="text-dark-400 transition-colors hover:text-primary"
-                >
-                  <SocialLinks links={[link]} size={20} />
-                </a>
-              ))}
+              <SocialLinks links={profile.socialLinks.slice(0, 3)} size={20} />
             </div>
           )}
         </div>

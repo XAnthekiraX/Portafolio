@@ -21,10 +21,10 @@ export function ContactInfo() {
         <div className="space-y-6">
           {[1, 2, 3].map((i) => (
             <div key={i} className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-lg bg-zinc-700/50 animate-pulse" />
+              <div className="h-12 w-12 rounded-lg bg-dark-700/50 animate-pulse" />
               <div className="space-y-2">
-                <div className="h-3 w-16 rounded bg-zinc-700/50 animate-pulse" />
-                <div className="h-4 w-40 rounded bg-zinc-700/50 animate-pulse" />
+                <div className="h-3 w-16 rounded bg-dark-700/50 animate-pulse" />
+                <div className="h-4 w-40 rounded bg-dark-700/50 animate-pulse" />
               </div>
             </div>
           ))}
@@ -89,6 +89,7 @@ export function ContactInfo() {
               <a
                 key={link.platform}
                 href={link.url}
+                aria-label={link.platform}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex h-10 w-10 items-center justify-center rounded-lg border border-dark-700 bg-dark-800 text-dark-400 transition-colors hover:border-primary hover:text-primary"

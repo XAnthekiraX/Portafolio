@@ -1,12 +1,20 @@
 import { Router } from "express";
 import { supabase } from "../../config/supabase";
 import { db } from "../../db";
-import { profiles } from "../../db/schema";
+import { profiles } from "../../db/schema/profiles";
 import { eq } from "drizzle-orm";
 import { validate } from "../../middleware/validate";
 import { loginSchema } from "../../validators/auth.validator";
 
 const router = Router();
+
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  path: "/",
+  maxAge: 60 * 60 * 24 * 7, // 7 days
+};
 
 router.post("/login", validate(loginSchema), async (req, res, next) => {
   try {
@@ -27,14 +35,27 @@ router.post("/login", validate(loginSchema), async (req, res, next) => {
       .where(eq(profiles.id, userId))
       .limit(1);
 
+    if (!profile) {
+      await db.insert(profiles).values({
+        id: userId,
+        firstName: data.user.user_metadata?.first_name ?? data.user.email?.split("@")[0] ?? "",
+        lastName: data.user.user_metadata?.last_name ?? "",
+        title: "Desarrollador",
+        email: data.user.email ?? email,
+      }).onConflictDoNothing();
+    }
+
+    const firstName = profile?.firstName ?? data.user.user_metadata?.first_name ?? data.user.email?.split("@")[0] ?? "";
+    const lastName = profile?.lastName ?? data.user.user_metadata?.last_name ?? "";
+
+    res.cookie("sb-access-token", data.session.access_token, COOKIE_OPTIONS);
+
     res.json({
       data: {
-        token: data.session.access_token,
-        expiresAt: new Date(data.session.expires_at! * 1000).toISOString(),
         admin: {
           id: userId,
-          firstName: profile?.firstName ?? "",
-          lastName: profile?.lastName ?? "",
+          firstName,
+          lastName,
           email: data.user.email ?? email,
         },
       },
@@ -46,13 +67,13 @@ router.post("/login", validate(loginSchema), async (req, res, next) => {
 
 router.post("/logout", async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : undefined;
+    const token = req.cookies?.["sb-access-token"];
 
     if (token) {
       await supabase.auth.admin.signOut(token);
     }
 
+    res.clearCookie("sb-access-token", { path: "/" });
     res.json({ data: { status: "logged_out" } });
   } catch (err) {
     next(err);
@@ -61,13 +82,12 @@ router.post("/logout", async (req, res, next) => {
 
 router.get("/me", async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader?.startsWith("Bearer ")) {
+    const token = req.cookies?.["sb-access-token"];
+    if (!token) {
       res.status(401).json({ error: { code: "UNAUTHORIZED", message: "Token requerido" } });
       return;
     }
 
-    const token = authHeader.split(" ")[1];
     const { data, error } = await supabase.auth.getUser(token);
 
     if (error || !data.user) {
@@ -82,11 +102,21 @@ router.get("/me", async (req, res, next) => {
       .where(eq(profiles.id, userId))
       .limit(1);
 
+    if (!profile) {
+      await db.insert(profiles).values({
+        id: userId,
+        firstName: data.user.user_metadata?.first_name ?? data.user.email?.split("@")[0] ?? "",
+        lastName: data.user.user_metadata?.last_name ?? "",
+        title: "Desarrollador",
+        email: data.user.email ?? "",
+      }).onConflictDoNothing();
+    }
+
     res.json({
       data: {
         id: userId,
-        firstName: profile?.firstName ?? "",
-        lastName: profile?.lastName ?? "",
+        firstName: profile?.firstName ?? data.user.user_metadata?.first_name ?? data.user.email?.split("@")[0] ?? "",
+        lastName: profile?.lastName ?? data.user.user_metadata?.last_name ?? "",
         email: data.user.email ?? "",
       },
     });

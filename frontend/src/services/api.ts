@@ -1,4 +1,4 @@
-import { http, BASE_URL } from "../lib/http";
+import { http } from "../lib/http";
 import type {
   BackendProfile,
   BackendSkillCategory,
@@ -123,11 +123,8 @@ export async function sendContact(
 
 export async function getCvUrl(signal?: AbortSignal): Promise<string> {
   try {
-    const res = await fetch(`${BASE_URL}/api/cv`, { redirect: "manual", signal });
-    if (res.status >= 300 && res.status < 400) {
-      return res.headers.get("location") ?? "";
-    }
-    return "";
+    const data = await http.get<{ cvUrl: string }>("/api/cv", signal);
+    return data?.cvUrl ?? "";
   } catch (err) {
     if (err instanceof DOMException && err.name === "AbortError") throw err;
     return "";

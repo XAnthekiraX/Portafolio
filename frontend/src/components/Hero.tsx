@@ -15,21 +15,21 @@ function HeroSkeleton() {
       <div className="mx-auto w-full max-w-7xl px-6 lg:px-8">
         <div className="flex flex-col items-center gap-12 lg:flex-row lg:gap-20">
           <div className="flex-1 space-y-6">
-            <div className="h-6 w-32 rounded-md bg-zinc-700/50 animate-pulse" />
-            <div className="h-14 w-3/4 rounded-md bg-zinc-700/50 animate-pulse" />
-            <div className="h-10 w-1/2 rounded-md bg-zinc-700/50 animate-pulse" />
+            <div className="h-6 w-32 rounded-md bg-dark-700/50 animate-pulse" />
+            <div className="h-14 w-3/4 rounded-md bg-dark-700/50 animate-pulse" />
+            <div className="h-10 w-1/2 rounded-md bg-dark-700/50 animate-pulse" />
             <div className="space-y-3">
-              <div className="h-4 w-full rounded bg-zinc-700/50 animate-pulse" />
-              <div className="h-4 w-5/6 rounded bg-zinc-700/50 animate-pulse" />
-              <div className="h-4 w-2/3 rounded bg-zinc-700/50 animate-pulse" />
+              <div className="h-4 w-full rounded bg-dark-700/50 animate-pulse" />
+              <div className="h-4 w-5/6 rounded bg-dark-700/50 animate-pulse" />
+              <div className="h-4 w-2/3 rounded bg-dark-700/50 animate-pulse" />
             </div>
             <div className="flex gap-4">
-              <div className="h-12 w-40 rounded-md bg-zinc-700/50 animate-pulse" />
-              <div className="h-12 w-40 rounded-md bg-zinc-700/50 animate-pulse" />
+              <div className="h-12 w-40 rounded-md bg-dark-700/50 animate-pulse" />
+              <div className="h-12 w-40 rounded-md bg-dark-700/50 animate-pulse" />
             </div>
           </div>
           <div className="flex-shrink-0">
-            <div className="h-64 w-64 rounded-2xl bg-zinc-700/50 animate-pulse md:h-80 md:w-80" />
+            <div className="h-64 w-64 rounded-2xl bg-dark-700/50 animate-pulse md:h-80 md:w-80" />
           </div>
         </div>
       </div>
@@ -50,8 +50,8 @@ export function Hero() {
 
   return (
     <header className="relative grid-bg flex min-h-screen items-center overflow-hidden pt-24 pb-12">
-      <div className="absolute -left-20 top-1/4 -z-10 h-96 w-96 rounded-full bg-primary/20 blur-[120px]" style={{ willChange: "transform" }} />
-      <div className="absolute -right-20 bottom-1/4 -z-10 h-96 w-96 rounded-full bg-accent/20 blur-[120px]" style={{ willChange: "transform" }} />
+      <div className="absolute -left-20 top-1/4 -z-10 h-96 w-96 rounded-full bg-primary/20 blur-[120px]" />
+      <div className="absolute -right-20 bottom-1/4 -z-10 h-96 w-96 rounded-full bg-accent/20 blur-[120px]" />
 
       <div className="mx-auto w-full max-w-7xl px-6 lg:px-8">
         <div className="flex flex-col items-center gap-12 lg:flex-row lg:gap-20">

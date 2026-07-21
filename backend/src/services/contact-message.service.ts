@@ -1,6 +1,6 @@
 import { eq, desc, sql } from "drizzle-orm";
 import { db } from "../db";
-import { contactMessages } from "../db/schema";
+import { contactMessages } from "../db/schema/contact-messages";
 
 export const contactMessageService = {
   async create(data: typeof contactMessages.$inferInsert) {

@@ -42,7 +42,7 @@ export function SkillCategoryModal({
 
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/50" onClick={onCancel} />
+      <button type="button" aria-label="Cerrar" className="fixed inset-0 z-40 bg-black/50" onClick={onCancel} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div
           ref={containerRef}
@@ -94,7 +94,9 @@ export function SkillCategoryModal({
                   >
                     {t}
                     <button
+                      type="button"
                       onClick={() => removeTech(t)}
+                      aria-label={`Quitar ${t}`}
                       className="cursor-pointer bg-transparent border-none p-0 leading-none text-zinc-400 hover:text-zinc-100"
                     >
                       <X className="w-3 h-3" />

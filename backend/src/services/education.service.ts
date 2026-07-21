@@ -1,6 +1,6 @@
 import { eq, asc, and } from "drizzle-orm";
 import { db } from "../db";
-import { educationItems } from "../db/schema";
+import { educationItems } from "../db/schema/education-items";
 
 export const educationService = {
   async getPublic() {

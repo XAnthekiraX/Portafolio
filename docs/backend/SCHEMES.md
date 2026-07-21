@@ -312,11 +312,23 @@ CREATE POLICY "admin_all_contact_messages" ON contact_messages
 ### Políticas de Storage
 
 ```sql
+-- Lectura pública
 CREATE POLICY "public_read_images" ON storage.objects
     FOR SELECT USING (bucket_id = 'Images');
 
+-- Escritura autenticada
 CREATE POLICY "admin_write_images" ON storage.objects
     FOR INSERT WITH CHECK (
+        bucket_id = 'Images' AND auth.role() = 'authenticated'
+    );
+
+CREATE POLICY "admin_update_images" ON storage.objects
+    FOR UPDATE USING (
+        bucket_id = 'Images' AND auth.role() = 'authenticated'
+    );
+
+CREATE POLICY "admin_delete_images" ON storage.objects
+    FOR DELETE USING (
         bucket_id = 'Images' AND auth.role() = 'authenticated'
     );
 ```

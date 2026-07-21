@@ -118,7 +118,8 @@ router.post("/social", validate(createSocialLinkSchema), async (req, res, next) 
       return;
     }
     const link = await socialLinkService.create({
-      ...req.body,
+      platform: req.body.platform,
+      url: req.body.url,
       profileId: req.user.id,
     });
     res.status(201).json({ data: link });

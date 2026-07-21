@@ -1,16 +1,16 @@
 import { Router } from "express";
 import { eq } from "drizzle-orm";
 import { db } from "../../db";
-import { profiles } from "../../db/schema";
+import { profiles } from "../../db/schema/profiles";
 import { profileService } from "../../services/profile.service";
 import { uploadService } from "../../services/upload.service";
 import { uploadCv } from "../../config/multer";
 
 const router = Router();
 
-router.get("/", async (_req, res, next) => {
+router.get("/", async (req, res, next) => {
   try {
-    const url = await profileService.getCvUrl();
+    const url = await profileService.getCvUrl(req.user?.id);
     if (!url) {
       res.status(404).json({ error: { code: "RESOURCE_NOT_FOUND", message: "CV no disponible" } });
       return;
@@ -53,7 +53,7 @@ router.post("/", uploadCv.single("file"), async (req, res, next) => {
       .where(eq(profiles.id, req.user.id))
       .limit(1);
 
-    res.status(200).json({ data: { cvUrl: profile?.cvUrl ?? publicUrl, lastUpdated: profile?.cvUpdatedAt ?? null } });
+    res.status(200).json({ data: { cvUrl: profile!.cvUrl, lastUpdated: profile!.cvUpdatedAt } });
   } catch (err) {
     next(err);
   }

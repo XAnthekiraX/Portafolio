@@ -30,6 +30,13 @@ import type { AdminSocialLink } from "../../types/admin"
 import { queryKeys } from "../../lib/queryKeys"
 import { useNotification } from "../../context/NotificationContext"
 
+const socialIcons: Record<string, typeof Github> = {
+  github: Github,
+  linkedin: Linkedin,
+  twitter: Twitter,
+  website: Globe,
+}
+
 export function Profile() {
   const queryClient = useQueryClient()
   const { data: profile, isLoading } = useQuery({
@@ -164,13 +171,6 @@ export function Profile() {
 
   if (!profile) return null;
 
-  const socialIcons: Record<string, typeof Github> = {
-    github: Github,
-    linkedin: Linkedin,
-    twitter: Twitter,
-    website: Globe,
-  }
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <Card className="flex flex-col items-center text-center">
@@ -200,7 +200,9 @@ export function Profile() {
             className="w-32 h-32 rounded-2xl object-cover border-2 border-zinc-600"
           />
           <button
+            type="button"
             onClick={() => avatarInputRef.current?.click()}
+            aria-label="Cambiar avatar"
             className="absolute -bottom-2 -right-2 w-9 h-9 rounded-xl flex items-center justify-center border border-red-600 bg-red-600 cursor-pointer hover:bg-red-500 transition-colors disabled:opacity-50"
             disabled={avatarUploadMutation.isPending}
           >
@@ -278,6 +280,7 @@ export function Profile() {
                 <input
                   type="checkbox"
                   className="sr-only peer"
+                  aria-label="Disponible para proyectos"
                   checked={form.isAvailable}
                   onChange={(e) => setForm({ ...form, isAvailable: e.target.checked })}
                 />

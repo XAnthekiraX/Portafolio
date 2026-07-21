@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "../db";
-import { profiles } from "../db/schema";
-import { socialLinks } from "../db/schema";
+import { profiles } from "../db/schema/profiles";
+import { socialLinks } from "../db/schema/social-links";
 
 export const profileService = {
   async getPublic() {
@@ -13,13 +13,11 @@ export const profileService = {
     if (!result.length) return null;
 
     const profile = result[0].profiles;
-    const links = result
-      .filter((r) => r.social_links)
-      .map((r) => ({
-        id: r.social_links!.id,
-        platform: r.social_links!.platform,
-        url: r.social_links!.url,
-      }));
+    const links = result.flatMap((r) =>
+      r.social_links
+        ? [{ id: r.social_links.id, platform: r.social_links.platform, url: r.social_links.url }]
+        : []
+    );
 
     return {
       id: profile.id,
@@ -49,11 +47,11 @@ export const profileService = {
     return updated;
   },
 
-  async getCvUrl() {
-    const [profile] = await db
-      .select({ cvUrl: profiles.cvUrl })
-      .from(profiles)
-      .limit(1);
+  async getCvUrl(id?: string) {
+    const query = id
+      ? db.select({ cvUrl: profiles.cvUrl }).from(profiles).where(eq(profiles.id, id)).limit(1)
+      : db.select({ cvUrl: profiles.cvUrl }).from(profiles).limit(1);
+    const [profile] = await query;
     return profile?.cvUrl ?? null;
   },
 
@@ -63,6 +61,9 @@ export const profileService = {
       .set({ cvUrl, cvUpdatedAt: new Date(), updatedAt: new Date() })
       .where(eq(profiles.id, id))
       .returning();
+    if (!updated) {
+      throw new Error("Perfil no encontrado — no se pudo actualizar la URL del CV");
+    }
     return updated;
   },
 

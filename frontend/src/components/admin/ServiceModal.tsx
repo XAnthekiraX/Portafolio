@@ -39,7 +39,7 @@ export function ServiceModal({
 
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/50" onClick={onCancel} />
+      <button type="button" aria-label="Cerrar" className="fixed inset-0 z-40 bg-black/50" onClick={onCancel} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div
           ref={containerRef}
@@ -67,10 +67,11 @@ export function ServiceModal({
               rows={3}
             />
             <div>
-              <label className="block font-mono text-xs font-medium uppercase tracking-wider text-zinc-400 mb-2">
+              <label htmlFor="svc-status" className="block font-mono text-xs font-medium uppercase tracking-wider text-zinc-400 mb-2">
                 Estado
               </label>
               <select
+                id="svc-status"
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
                 className="w-full px-4 py-3 bg-zinc-900 border border-zinc-600 rounded-lg text-zinc-100 text-sm outline-none transition-all duration-150 focus:border-red-500 focus:shadow-[0_0_0_3px_rgba(220,38,38,0.15)]"

@@ -62,6 +62,7 @@ export function Navbar() {
               </a>
 
               <button
+                type="button"
                 onClick={() => setMobileOpen(true)}
                 className="rounded-md p-2 text-dark-100 transition-colors hover:bg-dark-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:hidden"
                 aria-label="Open menu"

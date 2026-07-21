@@ -42,8 +42,8 @@ export function About() {
             Diseñando y construyendo el futuro digital.
           </h2>
           <div className="space-y-6 text-lg leading-relaxed text-dark-400">
-            {paragraphs.map((p, i) => (
-              <p key={i}>{p}</p>
+            {paragraphs.map((p) => (
+              <p key={p}>{p}</p>
             ))}
           </div>
         </ScrollReveal>

@@ -5,10 +5,6 @@ if (!BASE_URL) {
   throw new Error("VITE_API_URL environment variable is required");
 }
 
-function getToken(): string | null {
-  return localStorage.getItem("folio-cms-token");
-}
-
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -22,16 +18,7 @@ export class ApiError extends Error {
 
 const api = ky.create({
   prefix: BASE_URL,
-  hooks: {
-    beforeRequest: [
-      (state) => {
-        const token = getToken();
-        if (token) {
-          state.request.headers.set("Authorization", `Bearer ${token}`);
-        }
-      },
-    ],
-  },
+  credentials: "include",
 });
 
 async function request<T>(

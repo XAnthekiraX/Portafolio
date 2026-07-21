@@ -99,6 +99,7 @@ export function Sidebar() {
               <p className="text-xs truncate text-zinc-400">{user.email}</p>
             </div>
             <button
+              type="button"
               onClick={logout}
               className="ml-auto text-xs text-zinc-500 hover:text-red-400 transition-colors max-lg:hidden max-md:block"
               title="Cerrar sesión"

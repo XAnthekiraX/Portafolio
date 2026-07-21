@@ -29,17 +29,18 @@ async function resolveTechnologyIds(techs: string[]): Promise<string[]> {
   const allTechs = await technologyService.getAll();
   const nameMap = new Map(allTechs.map((t) => [t.name.toLowerCase(), t.id]));
   const resolved: string[] = [];
+  const toCreate = techs.filter((t) => !UUID_RE.test(t) && !nameMap.has(t.toLowerCase()));
+  const created = await Promise.all(
+    toCreate.map((t) => technologyService.create({ name: t }))
+  );
+  for (const c of created) {
+    nameMap.set(c.name.toLowerCase(), c.id);
+  }
   for (const t of techs) {
     if (UUID_RE.test(t)) {
       resolved.push(t);
     } else {
-      const existing = nameMap.get(t.toLowerCase());
-      if (existing) {
-        resolved.push(existing);
-      } else {
-        const created = await technologyService.create({ name: t });
-        resolved.push(created.id);
-      }
+      resolved.push(nameMap.get(t.toLowerCase())!);
     }
   }
   return resolved;

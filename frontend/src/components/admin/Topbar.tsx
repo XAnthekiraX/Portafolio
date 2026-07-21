@@ -33,6 +33,7 @@ export function Topbar({ title, onToggleSidebar }: TopbarProps) {
   return (
     <header className="h-16 min-h-16 bg-zinc-900 border-b border-zinc-700 flex items-center px-6 gap-5 max-md:px-4">
       <button
+        type="button"
         className="w-10 h-10 rounded-xl border border-zinc-600 bg-transparent text-zinc-400 cursor-pointer flex items-center justify-center hover:text-zinc-100 hover:bg-zinc-700/50 transition-all duration-150 max-md:flex lg:hidden xl:hidden"
         onClick={onToggleSidebar}
         aria-label="Abrir menú"
@@ -48,6 +49,7 @@ export function Topbar({ title, onToggleSidebar }: TopbarProps) {
 
       <div className="relative">
         <button
+          type="button"
           className="w-10 h-10 rounded-xl border border-zinc-600 bg-transparent text-zinc-400 cursor-pointer flex items-center justify-center hover:text-zinc-100 hover:bg-zinc-700/50 transition-all duration-150"
           onClick={() => setShowNotifications(!showNotifications)}
           aria-label="Notificaciones"
@@ -62,7 +64,7 @@ export function Topbar({ title, onToggleSidebar }: TopbarProps) {
 
         {showNotifications && (
           <>
-            <div className="fixed inset-0 z-40" onClick={() => setShowNotifications(false)} />
+            <button type="button" aria-label="Cerrar notificaciones" className="fixed inset-0 z-40" onClick={() => setShowNotifications(false)} />
             <div className="absolute right-0 top-full mt-2 w-80 bg-zinc-800 border border-zinc-700 rounded-xl shadow-2xl z-50 max-h-96 overflow-hidden flex flex-col">
               <div className="flex items-center justify-between px-5 py-3.5 border-b border-zinc-700">
                 <h3 className="text-sm font-semibold text-zinc-100">Notificaciones</h3>
@@ -78,6 +80,7 @@ export function Topbar({ title, onToggleSidebar }: TopbarProps) {
                 ) : (
                   notifData.recent.map((n) => (
                     <button
+                      type="button"
                       key={n.id}
                       onClick={async () => {
                         await markReadMutation.mutateAsync(n.id)

@@ -1,6 +1,6 @@
 import { db } from "../db";
-import { profiles } from "../db/schema";
-import { socialLinks } from "../db/schema";
+import { profiles } from "../db/schema/profiles";
+import { socialLinks } from "../db/schema/social-links";
 import { eq } from "drizzle-orm";
 
 export const profileCompletionService = {

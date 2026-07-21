@@ -25,6 +25,7 @@ export function LanguageSwitcher() {
   return (
     <div className="relative" ref={ref}>
       <button
+        type="button"
         onClick={() => setOpen((prev) => !prev)}
         className="flex items-center gap-1 rounded-md px-2 py-1 font-mono text-sm text-dark-400 transition-colors hover:text-dark-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-dark-950"
       >
@@ -35,6 +36,7 @@ export function LanguageSwitcher() {
         <div className="absolute right-0 mt-2 w-24 rounded-lg border border-dark-700 bg-dark-900 py-1 shadow-xl backdrop-blur-lg">
           {languages.map((lang) => (
             <button
+              type="button"
               key={lang.code}
               onClick={() => {
                 setCurrent(lang.code);

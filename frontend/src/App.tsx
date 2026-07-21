@@ -21,8 +21,8 @@ const Services = lazy(() => import("./pages/admin/Services").then((m) => ({ defa
 
 function AdminPageFallback() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-950">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-700 border-t-red-500" />
+    <div className="flex min-h-screen items-center justify-center bg-dark-950">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-dark-700 border-t-primary" />
     </div>
   );
 }

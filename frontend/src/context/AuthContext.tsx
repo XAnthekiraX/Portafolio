@@ -5,7 +5,6 @@ import type { AuthResponse } from "../types/admin"
 
 interface AuthState {
   user: Admin | null
-  token: string | null
   isAuthenticated: boolean
   isLoading: boolean
 }
@@ -17,53 +16,38 @@ interface AuthContextValue extends AuthState {
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
-const TOKEN_KEY = "folio-cms-token"
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({
     user: null,
-    token: null,
     isAuthenticated: false,
     isLoading: true,
   })
 
   useEffect(() => {
-    const token = localStorage.getItem(TOKEN_KEY)
-    if (!token) {
-      setState((s) => ({ ...s, isLoading: false }))
-      return
-    }
     http.get<{ id: string; email: string }>("/api/admin/auth/me")
       .then((data) => {
         const displayName = data.email.split("@")[0] ?? "";
         setState({
           user: { id: data.id, firstName: displayName, lastName: "", email: data.email },
-          token,
           isAuthenticated: true,
           isLoading: false,
         })
       })
       .catch(() => {
-        localStorage.removeItem(TOKEN_KEY)
-        setState({ user: null, token: null, isAuthenticated: false, isLoading: false })
+        setState({ user: null, isAuthenticated: false, isLoading: false })
       })
   }, [])
 
   const login = useCallback(async (email: string, password: string) => {
     const data = await http.post<AuthResponse>("/api/admin/auth/login", { email, password })
-    const { token, admin } = data
-    localStorage.setItem(TOKEN_KEY, token)
-    setState({ user: admin, token, isAuthenticated: true, isLoading: false })
+    const { admin } = data
+    setState({ user: admin, isAuthenticated: true, isLoading: false })
   }, [])
 
-  const logout = useCallback(() => {
-    const token = state.token
-    if (token) {
-      http.post("/api/admin/auth/logout").catch(() => {})
-    }
-    localStorage.removeItem(TOKEN_KEY)
-    setState({ user: null, token: null, isAuthenticated: false, isLoading: false })
-  }, [state.token])
+  const logout = useCallback(async () => {
+    await http.post("/api/admin/auth/logout").catch(() => {})
+    setState({ user: null, isAuthenticated: false, isLoading: false })
+  }, [])
 
   return (
     <AuthContext.Provider value={{ ...state, login, logout }}>

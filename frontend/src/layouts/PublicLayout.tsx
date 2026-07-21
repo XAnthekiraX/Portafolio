@@ -5,7 +5,7 @@ import { SeoHead } from "../components/SeoHead"
 
 export function PublicLayout() {
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen bg-dark-950">
       <SeoHead />
       <Navbar />
       <Outlet />

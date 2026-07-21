@@ -23,6 +23,7 @@ export function SocialLinks({ links, size = 24 }: SocialLinksProps) {
           <a
             key={link.platform}
             href={link.url}
+            aria-label={link.platform}
             className="rounded-md text-dark-400 transition-colors hover:text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             target="_blank"
             rel="noopener noreferrer"

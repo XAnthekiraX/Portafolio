@@ -24,7 +24,7 @@ export function TechnologyModal({
 
   return (
     <>
-      <div className="fixed inset-0 z-40 bg-black/50" onClick={onCancel} />
+      <button type="button" aria-label="Cerrar" className="fixed inset-0 z-40 bg-black/50" onClick={onCancel} />
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div
           ref={containerRef}
