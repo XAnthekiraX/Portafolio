@@ -5,9 +5,9 @@ export function SeoHead() {
   const { profile } = useProfile();
 
   const siteUrl = import.meta.env.VITE_SITE_URL ?? "https://anthekira.dev";
-  const defaultTitle = "Alex Doe — Senior Product Engineer";
+  const defaultTitle = "Anthony Bonilla — Junior Full Stack Developer";
   const defaultDescription =
-    "Portfolio personal de Alex Doe. Senior Product Engineer especializado en desarrollo frontend, UI/UX y productos digitales.";
+    "Portfolio personal de Anthony Bonilla. Junior Full Stack Developer especializado en desarrollo web, APIs y productos digitales.";
 
   const title = profile ? `${profile.name} — ${profile.title}` : defaultTitle;
   const description = profile

@@ -28,7 +28,7 @@ Representa la información del dueño del portafolio.
 |-------|------|-------------|
 | id | string | Identificador único |
 | name | string | Nombre completo |
-| title | string | Título profesional (ej. "Senior Product Engineer & UI/UX Designer") |
+| title | string | Título profesional (ej. "Junior Full Stack Developer") |
 | description | string | Biografía o resumen profesional |
 | location | string | Ubicación geográfica (ej. "Madrid, España") |
 | experienceYears | integer | Años de experiencia profesional |

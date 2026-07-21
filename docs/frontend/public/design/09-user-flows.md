@@ -40,7 +40,7 @@ Puntos de decisión alternativos en cualquier punto:
 ```
 
 Punto de decisión alternativo:
-- En lugar del formulario, puede copiar el email `hello@alexdoe.com`.
+- En lugar del formulario, puede copiar el email `anthony@anthekira.dev`.
 
 ## Flow 3: Exploración de proyectos
 

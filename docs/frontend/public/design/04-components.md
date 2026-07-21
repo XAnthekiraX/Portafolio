@@ -7,9 +7,9 @@
 - **Responsive**: en md+ muestra enlaces en línea; en móvil oculta enlaces y muestra drawer.
 
 ## Logo
-- **Descripción**: bloque cuadrado rojo con la letra "A" blanca en fuente display + texto "Alex Doe".
+- **Descripción**: bloque cuadrado rojo con la letra "A" blanca en fuente display + texto "Anthony Bonilla".
 - **Ubicación**: navbar y footer.
-- **Responsive**: el texto "Alex Doe" se oculta en sm.
+- **Responsive**: el texto "Anthony Bonilla" se oculta en sm.
 
 ## Avatar Frame
 - **Descripción**: contenedor cuadrado de 256px (64 en md) para la foto del perfil.

@@ -13,7 +13,7 @@
 ### Navbar
 - **< md**: enlaces ocultos, botón hamburguesa visible. Drawer ocupa toda la altura restante.
 - **>= md**: enlaces visibles horizontalmente, botón hamburguesa oculto.
-- **< sm**: texto del logo ("Alex Doe") oculto.
+- **< sm**: texto del logo ("Anthony Bonilla") oculto.
 
 ### Hero
 - **< lg**: columna única centrada, avatar debajo del texto.
