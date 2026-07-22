@@ -1,92 +1,164 @@
-import { eq, asc, sql } from "drizzle-orm";
-import { db } from "../db/index.js";
-import { projects } from "../db/schema/projects.js";
-import { projectTechnologies } from "../db/schema/project-technologies.js";
-import { technologies } from "../db/schema/technologies.js";
+import { supabaseAdmin } from "../config/supabase.js";
 
 export const projectService = {
   async getPublic() {
-    const result = await db
-      .select()
-      .from(projects)
-      .where(eq(projects.status, "published"))
-      .orderBy(asc(projects.displayOrder));
+    const { data: result, error } = await supabaseAdmin
+      .from("projects")
+      .select("*")
+      .eq("status", "published")
+      .order("display_order", { ascending: true });
 
-    return Promise.all(result.map((p) => this.enrich(p)));
+    if (error) throw error;
+    return Promise.all((result ?? []).map((p) => this.enrich(p)));
   },
 
   async getAll() {
-    const result = await db
-      .select()
-      .from(projects)
-      .orderBy(asc(projects.displayOrder));
+    const { data: result, error } = await supabaseAdmin
+      .from("projects")
+      .select("*")
+      .order("display_order", { ascending: true });
 
-    return Promise.all(result.map((p) => this.enrich(p)));
+    if (error) throw error;
+    return Promise.all((result ?? []).map((p) => this.enrich(p)));
   },
 
   async getById(id: string) {
-    const [project] = await db
-      .select()
-      .from(projects)
-      .where(eq(projects.id, id))
-      .limit(1);
+    const { data: project, error } = await supabaseAdmin
+      .from("projects")
+      .select("*")
+      .eq("id", id)
+      .limit(1)
+      .single();
 
-    if (!project) return null;
+    if (error || !project) return null;
     return this.enrich(project);
   },
 
-  async create(data: typeof projects.$inferInsert) {
-    const [created] = await db.insert(projects).values(data).returning();
+  async create(data: Record<string, unknown>) {
+    const dbData: Record<string, unknown> = {};
+    if (data.title !== undefined) dbData.title = data.title;
+    if (data.description !== undefined) dbData.description = data.description;
+    if (data.category !== undefined) dbData.category = data.category;
+    if (data.imageUrl !== undefined) { dbData.image_url = data.imageUrl; }
+    if (data.features !== undefined) dbData.features = data.features;
+    if (data.repoUrl !== undefined) { dbData.repo_url = data.repoUrl; }
+    if (data.demoUrl !== undefined) { dbData.demo_url = data.demoUrl; }
+    if (data.url !== undefined) dbData.url = data.url;
+    if (data.repository !== undefined) dbData.repository = data.repository;
+    if (data.status !== undefined) dbData.status = data.status;
+    if (data.visits !== undefined) dbData.visits = data.visits;
+    if (data.displayOrder !== undefined) { dbData.display_order = data.displayOrder; }
+
+    const { data: created, error } = await supabaseAdmin
+      .from("projects")
+      .insert(dbData)
+      .select()
+      .single();
+
+    if (error) throw error;
     return this.enrich(created);
   },
 
-  async update(id: string, data: Partial<typeof projects.$inferInsert>) {
-    const [updated] = await db
-      .update(projects)
-      .set({ ...data, updatedAt: new Date() })
-      .where(eq(projects.id, id))
-      .returning();
+  async update(id: string, data: Record<string, unknown>) {
+    const dbData: Record<string, unknown> = {};
+    if (data.title !== undefined) dbData.title = data.title;
+    if (data.description !== undefined) dbData.description = data.description;
+    if (data.category !== undefined) dbData.category = data.category;
+    if (data.imageUrl !== undefined) dbData.image_url = data.imageUrl;
+    if (data.features !== undefined) dbData.features = data.features;
+    if (data.repoUrl !== undefined) dbData.repo_url = data.repoUrl;
+    if (data.demoUrl !== undefined) dbData.demo_url = data.demoUrl;
+    if (data.url !== undefined) dbData.url = data.url;
+    if (data.repository !== undefined) dbData.repository = data.repository;
+    if (data.status !== undefined) dbData.status = data.status;
+    if (data.visits !== undefined) dbData.visits = data.visits;
+    if (data.displayOrder !== undefined) dbData.display_order = data.displayOrder;
+    dbData.updated_at = new Date().toISOString();
+
+    const { data: updated, error } = await supabaseAdmin
+      .from("projects")
+      .update(dbData)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
     return this.enrich(updated);
   },
 
   async remove(id: string) {
-    await db.delete(projects).where(eq(projects.id, id));
+    const { error } = await supabaseAdmin.from("projects").delete().eq("id", id);
+    if (error) throw error;
   },
 
   async incrementVisits(id: string) {
-    await db
-      .update(projects)
-      .set({ visits: sql`visits + 1` })
-      .where(eq(projects.id, id));
+    const { error } = await supabaseAdmin.rpc("increment_visits", { project_id: id });
+    if (error) {
+      const { data: project } = await supabaseAdmin
+        .from("projects")
+        .select("visits")
+        .eq("id", id)
+        .single();
+      if (project) {
+        await supabaseAdmin
+          .from("projects")
+          .update({ visits: (project.visits ?? 0) + 1 })
+          .eq("id", id);
+      }
+    }
   },
 
   async replaceTechnologies(projectId: string, techIds: string[]) {
-    await db.delete(projectTechnologies).where(eq(projectTechnologies.projectId, projectId));
+    const { error: delError } = await supabaseAdmin
+      .from("project_technologies")
+      .delete()
+      .eq("project_id", projectId);
+
+    if (delError) throw delError;
 
     if (techIds.length === 0) return [];
 
     const values = techIds.map((technologyId) => ({
-      projectId,
-      technologyId,
+      project_id: projectId,
+      technology_id: technologyId,
     }));
-    return db.insert(projectTechnologies).values(values).returning();
+
+    const { data: inserted, error: insError } = await supabaseAdmin
+      .from("project_technologies")
+      .insert(values)
+      .select();
+
+    if (insError) throw insError;
+    return inserted;
   },
 
-  async enrich(project: typeof projects.$inferSelect) {
-    const techRows = await db
-      .select({
-        id: technologies.id,
-        name: technologies.name,
-        icon: technologies.icon,
-      })
-      .from(projectTechnologies)
-      .innerJoin(technologies, eq(projectTechnologies.technologyId, technologies.id))
-      .where(eq(projectTechnologies.projectId, project.id));
+  async enrich(project: Record<string, unknown>) {
+    const { data: techRows } = await supabaseAdmin
+      .from("project_technologies")
+      .select("technologies(id, name, icon)")
+      .eq("project_id", project.id);
+
+    const technologies = (techRows ?? [])
+      .map((row: Record<string, unknown>) => row.technologies)
+      .filter(Boolean);
 
     return {
-      ...project,
+      id: project.id,
+      title: project.title,
+      description: project.description,
+      category: project.category,
+      imageUrl: project.image_url,
       features: (project.features as string[]) ?? [],
-      technologies: techRows,
+      repoUrl: project.repo_url,
+      demoUrl: project.demo_url,
+      url: project.url,
+      repository: project.repository,
+      status: project.status,
+      visits: project.visits,
+      displayOrder: project.display_order,
+      createdAt: project.created_at,
+      updatedAt: project.updated_at,
+      technologies,
     };
   },
 };

@@ -1,12 +1,13 @@
-import { db } from "../db/index.js";
-import { profiles } from "../db/schema/profiles.js";
+import { supabaseAdmin } from "../config/supabase.js";
 
 export const cvService = {
   async getUrl() {
-    const [profile] = await db
-      .select({ cvUrl: profiles.cvUrl })
-      .from(profiles)
-      .limit(1);
-    return profile?.cvUrl ?? null;
+    const { data } = await supabaseAdmin
+      .from("profiles")
+      .select("cv_url")
+      .limit(1)
+      .single();
+
+    return data?.cv_url ?? null;
   },
 };

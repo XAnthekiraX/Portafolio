@@ -1,27 +1,56 @@
-import { eq, asc } from "drizzle-orm";
-import { db } from "../db/index.js";
-import { services } from "../db/schema/services.js";
+import { supabaseAdmin } from "../config/supabase.js";
 
 export const serviceService = {
   async getAll() {
-    return db.select().from(services).orderBy(asc(services.displayOrder));
+    const { data, error } = await supabaseAdmin
+      .from("services")
+      .select("*")
+      .order("display_order", { ascending: true });
+
+    if (error) throw error;
+    return data ?? [];
   },
 
-  async create(data: typeof services.$inferInsert) {
-    const [created] = await db.insert(services).values(data).returning();
+  async create(data: Record<string, unknown>) {
+    const dbData: Record<string, unknown> = {};
+    if (data.title !== undefined) dbData.title = data.title;
+    if (data.description !== undefined) dbData.description = data.description;
+    if (data.icon !== undefined) dbData.icon = data.icon;
+    if (data.status !== undefined) dbData.status = data.status;
+    if (data.displayOrder !== undefined) dbData.display_order = data.displayOrder;
+
+    const { data: created, error } = await supabaseAdmin
+      .from("services")
+      .insert(dbData)
+      .select()
+      .single();
+
+    if (error) throw error;
     return created;
   },
 
-  async update(id: string, data: Partial<typeof services.$inferInsert>) {
-    const [updated] = await db
-      .update(services)
-      .set({ ...data, updatedAt: new Date() })
-      .where(eq(services.id, id))
-      .returning();
+  async update(id: string, data: Record<string, unknown>) {
+    const dbData: Record<string, unknown> = {};
+    if (data.title !== undefined) dbData.title = data.title;
+    if (data.description !== undefined) dbData.description = data.description;
+    if (data.icon !== undefined) dbData.icon = data.icon;
+    if (data.status !== undefined) dbData.status = data.status;
+    if (data.displayOrder !== undefined) dbData.display_order = data.displayOrder;
+    dbData.updated_at = new Date().toISOString();
+
+    const { data: updated, error } = await supabaseAdmin
+      .from("services")
+      .update(dbData)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
     return updated;
   },
 
   async remove(id: string) {
-    await db.delete(services).where(eq(services.id, id));
+    const { error } = await supabaseAdmin.from("services").delete().eq("id", id);
+    if (error) throw error;
   },
 };

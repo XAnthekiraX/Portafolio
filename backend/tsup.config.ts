@@ -18,7 +18,5 @@ export default defineConfig({
     "multer",
     "zod",
     "@supabase/supabase-js",
-    "drizzle-orm",
-    "postgres",
   ],
 });

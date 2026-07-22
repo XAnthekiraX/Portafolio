@@ -1,24 +1,22 @@
-import { db } from "../db/index.js";
-import { projects } from "../db/schema/projects.js";
-import { skillCategories } from "../db/schema/skill-categories.js";
-import { technologies } from "../db/schema/technologies.js";
-import { contactMessages } from "../db/schema/contact-messages.js";
-import { count, eq } from "drizzle-orm";
+import { supabaseAdmin } from "../config/supabase.js";
 
 export const dashboardService = {
   async getCounts() {
-    const [[projectCount], [skillCount], [techCount], [unreadMessages]] = await Promise.all([
-      db.select({ value: count() }).from(projects),
-      db.select({ value: count() }).from(skillCategories),
-      db.select({ value: count() }).from(technologies),
-      db.select({ value: count() }).from(contactMessages).where(eq(contactMessages.status, "unread")),
+    const [projectsResult, skillResult, techResult, unreadResult] = await Promise.all([
+      supabaseAdmin.from("projects").select("id", { count: "exact", head: true }),
+      supabaseAdmin.from("skill_categories").select("id", { count: "exact", head: true }),
+      supabaseAdmin.from("technologies").select("id", { count: "exact", head: true }),
+      supabaseAdmin
+        .from("contact_messages")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "unread"),
     ]);
 
     return {
-      totalProjects: projectCount.value,
-      totalSkillCategories: skillCount.value,
-      totalTechnologies: techCount.value,
-      unreadMessages: unreadMessages.value,
+      totalProjects: projectsResult.count ?? 0,
+      totalSkillCategories: skillResult.count ?? 0,
+      totalTechnologies: techResult.count ?? 0,
+      unreadMessages: unreadResult.count ?? 0,
     };
   },
 };

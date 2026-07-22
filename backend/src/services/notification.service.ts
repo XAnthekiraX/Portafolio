@@ -1,47 +1,38 @@
-import { eq, desc, and, gte, sql } from "drizzle-orm";
-import { db } from "../db/index.js";
-import { contactMessages } from "../db/schema/contact-messages.js";
+import { supabaseAdmin } from "../config/supabase.js";
 
 export const notificationService = {
   async getUnread() {
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
 
-    const [messages, [unreadResult], [todayResult]] = await Promise.all([
-      db
-        .select({
-          id: contactMessages.id,
-          name: contactMessages.name,
-          email: contactMessages.email,
-          subject: contactMessages.subject,
-          message: contactMessages.message,
-          createdAt: contactMessages.createdAt,
-        })
-        .from(contactMessages)
-        .where(eq(contactMessages.status, "unread"))
-        .orderBy(desc(contactMessages.createdAt))
+    const [messagesResult, unreadResult, todayResult] = await Promise.all([
+      supabaseAdmin
+        .from("contact_messages")
+        .select("id, name, email, subject, message, created_at")
+        .eq("status", "unread")
+        .order("created_at", { ascending: false })
         .limit(10),
-      db
-        .select({ value: sql`count(*)` })
-        .from(contactMessages)
-        .where(eq(contactMessages.status, "unread")),
-      db
-        .select({ value: sql`count(*)` })
-        .from(contactMessages)
-        .where(
-          and(
-            gte(contactMessages.createdAt, todayStart),
-            eq(contactMessages.status, "unread"),
-          ),
-        ),
+      supabaseAdmin
+        .from("contact_messages")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "unread"),
+      supabaseAdmin
+        .from("contact_messages")
+        .select("id", { count: "exact", head: true })
+        .eq("status", "unread")
+        .gte("created_at", todayStart.toISOString()),
     ]);
 
     return {
-      unreadCount: Number(unreadResult.value),
-      todayCount: Number(todayResult.value),
-      recent: messages.map((m) => ({
-        ...m,
+      unreadCount: unreadResult.count ?? 0,
+      todayCount: todayResult.count ?? 0,
+      recent: (messagesResult.data ?? []).map((m) => ({
+        id: m.id,
+        name: m.name,
+        email: m.email,
+        subject: m.subject,
         message: m.message.length > 100 ? m.message.slice(0, 100) + "..." : m.message,
+        createdAt: m.created_at,
       })),
     };
   },

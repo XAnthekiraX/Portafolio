@@ -1,8 +1,5 @@
 import { Router } from "express";
-import { supabase } from "../../config/supabase.js";
-import { db } from "../../db/index.js";
-import { profiles } from "../../db/schema/profiles.js";
-import { eq } from "drizzle-orm";
+import { supabaseAdmin } from "../../config/supabase.js";
 import { validate } from "../../middleware/validate.js";
 import { loginSchema } from "../../validators/auth.validator.js";
 
@@ -19,7 +16,7 @@ const COOKIE_OPTIONS = {
 router.post("/login", validate(loginSchema), async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabaseAdmin.auth.signInWithPassword({ email, password });
 
     if (error || !data.session) {
       res.status(401).json({
@@ -29,24 +26,25 @@ router.post("/login", validate(loginSchema), async (req, res, next) => {
     }
 
     const userId = data.user.id;
-    const [profile] = await db
-      .select({ firstName: profiles.firstName, lastName: profiles.lastName })
-      .from(profiles)
-      .where(eq(profiles.id, userId))
-      .limit(1);
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("first_name, last_name")
+      .eq("id", userId)
+      .limit(1)
+      .single();
 
     if (!profile) {
-      await db.insert(profiles).values({
+      await supabaseAdmin.from("profiles").insert({
         id: userId,
-        firstName: data.user.user_metadata?.first_name ?? data.user.email?.split("@")[0] ?? "",
-        lastName: data.user.user_metadata?.last_name ?? "",
+        first_name: data.user.user_metadata?.first_name ?? data.user.email?.split("@")[0] ?? "",
+        last_name: data.user.user_metadata?.last_name ?? "",
         title: "Desarrollador",
         email: data.user.email ?? email,
-      }).onConflictDoNothing();
+      }).select().maybeSingle();
     }
 
-    const firstName = profile?.firstName ?? data.user.user_metadata?.first_name ?? data.user.email?.split("@")[0] ?? "";
-    const lastName = profile?.lastName ?? data.user.user_metadata?.last_name ?? "";
+    const firstName = profile?.first_name ?? data.user.user_metadata?.first_name ?? data.user.email?.split("@")[0] ?? "";
+    const lastName = profile?.last_name ?? data.user.user_metadata?.last_name ?? "";
 
     res.cookie("sb-access-token", data.session.access_token, COOKIE_OPTIONS);
 
@@ -70,7 +68,7 @@ router.post("/logout", async (req, res, next) => {
     const token = req.cookies?.["sb-access-token"];
 
     if (token) {
-      await supabase.auth.admin.signOut(token);
+      await supabaseAdmin.auth.admin.signOut(token);
     }
 
     res.clearCookie("sb-access-token", { path: "/" });
@@ -88,7 +86,7 @@ router.get("/me", async (req, res, next) => {
       return;
     }
 
-    const { data, error } = await supabase.auth.getUser(token);
+    const { data, error } = await supabaseAdmin.auth.getUser(token);
 
     if (error || !data.user) {
       res.status(401).json({ error: { code: "UNAUTHORIZED", message: "Token inválido" } });
@@ -96,27 +94,28 @@ router.get("/me", async (req, res, next) => {
     }
 
     const userId = data.user.id;
-    const [profile] = await db
-      .select({ firstName: profiles.firstName, lastName: profiles.lastName })
-      .from(profiles)
-      .where(eq(profiles.id, userId))
-      .limit(1);
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("first_name, last_name")
+      .eq("id", userId)
+      .limit(1)
+      .single();
 
     if (!profile) {
-      await db.insert(profiles).values({
+      await supabaseAdmin.from("profiles").insert({
         id: userId,
-        firstName: data.user.user_metadata?.first_name ?? data.user.email?.split("@")[0] ?? "",
-        lastName: data.user.user_metadata?.last_name ?? "",
+        first_name: data.user.user_metadata?.first_name ?? data.user.email?.split("@")[0] ?? "",
+        last_name: data.user.user_metadata?.last_name ?? "",
         title: "Desarrollador",
         email: data.user.email ?? "",
-      }).onConflictDoNothing();
+      }).select().maybeSingle();
     }
 
     res.json({
       data: {
         id: userId,
-        firstName: profile?.firstName ?? data.user.user_metadata?.first_name ?? data.user.email?.split("@")[0] ?? "",
-        lastName: profile?.lastName ?? data.user.user_metadata?.last_name ?? "",
+        firstName: profile?.first_name ?? data.user.user_metadata?.first_name ?? data.user.email?.split("@")[0] ?? "",
+        lastName: profile?.last_name ?? data.user.user_metadata?.last_name ?? "",
         email: data.user.email ?? "",
       },
     });

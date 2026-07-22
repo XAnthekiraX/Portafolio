@@ -1,30 +1,28 @@
-import { db } from "../db/index.js";
-import { profiles } from "../db/schema/profiles.js";
-import { socialLinks } from "../db/schema/social-links.js";
-import { eq } from "drizzle-orm";
+import { supabaseAdmin } from "../config/supabase.js";
 
 export const profileCompletionService = {
   async getCompletion(userId: string) {
-    const [profile] = await db
-      .select()
-      .from(profiles)
-      .where(eq(profiles.id, userId))
-      .limit(1);
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .limit(1)
+      .single();
 
     if (!profile) {
       return { percentage: 0, checks: [] };
     }
 
-    const links = await db
-      .select()
-      .from(socialLinks)
-      .where(eq(socialLinks.profileId, userId));
+    const { data: links } = await supabaseAdmin
+      .from("social_links")
+      .select("id")
+      .eq("profile_id", userId);
 
     const checks = [
-      { label: "Foto de perfil", done: profile.avatarUrl !== null },
+      { label: "Foto de perfil", done: profile.avatar_url !== null },
       { label: "Descripción profesional", done: profile.description !== null && profile.description.length > 0 },
-      { label: "CV adjunto", done: profile.cvUrl !== null },
-      { label: "Redes sociales", done: links.length > 0 },
+      { label: "CV adjunto", done: profile.cv_url !== null },
+      { label: "Redes sociales", done: (links?.length ?? 0) > 0 },
       { label: "Título profesional", done: profile.title !== null && profile.title.length > 0 },
       { label: "Ubicación", done: profile.location !== null && profile.location.length > 0 },
     ];

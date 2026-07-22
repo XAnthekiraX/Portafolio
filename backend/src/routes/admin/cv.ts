@@ -1,7 +1,5 @@
 import { Router } from "express";
-import { eq } from "drizzle-orm";
-import { db } from "../../db/index.js";
-import { profiles } from "../../db/schema/profiles.js";
+import { supabaseAdmin } from "../../config/supabase.js";
 import { profileService } from "../../services/profile.service.js";
 import { uploadService } from "../../services/upload.service.js";
 import { uploadCv } from "../../config/multer.js";
@@ -15,12 +13,14 @@ router.get("/", async (req, res, next) => {
       res.status(404).json({ error: { code: "RESOURCE_NOT_FOUND", message: "CV no disponible" } });
       return;
     }
-    const [profile] = await db
-      .select({ cvUpdatedAt: profiles.cvUpdatedAt })
-      .from(profiles)
-      .limit(1);
 
-    res.json({ data: { cvUrl: url, lastUpdated: profile?.cvUpdatedAt ?? null } });
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("cv_updated_at")
+      .limit(1)
+      .single();
+
+    res.json({ data: { cvUrl: url, lastUpdated: profile?.cv_updated_at ?? null } });
   } catch (err) {
     next(err);
   }
@@ -47,13 +47,14 @@ router.post("/", uploadCv.single("file"), async (req, res, next) => {
 
     await profileService.updateCvUrl(req.user.id, publicUrl);
 
-    const [profile] = await db
-      .select({ cvUrl: profiles.cvUrl, cvUpdatedAt: profiles.cvUpdatedAt })
-      .from(profiles)
-      .where(eq(profiles.id, req.user.id))
-      .limit(1);
+    const { data: profile } = await supabaseAdmin
+      .from("profiles")
+      .select("cv_url, cv_updated_at")
+      .eq("id", req.user.id)
+      .limit(1)
+      .single();
 
-    res.status(200).json({ data: { cvUrl: profile!.cvUrl, lastUpdated: profile!.cvUpdatedAt } });
+    res.status(200).json({ data: { cvUrl: profile!.cv_url, lastUpdated: profile!.cv_updated_at } });
   } catch (err) {
     next(err);
   }

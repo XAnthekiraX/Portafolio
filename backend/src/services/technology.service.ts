@@ -1,41 +1,74 @@
-import { eq, asc, desc, sql } from "drizzle-orm";
-import { db } from "../db/index.js";
-import { technologies } from "../db/schema/technologies.js";
-import { projectTechnologies } from "../db/schema/project-technologies.js";
+import { supabaseAdmin } from "../config/supabase.js";
 
 export const technologyService = {
   async getAll() {
-    const result = await db
-      .select({
-        id: technologies.id,
-        name: technologies.name,
-        icon: technologies.icon,
-        createdAt: technologies.createdAt,
-        updatedAt: technologies.updatedAt,
-        usageCount: sql<number>`count(${projectTechnologies.id})`.as("usage_count"),
-      })
-      .from(technologies)
-      .leftJoin(projectTechnologies, eq(technologies.id, projectTechnologies.technologyId))
-      .groupBy(technologies.id)
-      .orderBy(desc(sql`count(${projectTechnologies.id})`), asc(technologies.name));
+    const { data: techs, error: techError } = await supabaseAdmin
+      .from("technologies")
+      .select("*")
+      .order("name");
+
+    if (techError) throw techError;
+
+    const { data: ptRows } = await supabaseAdmin
+      .from("project_technologies")
+      .select("technology_id");
+
+    const usageMap = new Map<string, number>();
+    for (const row of ptRows ?? []) {
+      usageMap.set(row.technology_id, (usageMap.get(row.technology_id) ?? 0) + 1);
+    }
+
+    const result = (techs ?? []).map((t) => ({
+      id: t.id,
+      name: t.name,
+      icon: t.icon,
+      createdAt: t.created_at,
+      updatedAt: t.updated_at,
+      usageCount: usageMap.get(t.id) ?? 0,
+    }));
+
+    result.sort((a, b) => {
+      const cmp = b.usageCount - a.usageCount;
+      return cmp !== 0 ? cmp : a.name.localeCompare(b.name);
+    });
+
     return result;
   },
 
-  async create(data: typeof technologies.$inferInsert) {
-    const [created] = await db.insert(technologies).values(data).returning();
+  async create(data: Record<string, unknown>) {
+    const dbData: Record<string, unknown> = {};
+    if (data.name !== undefined) dbData.name = data.name;
+    if (data.icon !== undefined) dbData.icon = data.icon;
+
+    const { data: created, error } = await supabaseAdmin
+      .from("technologies")
+      .insert(dbData)
+      .select()
+      .single();
+
+    if (error) throw error;
     return created;
   },
 
-  async update(id: string, data: Partial<typeof technologies.$inferInsert>) {
-    const [updated] = await db
-      .update(technologies)
-      .set({ ...data, updatedAt: new Date() })
-      .where(eq(technologies.id, id))
-      .returning();
+  async update(id: string, data: Record<string, unknown>) {
+    const dbData: Record<string, unknown> = {};
+    if (data.name !== undefined) dbData.name = data.name;
+    if (data.icon !== undefined) dbData.icon = data.icon;
+    dbData.updated_at = new Date().toISOString();
+
+    const { data: updated, error } = await supabaseAdmin
+      .from("technologies")
+      .update(dbData)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
     return updated;
   },
 
   async remove(id: string) {
-    await db.delete(technologies).where(eq(technologies.id, id));
+    const { error } = await supabaseAdmin.from("technologies").delete().eq("id", id);
+    if (error) throw error;
   },
 };

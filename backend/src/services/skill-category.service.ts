@@ -1,63 +1,96 @@
-import { eq, asc } from "drizzle-orm";
-import { db } from "../db/index.js";
-import { skillCategories } from "../db/schema/skill-categories.js";
-import { skillTechnologies } from "../db/schema/skill-technologies.js";
+import { supabaseAdmin } from "../config/supabase.js";
 
 export const skillCategoryService = {
   async getAll() {
-    const categories = await db
-      .select()
-      .from(skillCategories)
-      .orderBy(asc(skillCategories.displayOrder));
+    const { data: categories, error } = await supabaseAdmin
+      .from("skill_categories")
+      .select("*")
+      .order("display_order", { ascending: true });
+
+    if (error) throw error;
 
     const techResults = await Promise.all(
-      categories.map((cat) =>
-        db
-          .select()
-          .from(skillTechnologies)
-          .where(eq(skillTechnologies.skillCategoryId, cat.id))
-          .orderBy(asc(skillTechnologies.displayOrder))
-          .then((techs) => ({
-            ...cat,
-            technologies: techs.map((t) => ({
-              id: t.id,
-              name: t.name,
-              displayOrder: t.displayOrder,
-            })),
-          }))
-      )
+      (categories ?? []).map(async (cat) => {
+        const { data: techs } = await supabaseAdmin
+          .from("skill_technologies")
+          .select("id, name, display_order")
+          .eq("skill_category_id", cat.id)
+          .order("display_order", { ascending: true });
+
+        return {
+          ...cat,
+          technologies: (techs ?? []).map((t) => ({
+            id: t.id,
+            name: t.name,
+            displayOrder: t.display_order,
+          })),
+        };
+      }),
     );
     return techResults;
   },
 
-  async create(data: typeof skillCategories.$inferInsert) {
-    const [created] = await db.insert(skillCategories).values(data).returning();
+  async create(data: Record<string, unknown>) {
+    const dbData: Record<string, unknown> = {};
+    if (data.name !== undefined) dbData.name = data.name;
+    if (data.icon !== undefined) dbData.icon = data.icon;
+    if (data.displayOrder !== undefined) dbData.display_order = data.displayOrder;
+
+    const { data: created, error } = await supabaseAdmin
+      .from("skill_categories")
+      .insert(dbData)
+      .select()
+      .single();
+
+    if (error) throw error;
     return created;
   },
 
-  async update(id: string, data: Partial<typeof skillCategories.$inferInsert>) {
-    const [updated] = await db
-      .update(skillCategories)
-      .set({ ...data, updatedAt: new Date() })
-      .where(eq(skillCategories.id, id))
-      .returning();
+  async update(id: string, data: Record<string, unknown>) {
+    const dbData: Record<string, unknown> = {};
+    if (data.name !== undefined) dbData.name = data.name;
+    if (data.icon !== undefined) dbData.icon = data.icon;
+    if (data.displayOrder !== undefined) dbData.display_order = data.displayOrder;
+    dbData.updated_at = new Date().toISOString();
+
+    const { data: updated, error } = await supabaseAdmin
+      .from("skill_categories")
+      .update(dbData)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
     return updated;
   },
 
   async remove(id: string) {
-    await db.delete(skillCategories).where(eq(skillCategories.id, id));
+    const { error } = await supabaseAdmin.from("skill_categories").delete().eq("id", id);
+    if (error) throw error;
   },
 
   async replaceTechnologies(categoryId: string, techs: { name: string; displayOrder?: number }[]) {
-    await db.delete(skillTechnologies).where(eq(skillTechnologies.skillCategoryId, categoryId));
+    const { error: delError } = await supabaseAdmin
+      .from("skill_technologies")
+      .delete()
+      .eq("skill_category_id", categoryId);
+
+    if (delError) throw delError;
 
     if (techs.length === 0) return [];
 
     const values = techs.map((t, i) => ({
-      skillCategoryId: categoryId,
+      skill_category_id: categoryId,
       name: t.name,
-      displayOrder: t.displayOrder ?? i,
+      display_order: t.displayOrder ?? i,
     }));
-    return db.insert(skillTechnologies).values(values).returning();
+
+    const { data: inserted, error: insError } = await supabaseAdmin
+      .from("skill_technologies")
+      .insert(values)
+      .select();
+
+    if (insError) throw insError;
+    return inserted;
   },
 };
