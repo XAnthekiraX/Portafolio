@@ -62,8 +62,10 @@ app.use("/api/admin/notifications", authMiddleware, adminNotificationsRouter);
 
 app.use(errorHandler);
 
-app.listen(env.PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${env.PORT}`);
-});
+if (process.env.NODE_ENV !== "production") {
+  app.listen(env.PORT, () => {
+    console.log(`Servidor corriendo en http://localhost:${env.PORT}`);
+  });
+}
 
 export default app;
