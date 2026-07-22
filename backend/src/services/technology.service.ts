@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "../config/supabase.js";
+import { toCamelCaseKeys } from "../utils/case.js";
 
 export const technologyService = {
   async getAll() {
@@ -47,7 +48,7 @@ export const technologyService = {
       .single();
 
     if (error) throw error;
-    return created;
+    return toCamelCaseKeys(created);
   },
 
   async update(id: string, data: Record<string, unknown>) {
@@ -64,7 +65,7 @@ export const technologyService = {
       .single();
 
     if (error) throw error;
-    return updated;
+    return toCamelCaseKeys(updated);
   },
 
   async remove(id: string) {

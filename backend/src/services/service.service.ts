@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "../config/supabase.js";
+import { toCamelCaseKeys } from "../utils/case.js";
 
 export const serviceService = {
   async getAll() {
@@ -8,7 +9,7 @@ export const serviceService = {
       .order("display_order", { ascending: true });
 
     if (error) throw error;
-    return data ?? [];
+    return (data ?? []).map(toCamelCaseKeys);
   },
 
   async create(data: Record<string, unknown>) {
@@ -26,7 +27,7 @@ export const serviceService = {
       .single();
 
     if (error) throw error;
-    return created;
+    return toCamelCaseKeys(created);
   },
 
   async update(id: string, data: Record<string, unknown>) {
@@ -46,7 +47,7 @@ export const serviceService = {
       .single();
 
     if (error) throw error;
-    return updated;
+    return toCamelCaseKeys(updated);
   },
 
   async remove(id: string) {

@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "../config/supabase.js";
+import { toCamelCaseKeys } from "../utils/case.js";
 
 export const skillCategoryService = {
   async getAll() {
@@ -17,14 +18,14 @@ export const skillCategoryService = {
           .eq("skill_category_id", cat.id)
           .order("display_order", { ascending: true });
 
-        return {
+        return toCamelCaseKeys({
           ...cat,
           technologies: (techs ?? []).map((t) => ({
             id: t.id,
             name: t.name,
             displayOrder: t.display_order,
           })),
-        };
+        });
       }),
     );
     return techResults;
@@ -43,7 +44,7 @@ export const skillCategoryService = {
       .single();
 
     if (error) throw error;
-    return created;
+    return toCamelCaseKeys(created);
   },
 
   async update(id: string, data: Record<string, unknown>) {
@@ -61,7 +62,7 @@ export const skillCategoryService = {
       .single();
 
     if (error) throw error;
-    return updated;
+    return toCamelCaseKeys(updated);
   },
 
   async remove(id: string) {
@@ -91,6 +92,6 @@ export const skillCategoryService = {
       .select();
 
     if (insError) throw insError;
-    return inserted;
+    return (inserted ?? []).map(toCamelCaseKeys);
   },
 };

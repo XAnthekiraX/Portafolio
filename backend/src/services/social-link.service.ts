@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "../config/supabase.js";
+import { toCamelCaseKeys } from "../utils/case.js";
 
 export const socialLinkService = {
   async getAll(profileId: string) {
@@ -9,7 +10,7 @@ export const socialLinkService = {
       .order("platform");
 
     if (error) throw error;
-    return data ?? [];
+    return (data ?? []).map(toCamelCaseKeys);
   },
 
   async create(data: Record<string, unknown>) {
@@ -25,7 +26,7 @@ export const socialLinkService = {
       .single();
 
     if (error) throw error;
-    return created;
+    return toCamelCaseKeys(created);
   },
 
   async update(id: string, data: Record<string, unknown>) {
@@ -42,7 +43,7 @@ export const socialLinkService = {
       .single();
 
     if (error) throw error;
-    return updated;
+    return toCamelCaseKeys(updated);
   },
 
   async remove(id: string) {
