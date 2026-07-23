@@ -246,11 +246,11 @@ function appendFormData(formData: FormData, payload: CreateProjectPayload) {
   if (payload.category !== undefined) formData.append("category", payload.category);
   if (payload.url !== undefined) {
     formData.append("url", payload.url);
-    formData.append("demoUrl", payload.url);
+    formData.append("repoUrl", payload.url);
   }
   if (payload.repository !== undefined) {
     formData.append("repository", payload.repository);
-    formData.append("repoUrl", payload.repository);
+    formData.append("demoUrl", payload.repository);
   }
   if (payload.features?.length) formData.append("features", JSON.stringify(payload.features));
   if (payload.status) formData.append("status", payload.status);
@@ -267,8 +267,8 @@ export async function createProject(payload: CreateProjectPayload, image?: File)
     return { data: mapProject(data) };
   }
   const body: Record<string, unknown> = { ...payload };
-  body.demoUrl = payload.url;
-  body.repoUrl = payload.repository;
+  body.repoUrl = payload.url;
+  body.demoUrl = payload.repository;
   if (payload.features?.length) body.features = payload.features;
   if (payload.category !== undefined) body.category = payload.category;
   const data = await http.post<BackendProject>("/api/admin/projects", body);
@@ -288,8 +288,8 @@ export async function updateProject(id: string, payload: CreateProjectPayload, i
   for (const key of projectKeys) {
     if (payload[key] !== undefined) body[key] = payload[key];
   }
-  if (payload.url !== undefined) body.demoUrl = payload.url;
-  if (payload.repository !== undefined) body.repoUrl = payload.repository;
+  if (payload.url !== undefined) body.repoUrl = payload.url;
+  if (payload.repository !== undefined) body.demoUrl = payload.repository;
   if (payload.features !== undefined) body.features = payload.features;
   if (payload.technologies !== undefined) body.technologies = payload.technologies;
   const data = await http.patch<BackendProject>(`/api/admin/projects/${id}`, body);
