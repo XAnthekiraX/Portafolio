@@ -136,12 +136,26 @@ export function Projects() {
                     : "Oculto"}
                 </Badge>
                 <div className="flex gap-2">
-                  <Button variant="ghost" className="!p-1.5">
+                  <a
+                    href={p.url || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center p-1.5 rounded hover:bg-zinc-700 transition-colors"
+                    onClick={(e) => !p.url && e.preventDefault()}
+                    aria-label="Abrir demo"
+                  >
                     <ExternalLink className="w-4 h-4" />
-                  </Button>
-                  <Button variant="ghost" className="!p-1.5">
+                  </a>
+                  <a
+                    href={p.repository || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center p-1.5 rounded hover:bg-zinc-700 transition-colors"
+                    onClick={(e) => !p.repository && e.preventDefault()}
+                    aria-label="Ver repositorio"
+                  >
                     <Github className="w-4 h-4" />
-                  </Button>
+                  </a>
                 </div>
               </div>
             </div>
