@@ -136,6 +136,7 @@ const contactSchema = z.object({
 |-------|------|-----|-----------|
 | name | string | 255 | sí |
 | email | email | 255 | sí |
-| url | string (url) | 2048 | según contexto |
+| repoUrl | string (url) | 2048 | no |
+| demoUrl | string (url) | 2048 | no |
 | description | text | 5000 | no |
 | display_order | integer | — | default 0 |

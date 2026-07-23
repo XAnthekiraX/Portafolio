@@ -67,8 +67,8 @@ export interface AdminProject {
   description: string
   category: string
   imageUrl: string
-  url: string
-  repository: string
+  demoUrl: string
+  repoUrl: string
   features: string[]
   technologies: string[]
   status: "published" | "draft" | "hidden"

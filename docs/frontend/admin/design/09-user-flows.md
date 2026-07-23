@@ -108,7 +108,7 @@
 ### Flujo de Edición de Proyecto (Modal)
 1. Usuario hace click en icono pencil de una tarjeta
 2. Modal "Editar proyecto" se abre con overlay
-3. Usuario modifica campos (título, descripción, URL, repo, imagen, tecnologías, estado, orden)
+3. Usuario modifica campos (título, descripción, URL demo, repo, imagen, tecnologías, estado, orden)
 4. Opcional: remueve tecnología con X, agrega con "+"
 5. Cambia estado entre Publicado / Borrador / Oculto
 6. Guarda cambios o cancela

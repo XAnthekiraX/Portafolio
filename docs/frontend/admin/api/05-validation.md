@@ -116,8 +116,8 @@ Mismas reglas que POST. Todos los campos son opcionales (merge parcial).
 | title | string | sí | 1-200 caracteres |
 | description | string | sí | 1-2000 caracteres |
 | image | file | no | Imagen. Formatos: jpg, png, webp. Máximo 10MB |
-| url | string | no | URL válida (http/https) |
-| repository | string | no | URL válida (http/https) |
+| demoUrl | string | no | URL válida (http/https) |
+| repoUrl | string | no | URL válida (http/https) |
 | technologies | array[string] | no | Cada string: 1-100 caracteres |
 | status | enum | no | "published", "draft" o "hidden". Default: "draft" |
 | displayOrder | integer | no | Entero positivo |

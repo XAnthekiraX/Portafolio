@@ -64,8 +64,6 @@ export type ProjectPublic = {
   features: string[];
   repoUrl: string | null;
   demoUrl: string | null;
-  url: string | null;
-  repository: string | null;
   status: string;
   visits: number;
   displayOrder: number;

@@ -66,8 +66,6 @@ router.post("/", uploadImage.single("image"), async (req, res, next) => {
       title: req.body.title,
       description: req.body.description ?? null,
       category: req.body.category ?? null,
-      url: req.body.url ?? null,
-      repository: req.body.repository ?? null,
       repoUrl: req.body.repoUrl ?? null,
       demoUrl: req.body.demoUrl ?? null,
       status: req.body.status ?? "draft",
@@ -123,7 +121,7 @@ router.patch("/:id", uploadImage.single("image"), async (req, res, next) => {
     const features = parseJsonArray(req.body.features);
 
     const parsed: Record<string, unknown> = {};
-    const optionalFields = ["title", "description", "category", "url", "repository", "repoUrl", "demoUrl", "status"] as const;
+    const optionalFields = ["title", "description", "category", "repoUrl", "demoUrl", "status"] as const;
     for (const field of optionalFields) {
       if (req.body[field] !== undefined) parsed[field] = req.body[field];
     }

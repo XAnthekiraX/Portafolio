@@ -86,8 +86,6 @@ CREATE TABLE projects (
     features JSONB DEFAULT '[]'::jsonb,
     repo_url TEXT,
     demo_url TEXT,
-    url TEXT,
-    repository TEXT,
     status VARCHAR(20) NOT NULL DEFAULT 'draft'
         CHECK (status IN ('published', 'draft', 'hidden')),
     visits INTEGER NOT NULL DEFAULT 0,

@@ -137,21 +137,21 @@ export function Projects() {
                 </Badge>
                 <div className="flex gap-2">
                   <a
-                    href={p.url || "#"}
+                    href={p.demoUrl || "#"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center p-1.5 rounded hover:bg-zinc-700 transition-colors"
-                    onClick={(e) => !p.url && e.preventDefault()}
+                    onClick={(e) => !p.demoUrl && e.preventDefault()}
                     aria-label="Abrir demo"
                   >
                     <ExternalLink className="w-4 h-4" />
                   </a>
                   <a
-                    href={p.repository || "#"}
+                    href={p.repoUrl || "#"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center p-1.5 rounded hover:bg-zinc-700 transition-colors"
-                    onClick={(e) => !p.repository && e.preventDefault()}
+                    onClick={(e) => !p.repoUrl && e.preventDefault()}
                     aria-label="Ver repositorio"
                   >
                     <Github className="w-4 h-4" />
@@ -276,8 +276,8 @@ export function Projects() {
             title: editing.title,
             description: editing.description,
             category: editing.category,
-            url: editing.url,
-            repository: editing.repository,
+            demoUrl: editing.demoUrl,
+            repoUrl: editing.repoUrl,
             features: editing.features,
             technologies: editing.technologies,
             status: editing.status,

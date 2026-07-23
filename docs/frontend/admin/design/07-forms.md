@@ -26,7 +26,7 @@
 |---|---|---|---|
 | Título del proyecto | text | E-Commerce Platform | readonly |
 | Descripción | textarea | "Tienda online completa..." | readonly |
-| URL del proyecto | text | https://ecom.carlosdev.io | readonly |
+| URL Demo | text | https://ecom.carlosdev.io | readonly |
 | Repositorio | text | github.com/carlos/ecom | readonly |
 | Imagen de preview | file (dropzone) | — | interactivo (prototipo) |
 | Tecnologías | tag-list | Next.js, Stripe, Prisma, PostgreSQL | interactivo (prototipo) |

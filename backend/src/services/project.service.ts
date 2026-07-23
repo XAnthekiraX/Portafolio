@@ -43,8 +43,6 @@ export const projectService = {
     if (data.features !== undefined) dbData.features = data.features;
     if (data.repoUrl !== undefined) { dbData.repo_url = data.repoUrl; }
     if (data.demoUrl !== undefined) { dbData.demo_url = data.demoUrl; }
-    if (data.url !== undefined) dbData.url = data.url;
-    if (data.repository !== undefined) dbData.repository = data.repository;
     if (data.status !== undefined) dbData.status = data.status;
     if (data.visits !== undefined) dbData.visits = data.visits;
     if (data.displayOrder !== undefined) { dbData.display_order = data.displayOrder; }
@@ -68,8 +66,6 @@ export const projectService = {
     if (data.features !== undefined) dbData.features = data.features;
     if (data.repoUrl !== undefined) dbData.repo_url = data.repoUrl;
     if (data.demoUrl !== undefined) dbData.demo_url = data.demoUrl;
-    if (data.url !== undefined) dbData.url = data.url;
-    if (data.repository !== undefined) dbData.repository = data.repository;
     if (data.status !== undefined) dbData.status = data.status;
     if (data.visits !== undefined) dbData.visits = data.visits;
     if (data.displayOrder !== undefined) dbData.display_order = data.displayOrder;
@@ -151,8 +147,6 @@ export const projectService = {
       features: (project.features as string[]) ?? [],
       repoUrl: project.repo_url,
       demoUrl: project.demo_url,
-      url: project.url,
-      repository: project.repository,
       status: project.status,
       visits: project.visits,
       displayOrder: project.display_order,

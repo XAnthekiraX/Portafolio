@@ -43,8 +43,6 @@ export interface BackendProject {
   description: string | null;
   category: string | null;
   imageUrl: string | null;
-  url: string | null;
-  repository: string | null;
   features: string[];
   repoUrl: string | null;
   demoUrl: string | null;

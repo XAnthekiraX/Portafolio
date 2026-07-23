@@ -10,8 +10,8 @@ interface ProjectModalProps {
     title: string
     description: string
     category: string
-    url: string
-    repository: string
+    demoUrl: string
+    repoUrl: string
     features: string[]
     technologies: string[]
     status: string
@@ -21,8 +21,8 @@ interface ProjectModalProps {
     title: string
     description?: string
     category?: string
-    url?: string
-    repository?: string
+    demoUrl?: string
+    repoUrl?: string
     features?: string[]
     technologies?: string[]
     status?: string
@@ -42,8 +42,8 @@ export function ProjectModal({
   const [title, setTitle] = useState(initial?.title ?? "")
   const [description, setDescription] = useState(initial?.description ?? "")
   const [category, setCategory] = useState(initial?.category ?? "")
-  const [url, setUrl] = useState(initial?.url ?? "")
-  const [repository, setRepository] = useState(initial?.repository ?? "")
+  const [demoUrl, setDemoUrl] = useState(initial?.demoUrl ?? "")
+  const [repoUrl, setRepoUrl] = useState(initial?.repoUrl ?? "")
   const [techInput, setTechInput] = useState("")
   const [technologies, setTechnologies] = useState<string[]>(initial?.technologies ?? [])
   const [featureInput, setFeatureInput] = useState("")
@@ -115,16 +115,16 @@ export function ProjectModal({
               onChange={(e) => setCategory(e.target.value)}
             />
             <Input
-              label="URL"
+              label="URL Demo"
               placeholder="https://example.com"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
+              value={demoUrl}
+              onChange={(e) => setDemoUrl(e.target.value)}
             />
             <Input
               label="Repositorio"
               placeholder="https://github.com/user/repo"
-              value={repository}
-              onChange={(e) => setRepository(e.target.value)}
+              value={repoUrl}
+              onChange={(e) => setRepoUrl(e.target.value)}
             />
 
             <div>
@@ -259,8 +259,8 @@ export function ProjectModal({
                     title: title.trim(),
                     description: description.trim() || undefined,
                     category: category.trim() || undefined,
-                    url: url.trim() || undefined,
-                    repository: repository.trim() || undefined,
+                    demoUrl: demoUrl.trim() || undefined,
+                    repoUrl: repoUrl.trim() || undefined,
                     features: features.length ? features : undefined,
                     technologies: technologies.length ? technologies : undefined,
                     status,

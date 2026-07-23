@@ -121,8 +121,6 @@ contact_messages (independiente, solo escritura pública)
 | features | JSONB | DEFAULT '[]'::jsonb |
 | repo_url | TEXT | |
 | demo_url | TEXT | |
-| url | TEXT | |
-| repository | TEXT | |
 | status | VARCHAR(20) | NOT NULL DEFAULT 'draft' CHECK (published,draft,hidden) |
 | visits | INTEGER | NOT NULL DEFAULT 0 |
 | display_order | INTEGER | NOT NULL DEFAULT 0 |

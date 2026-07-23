@@ -664,8 +664,8 @@ Obtiene todos los proyectos del portafolio.
       "title": "string",
       "description": "string",
       "imageUrl": "string",
-      "url": "string",
-      "repository": "string",
+      "demoUrl": "string",
+      "repoUrl": "string",
       "technologies": ["string"],
       "status": "published" | "draft" | "hidden",
       "visits": "integer",
@@ -690,8 +690,8 @@ Crea un nuevo proyecto. Envío como `multipart/form-data`.
 | title | string | sí |
 | description | string | sí |
 | image | file | no (imagen) |
-| url | string | no |
-| repository | string | no |
+| demoUrl | string | no |
+| repoUrl | string | no |
 | technologies | string[] | no (array JSON) |
 | status | string | no (default: "draft") |
 | displayOrder | integer | no |
@@ -705,8 +705,8 @@ Crea un nuevo proyecto. Envío como `multipart/form-data`.
     "title": "string",
     "description": "string",
     "imageUrl": "string",
-    "url": "string",
-    "repository": "string",
+    "demoUrl": "string",
+    "repoUrl": "string",
     "technologies": ["string"],
     "status": "published" | "draft" | "hidden",
     "visits": 0,
@@ -730,8 +730,8 @@ Actualiza un proyecto existente. Envío como `multipart/form-data`.
 | title | string | no |
 | description | string | no |
 | image | file | no (reemplaza imagen) |
-| url | string | no |
-| repository | string | no |
+| demoUrl | string | no |
+| repoUrl | string | no |
 | technologies | string[] | no (array JSON) |
 | status | string | no |
 | displayOrder | integer | no |
@@ -745,8 +745,8 @@ Actualiza un proyecto existente. Envío como `multipart/form-data`.
     "title": "string",
     "description": "string",
     "imageUrl": "string",
-    "url": "string",
-    "repository": "string",
+    "demoUrl": "string",
+    "repoUrl": "string",
     "technologies": ["string"],
     "status": "published" | "draft" | "hidden",
     "visits": "integer",

@@ -54,8 +54,8 @@ function mapProject(p: BackendProject): AdminProject {
     description: p.description ?? "",
     category: p.category ?? "",
     imageUrl: p.imageUrl ?? "",
-    url: p.url ?? "",
-    repository: p.repository ?? "",
+    demoUrl: p.demoUrl ?? "",
+    repoUrl: p.repoUrl ?? "",
     features: p.features ?? [],
     technologies: p.technologies.map((t) => t.name),
     status: p.status as AdminProject["status"],
@@ -232,8 +232,8 @@ export interface CreateProjectPayload {
   title: string;
   description?: string;
   category?: string;
-  url?: string;
-  repository?: string;
+  demoUrl?: string;
+  repoUrl?: string;
   features?: string[];
   technologies?: string[];
   status?: string;
@@ -244,13 +244,11 @@ function appendFormData(formData: FormData, payload: CreateProjectPayload) {
   formData.append("title", payload.title);
   if (payload.description !== undefined) formData.append("description", payload.description);
   if (payload.category !== undefined) formData.append("category", payload.category);
-  if (payload.url !== undefined) {
-    formData.append("url", payload.url);
-    formData.append("demoUrl", payload.url);
+  if (payload.demoUrl !== undefined) {
+    formData.append("demoUrl", payload.demoUrl);
   }
-  if (payload.repository !== undefined) {
-    formData.append("repository", payload.repository);
-    formData.append("repoUrl", payload.repository);
+  if (payload.repoUrl !== undefined) {
+    formData.append("repoUrl", payload.repoUrl);
   }
   if (payload.features?.length) formData.append("features", JSON.stringify(payload.features));
   if (payload.status) formData.append("status", payload.status);
@@ -267,8 +265,6 @@ export async function createProject(payload: CreateProjectPayload, image?: File)
     return { data: mapProject(data) };
   }
   const body: Record<string, unknown> = { ...payload };
-  body.repoUrl = payload.repository;
-  body.demoUrl = payload.url;
   if (payload.features?.length) body.features = payload.features;
   if (payload.category !== undefined) body.category = payload.category;
   const data = await http.post<BackendProject>("/api/admin/projects", body);
@@ -284,12 +280,10 @@ export async function updateProject(id: string, payload: CreateProjectPayload, i
     return { data: mapProject(data) };
   }
   const body: Record<string, unknown> = {};
-  const projectKeys = ["title", "description", "category", "url", "repository", "status", "displayOrder"] as const;
+  const projectKeys = ["title", "description", "category", "demoUrl", "repoUrl", "status", "displayOrder"] as const;
   for (const key of projectKeys) {
     if (payload[key] !== undefined) body[key] = payload[key];
   }
-  if (payload.url !== undefined) body.demoUrl = payload.url;
-  if (payload.repository !== undefined) body.repoUrl = payload.repository;
   if (payload.features !== undefined) body.features = payload.features;
   if (payload.technologies !== undefined) body.technologies = payload.technologies;
   const data = await http.patch<BackendProject>(`/api/admin/projects/${id}`, body);

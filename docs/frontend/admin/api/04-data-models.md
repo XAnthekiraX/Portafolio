@@ -168,8 +168,8 @@ El CV se almacena como URL en `profiles.cv_url`. No existe una tabla separada.
   "title": "string",
   "description": "string",
   "imageUrl": "string",
-  "url": "string",
-  "repository": "string",
+  "demoUrl": "string",
+  "repoUrl": "string",
   "technologies": ["string"],
   "status": "published" | "draft" | "hidden",
   "visits": "integer",
@@ -185,8 +185,8 @@ El CV se almacena como URL en `profiles.cv_url`. No existe una tabla separada.
 | title | string | Título del proyecto |
 | description | string | Descripción del proyecto |
 | imageUrl | string | URL de la imagen de preview (generada tras upload) |
-| url | string | URL del proyecto en vivo |
-| repository | string | URL del repositorio |
+| demoUrl | string | URL de la demo en vivo |
+| repoUrl | string | URL del repositorio |
 | technologies | array[string] | Lista de tecnologías usadas |
 | status | enum | "published", "draft", "hidden" |
 | visits | integer | Contador de visitas |
