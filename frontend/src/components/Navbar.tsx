@@ -2,16 +2,15 @@ import { useState, useEffect } from "react";
 import { Menu } from "lucide-react";
 import { Logo } from "./Logo";
 import { ThemeToggle } from "./ThemeToggle";
-import { LanguageSwitcher } from "./LanguageSwitcher";
 import { MobileDrawer } from "./MobileDrawer";
 import { useProfile } from "../hooks/useProfile";
 
 const links = [
-  { href: "#about", label: "About" },
-  { href: "#skills", label: "Skills" },
-  { href: "#projects", label: "Projects" },
-  { href: "#education", label: "Education" },
-  { href: "#services", label: "Services" },
+  { href: "#about", label: "Sobre mi" },
+  { href: "#skills", label: "Habilidades" },
+  { href: "#projects", label: "Proyectos" },
+  { href: "#education", label: "Formacion" },
+  { href: "#services", label: "Servicios" },
 ];
 
 export function Navbar() {
@@ -51,7 +50,6 @@ export function Navbar() {
             </div>
 
             <div className="flex items-center gap-2 md:gap-4">
-              <LanguageSwitcher />
               <ThemeToggle />
 
               <a
@@ -65,7 +63,7 @@ export function Navbar() {
                 type="button"
                 onClick={() => setMobileOpen(true)}
                 className="rounded-md p-2 text-dark-100 transition-colors hover:bg-dark-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:hidden"
-                aria-label="Open menu"
+                aria-label="Abrir menu"
               >
                 <Menu className="h-6 w-6" />
               </button>

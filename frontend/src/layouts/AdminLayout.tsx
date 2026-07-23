@@ -4,14 +4,14 @@ import { Sidebar } from "../components/admin/Sidebar"
 import { Topbar } from "../components/admin/Topbar"
 
 const viewTitles: Record<string, string> = {
-  "/admin": "Dashboard",
-  "/admin/profile": "Profile",
-  "/admin/skills": "Skills",
+  "/admin": "Panel",
+  "/admin/profile": "Perfil",
+  "/admin/skills": "Habilidades",
   "/admin/cv": "CV",
-  "/admin/education": "Education",
-  "/admin/technologies": "Technologies",
-  "/admin/projects": "Projects",
-  "/admin/services": "Services",
+  "/admin/education": "Formacion",
+  "/admin/technologies": "Tecnologias",
+  "/admin/projects": "Proyectos",
+  "/admin/services": "Servicios",
 }
 
 export function AdminLayout() {

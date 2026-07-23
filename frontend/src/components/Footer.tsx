@@ -13,19 +13,19 @@ export function Footer() {
 
           <div className="flex gap-6 text-sm text-dark-400">
             <a href="#about" className="transition-colors hover:text-dark-100">
-              About
+              Sobre mi
             </a>
             <a
               href="#projects"
               className="transition-colors hover:text-dark-100"
             >
-              Projects
+              Proyectos
             </a>
             <a
               href="#contact"
               className="transition-colors hover:text-dark-100"
             >
-              Contact
+              Contacto
             </a>
           </div>
 

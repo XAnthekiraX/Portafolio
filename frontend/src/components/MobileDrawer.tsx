@@ -6,11 +6,11 @@ interface MobileDrawerProps {
 }
 
 const links = [
-  { href: "#about", label: "About" },
-  { href: "#skills", label: "Skills" },
-  { href: "#projects", label: "Projects" },
-  { href: "#education", label: "Education" },
-  { href: "#services", label: "Services" },
+  { href: "#about", label: "Sobre mi" },
+  { href: "#skills", label: "Habilidades" },
+  { href: "#projects", label: "Proyectos" },
+  { href: "#education", label: "Formacion" },
+  { href: "#services", label: "Servicios" },
 ];
 
 export function MobileDrawer({ open, onClose }: MobileDrawerProps) {

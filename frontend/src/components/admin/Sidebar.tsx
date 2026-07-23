@@ -16,24 +16,24 @@ const navGroups = [
   {
     label: "General",
     items: [
-      { to: "/admin", label: "Dashboard", icon: LayoutDashboard },
+      { to: "/admin", label: "Panel", icon: LayoutDashboard },
     ],
   },
   {
-    label: "Profile",
+    label: "Perfil",
     items: [
-      { to: "/admin/profile", label: "Profile", icon: User },
-      { to: "/admin/skills", label: "Skills", icon: Zap },
+      { to: "/admin/profile", label: "Perfil", icon: User },
+      { to: "/admin/skills", label: "Habilidades", icon: Zap },
       { to: "/admin/cv", label: "CV", icon: FileText },
-      { to: "/admin/education", label: "Education", icon: GraduationCap },
+      { to: "/admin/education", label: "Formacion", icon: GraduationCap },
     ],
   },
   {
-    label: "Content",
+    label: "Contenido",
     items: [
-      { to: "/admin/technologies", label: "Technologies", icon: Cpu },
-      { to: "/admin/projects", label: "Projects", icon: FolderKanban },
-      { to: "/admin/services", label: "Services", icon: Briefcase },
+      { to: "/admin/technologies", label: "Tecnologias", icon: Cpu },
+      { to: "/admin/projects", label: "Proyectos", icon: FolderKanban },
+      { to: "/admin/services", label: "Servicios", icon: Briefcase },
     ],
   },
 ]
@@ -44,7 +44,7 @@ export function Sidebar() {
   return (
     <aside
       role="navigation"
-      aria-label="Admin navigation"
+      aria-label="Navegacion admin"
       className="w-64 min-w-64 bg-zinc-900 border-r border-zinc-700 flex flex-col z-40 transition-all duration-300 max-lg:w-16 max-lg:min-w-16 max-md:fixed max-md:-left-64 max-md:w-64 max-md:top-0 max-md:bottom-0 max-md:z-50 max-md:data-[open=true]:left-0"
       id="sidebar"
     >
