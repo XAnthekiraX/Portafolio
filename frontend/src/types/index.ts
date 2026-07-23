@@ -36,8 +36,8 @@ export interface Project {
   category: string;
   imageUrl: string;
   features: string[];
-  repoUrl: string;
-  demoUrl: string;
+  repoUrl: string | null;
+  demoUrl: string | null;
 }
 
 export interface EducationItem {

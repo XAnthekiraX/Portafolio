@@ -232,8 +232,8 @@ export interface CreateProjectPayload {
   title: string;
   description?: string;
   category?: string;
-  demoUrl?: string;
-  repoUrl?: string;
+  demoUrl?: string | null;
+  repoUrl?: string | null;
   features?: string[];
   technologies?: string[];
   status?: string;
@@ -245,10 +245,10 @@ function appendFormData(formData: FormData, payload: CreateProjectPayload) {
   if (payload.description !== undefined) formData.append("description", payload.description);
   if (payload.category !== undefined) formData.append("category", payload.category);
   if (payload.demoUrl !== undefined) {
-    formData.append("demoUrl", payload.demoUrl);
+    formData.append("demoUrl", payload.demoUrl ?? "");
   }
   if (payload.repoUrl !== undefined) {
-    formData.append("repoUrl", payload.repoUrl);
+    formData.append("repoUrl", payload.repoUrl ?? "");
   }
   if (payload.features?.length) formData.append("features", JSON.stringify(payload.features));
   if (payload.status) formData.append("status", payload.status);

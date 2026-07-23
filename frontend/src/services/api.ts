@@ -58,8 +58,8 @@ function mapProject(p: BackendProject): Project {
         category: p.category ?? "",
         imageUrl: p.imageUrl ?? "",
         features: p.features ?? [],
-        repoUrl: p.repoUrl ?? "",
-        demoUrl: p.demoUrl ?? "",
+        repoUrl: p.repoUrl ?? null,
+        demoUrl: p.demoUrl ?? null,
     };
 }
 

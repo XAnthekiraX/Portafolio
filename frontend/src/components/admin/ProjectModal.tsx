@@ -21,8 +21,8 @@ interface ProjectModalProps {
     title: string
     description?: string
     category?: string
-    demoUrl?: string
-    repoUrl?: string
+    demoUrl?: string | null
+    repoUrl?: string | null
     features?: string[]
     technologies?: string[]
     status?: string
@@ -259,8 +259,8 @@ export function ProjectModal({
                     title: title.trim(),
                     description: description.trim() || undefined,
                     category: category.trim() || undefined,
-                    demoUrl: demoUrl.trim() || undefined,
-                    repoUrl: repoUrl.trim() || undefined,
+                    demoUrl: demoUrl.trim() || null,
+                    repoUrl: repoUrl.trim() || null,
                     features: features.length ? features : undefined,
                     technologies: technologies.length ? technologies : undefined,
                     status,
